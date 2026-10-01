@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
@@ -66,6 +68,7 @@ export function OrdersPanel() {
                 <p className="text-sm text-muted-foreground">{o.customer_name || "নাম নেই"} • {o.customer_phone}</p>
                 <p className="text-xs text-subtle-foreground">
                   {paymentLabel(o.payment_method)} • প্রেরক: {o.sender_number} • TrxID: <b>{o.transaction_id}</b> • {new Date(o.created_at).toLocaleString("bn-BD")}
+                  {o.payment_proof && <ProofLink path={o.payment_proof} />}
                   {o.customer_note && <span className="mt-1 block font-semibold text-primary">অ্যাক্টিভেশন তথ্য: {o.customer_note}</span>}
                 </p>
               </div>
@@ -152,5 +155,17 @@ function DeliveryEditor({ order }: { order: { id: string; delivery_status: strin
       <Input className="h-9 flex-1" value={note} onChange={(e) => setNote(e.target.value)} placeholder="গ্রাহকের জন্য বার্তা, যেমন: আপনার ইমেইলে ইনভাইট পাঠানো হয়েছে" maxLength={1000} />
       <Button size="sm" onClick={() => run(() => save({ data: { id: order.id, delivery_status: st as "waiting", delivery_note: note } }), "ডেলিভারি আপডেট হয়েছে", [["admin-orders"]])}>সেভ</Button>
     </div>
+  );
+}
+
+function ProofLink({ path }: { path: string }) {
+  return (
+    <button type="button" className="mt-1 block font-semibold text-primary underline"
+      onClick={async () => {
+        const { data } = await supabase.storage.from("payment-proofs").createSignedUrl(path, 120);
+        if (data) window.open(data.signedUrl, "_blank", "noopener"); else toast.error("স্ক্রিনশট খোলা যায়নি");
+      }}>
+      পেমেন্টের স্ক্রিনশট দেখুন
+    </button>
   );
 }

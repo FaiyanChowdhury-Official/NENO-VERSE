@@ -1,8 +1,11 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Logo } from "./Logo";
 
 const navItems = [
@@ -14,6 +17,17 @@ const navItems = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/85 backdrop-blur">
@@ -35,13 +49,27 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/login">লগইন</Link>
-          </Button>
-          <Button asChild size="sm" className="rounded-full px-5 font-semibold">
-            <Link to="/register">অ্যাকাউন্ট খুলুন</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/dashboard">ড্যাশবোর্ড</Link>
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full" onClick={signOut}>
+                লগআউট
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/auth">লগইন</Link>
+              </Button>
+              <Button asChild size="sm" className="rounded-full px-5 font-semibold">
+                <Link to="/auth" search={{ mode: "signup" }}>অ্যাকাউন্ট খুলুন</Link>
+              </Button>
+            </>
+          )}
         </div>
+
 
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild className="md:hidden">
@@ -63,12 +91,25 @@ export function Header() {
                 </Link>
               ))}
               <div className="mt-4 flex flex-col gap-2">
-                <Button asChild variant="outline" onClick={() => setOpen(false)}>
-                  <Link to="/login">লগইন</Link>
-                </Button>
-                <Button asChild onClick={() => setOpen(false)}>
-                  <Link to="/register">অ্যাকাউন্ট খুলুন</Link>
-                </Button>
+                {user ? (
+                  <>
+                    <Button asChild onClick={() => setOpen(false)}>
+                      <Link to="/dashboard">ড্যাশবোর্ড</Link>
+                    </Button>
+                    <Button variant="outline" onClick={() => { setOpen(false); void signOut(); }}>
+                      লগআউট
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button asChild variant="outline" onClick={() => setOpen(false)}>
+                      <Link to="/auth">লগইন</Link>
+                    </Button>
+                    <Button asChild onClick={() => setOpen(false)}>
+                      <Link to="/auth" search={{ mode: "signup" }}>অ্যাকাউন্ট খুলুন</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </SheetContent>

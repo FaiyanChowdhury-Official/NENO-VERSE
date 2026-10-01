@@ -3,8 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
-import { PlayCircle, Lock } from "lucide-react";
-import { getCourseContent } from "@/lib/orders.functions";
+import { Lock } from "lucide-react";
+import { getCourseContent, getLessonStream } from "@/lib/orders.functions";
+import { SecurePlayer } from "@/components/site/SecurePlayer";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/learn/$slug")({
@@ -20,24 +21,21 @@ export const Route = createFileRoute("/_authenticated/learn/$slug")({
   component: LearnPage,
 });
 
-function embedUrl(url: string): { type: "iframe" | "video"; src: string } | null {
-  if (!url) return null;
-  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/);
-  if (yt) return { type: "iframe", src: `https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0&modestbranding=1` };
-  const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (vm) return { type: "iframe", src: `https://player.vimeo.com/video/${vm[1]}` };
-  const gd = url.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
-  if (gd) return { type: "iframe", src: `https://drive.google.com/file/d/${gd[1]}/preview` };
-  if (/\.(mp4|webm|m3u8)(\?|$)/i.test(url)) return { type: "video", src: url };
-  return { type: "iframe", src: url };
-}
-
 function LearnPage() {
   const { slug } = Route.useParams();
   const { kind = "course" } = Route.useSearch();
   const fetchContent = useServerFn(getCourseContent);
   const q = useQuery({ queryKey: ["content", kind, slug], queryFn: () => fetchContent({ data: { kind, slug } }) });
   const [idx, setIdx] = useState(0);
+  const fetchStream = useServerFn(getLessonStream);
+  const lessonId = q.data?.hasAccess ? q.data.lessons[idx]?.id : undefined;
+  const stream = useQuery({
+    queryKey: ["stream", lessonId],
+    queryFn: () => fetchStream({ data: { lessonId: lessonId! } }),
+    enabled: !!lessonId,
+    staleTime: 5 * 60_000, // signed links last 10 min; refetch before expiry
+    gcTime: 0,
+  });
 
   if (q.isLoading) return <p className="py-24 text-center text-muted-foreground">লোড হচ্ছে...</p>;
   if (!q.data?.hasAccess) {
@@ -51,24 +49,17 @@ function LearnPage() {
   }
   const { lessons, name, note } = q.data;
   const current = lessons[idx];
-  const media = current ? embedUrl(current.videoUrl) : null;
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_320px]">
       <div>
         <div className="aspect-video overflow-hidden rounded-2xl bg-foreground">
-          {media?.type === "iframe" ? (
-            <iframe key={media.src} src={media.src} title={current?.title} className="size-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />
-          ) : media?.type === "video" ? (
-            <video key={media.src} src={media.src} controls controlsList="nodownload" className="size-full" onContextMenu={(e) => e.preventDefault()} />
-          ) : (
-            <div className="flex size-full items-center justify-center text-background">
-              <div className="text-center">
-                <PlayCircle className="mx-auto size-14 opacity-80" />
-                <p className="mt-3 text-sm opacity-80">{lessons.length ? "এই ক্লাসের ভিডিও শীঘ্রই যুক্ত হবে" : "এখনো কোনো ক্লাস যুক্ত হয়নি"}</p>
-              </div>
-            </div>
-          )}
+          <SecurePlayer
+            source={stream.data ?? null}
+            title={current?.title ?? ""}
+            emptyText={!lessons.length ? "এখনো কোনো ক্লাস যুক্ত হয়নি" : stream.isLoading ? "লোড হচ্ছে..." : "এই ক্লাসের ভিডিও শীঘ্রই যুক্ত হবে"}
+            onExpired={() => stream.refetch()}
+          />
         </div>
         {current && (
           <>

@@ -1,3 +1,4 @@
+import { getDeviceId } from "@/lib/device";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -31,9 +32,9 @@ function LearnPage() {
   const lessonId = q.data?.hasAccess ? q.data.lessons[idx]?.id : undefined;
   const stream = useQuery({
     queryKey: ["stream", lessonId],
-    queryFn: () => fetchStream({ data: { lessonId: lessonId! } }),
+    queryFn: () => fetchStream({ data: { lessonId: lessonId!, deviceId: getDeviceId() } }),
     enabled: !!lessonId,
-    staleTime: 5 * 60_000, // signed links last 10 min; refetch before expiry
+    staleTime: 4 * 60_000, // signed links last 5 min; refetch before expiry
     gcTime: 0,
   });
 
@@ -54,12 +55,16 @@ function LearnPage() {
     <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_320px]">
       <div>
         <div className="aspect-video overflow-hidden rounded-2xl bg-foreground">
+          {stream.data?.kind === "blocked" ? (
+            <div className="flex h-full items-center justify-center p-6 text-center text-sm text-background">{stream.data.reason}</div>
+          ) : (
           <SecurePlayer
-            source={stream.data ?? null}
+            source={stream.data && stream.data.kind !== "blocked" ? stream.data : null}
             title={current?.title ?? ""}
             emptyText={!lessons.length ? "এখনো কোনো ক্লাস যুক্ত হয়নি" : stream.isLoading ? "লোড হচ্ছে..." : "এই ক্লাসের ভিডিও শীঘ্রই যুক্ত হবে"}
             onExpired={() => stream.refetch()}
           />
+          )}
         </div>
         {current && (
           <>

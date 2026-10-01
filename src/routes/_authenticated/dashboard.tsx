@@ -90,12 +90,12 @@ function Dashboard() {
                           <Link to="/learn/$slug" params={{ slug: o.slug }} search={{ kind: o.kind }}>ভিডিও দেখুন</Link>
                         </Button>
                       )}
-                      {o.linkUrl && (
+                      {o.hasLink && (
                         <Button asChild size="sm" variant={o.accessType === "link" ? "default" : "outline"}>
-                          <a href={o.linkUrl} target="_blank" rel="noopener noreferrer">{o.linkLabel}</a>
+                          <Link to="/access/$kind/$slug" params={{ kind: o.kind, slug: o.slug }}>{o.linkLabel}</Link>
                         </Button>
                       )}
-                      {o.accessType === "link" && !o.linkUrl && (
+                      {o.accessType === "link" && !o.hasLink && (
                         <p className="text-sm text-muted-foreground">অ্যাক্সেস লিংক শীঘ্রই যুক্ত হবে।</p>
                       )}
                     </div>

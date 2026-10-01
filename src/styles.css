@@ -193,6 +193,7 @@
 
 /* Top wallpaper stays deep blue; everything below is white. */
 @utility hero-wallpaper {
+  color: var(--foreground);
   background:
     radial-gradient(55% 70% at 78% 12%, oklch(0.5 0.16 272 / 0.75), transparent),
     radial-gradient(45% 55% at 8% 88%, oklch(0.62 0.19 48 / 0.22), transparent),

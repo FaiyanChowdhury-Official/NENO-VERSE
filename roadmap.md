@@ -15,3 +15,4 @@
 
 ## Phase 3 — Admin panel, CRM, LMS — DONE (order approval, customer list, classroom). Pending: real course videos + download files, real payment numbers, first admin account.
 - [ ] Admin CRUD: categories, products, courses, lessons (create/edit/delete), prices, access type (video lessons / link), manual access grant
+- [ ] Reviews: customer reviews on products/courses (buyers, admin-moderated) + admin-managed success stories on homepage

@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Input } from "@/components/ui/input";
-import { productCategories, products } from "@/data/catalog";
+import { useCatalog } from "@/data/catalog";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/products/")({
@@ -29,6 +29,7 @@ const sortOptions = [
 ] as const;
 
 function ProductsPage() {
+  const { productCategories, products } = useCatalog();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [sort, setSort] = useState<(typeof sortOptions)[number]["key"]>("popular");

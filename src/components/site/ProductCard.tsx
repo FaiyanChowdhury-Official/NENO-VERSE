@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { categoryName, productCategories, type Product } from "@/data/catalog";
+import { categoryName, useCatalog, type Product } from "@/data/catalog";
 import { PriceTag } from "./PriceTag";
 
 export function ProductCard({ product }: { product: Product }) {
+  const { productCategories } = useCatalog();
   return (
     <article className="surface-card hover-lift flex flex-col overflow-hidden">
       <Link

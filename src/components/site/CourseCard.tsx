@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, PlayCircle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { categoryName, courseCategories, levelLabels, type Course } from "@/data/catalog";
+import { categoryName, levelLabels, useCatalog, type Course } from "@/data/catalog";
 import { toBengaliDigits } from "@/lib/format";
 import { PriceTag } from "./PriceTag";
 
 export function CourseCard({ course }: { course: Course }) {
+  const { courseCategories } = useCatalog();
   return (
     <article className="surface-card hover-lift flex flex-col overflow-hidden">
       <Link

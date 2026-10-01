@@ -4,7 +4,7 @@ import heroImage from "@/assets/hero-dashboard.jpg";
 import { CourseCard } from "@/components/site/CourseCard";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Button } from "@/components/ui/button";
-import { courses, products } from "@/data/catalog";
+import { useCatalog } from "@/data/catalog";
 import { toBengaliDigits } from "@/lib/format";
 
 export const Route = createFileRoute("/")({
@@ -35,6 +35,7 @@ const features = [
 ];
 
 function Index() {
+  const { courses, products } = useCatalog();
   const featuredProducts = products.filter((p) => p.popular || p.isNew).slice(0, 3);
   const featuredCourses = courses.slice(0, 3);
 

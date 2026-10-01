@@ -9,12 +9,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { categoryName, courseCategories, courses, getCourse, levelLabels } from "@/data/catalog";
+import { categoryName, levelLabels, useCatalog } from "@/data/catalog";
+import { catalogQuery } from "@/lib/catalog.functions";
 import { toBengaliDigits } from "@/lib/format";
 
 export const Route = createFileRoute("/courses/$slug")({
-  loader: ({ params }) => {
-    const course = getCourse(params.slug);
+  loader: async ({ params, context }) => {
+    const cat = await context.queryClient.ensureQueryData(catalogQuery);
+    const course = cat.courses.find((c) => c.slug === params.slug);
     if (!course) throw notFound();
     return { course };
   },

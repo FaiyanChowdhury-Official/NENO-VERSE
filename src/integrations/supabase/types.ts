@@ -395,6 +395,7 @@ export type Database = {
           approved_at: string | null
           created_at: string
           customer_note: string
+          deleted_at: string | null
           delivered_at: string | null
           delivery_note: string
           delivery_status: string
@@ -417,6 +418,7 @@ export type Database = {
           approved_at?: string | null
           created_at?: string
           customer_note?: string
+          deleted_at?: string | null
           delivered_at?: string | null
           delivery_note?: string
           delivery_status?: string
@@ -439,6 +441,7 @@ export type Database = {
           approved_at?: string | null
           created_at?: string
           customer_note?: string
+          deleted_at?: string | null
           delivered_at?: string | null
           delivery_note?: string
           delivery_status?: string

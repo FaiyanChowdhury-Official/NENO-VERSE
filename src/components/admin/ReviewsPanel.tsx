@@ -30,22 +30,72 @@ export function ReviewsPanel() {
   const list = useServerFn(adminListReviews);
   const setStatus = useServerFn(adminSetReviewStatus);
   const del = useServerFn(adminDeleteReview);
+  const analyze = useServerFn(analyzeReviews);
   const run = useAdminAction();
   const reviews = useQuery({ queryKey: ["admin-reviews"], queryFn: () => list() });
   const keys = [["admin-reviews"], ["reviews"]];
+  const [selected, setSelected] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [insights, setInsights] = useState<ReviewInsights | null>(null);
+  const [aiError, setAiError] = useState("");
+
+  const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+
+  async function runAnalysis() {
+    setBusy(true); setAiError(""); setInsights(null);
+    try {
+      const r = await analyze({ data: { ids: selected.slice(0, 50) } });
+      if (r.ok) setInsights(r.insights); else setAiError(r.error);
+    } catch {
+      setAiError("AI বিশ্লেষণ ব্যর্থ হয়েছে।");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   if (reviews.isLoading) return <p className="text-muted-foreground">লোড হচ্ছে...</p>;
   if (!reviews.data?.length) return <p className="text-muted-foreground">এখনো কোনো রিভিউ আসেনি। ক্রেতারা প্রোডাক্ট/কোর্স পেজ থেকে রিভিউ দিতে পারবেন।</p>;
+  const all = reviews.data.map((r) => r.id);
   return (
-    <div className="space-y-3">
-      {reviews.data.map((r) => (
-        <div key={r.id} className="surface-card flex flex-wrap items-start justify-between gap-4 p-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2"><Stars n={r.rating} /><span className="font-semibold text-foreground">{r.reviewer_name}</span></div>
-            <p className="mt-1 text-sm text-foreground">{r.comment}</p>
-            <p className="mt-1 text-xs text-subtle-foreground">{r.item_type === "course" ? "কোর্স" : "প্রোডাক্ট"}: {r.item_slug} • {new Date(r.created_at).toLocaleDateString("bn-BD")}</p>
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-border bg-primary-soft/50 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="flex items-center gap-2 font-bold text-foreground"><Wand2 className="h-4 w-4 text-primary" /> AI রিভিউ বিশ্লেষণ</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">রিভিউ বেছে নিন — AI ভালো দিক, দুর্বল দিক ও উন্নতির পরামর্শ দেবে। (সর্বোচ্চ ৫০টি)</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={() => setSelected(selected.length === all.length ? [] : all)}>
+              {selected.length === all.length ? "সব বাদ দিন" : "সব বাছুন"}
+            </Button>
+            <Button size="sm" disabled={!selected.length || busy} onClick={runAnalysis}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+              বিশ্লেষণ করুন ({selected.length})
+            </Button>
+          </div>
+        </div>
+        {busy && <p className="mt-3 text-sm text-muted-foreground">AI রিভিউগুলো পড়ছে...</p>}
+        {aiError && <p className="mt-3 text-sm text-destructive">{aiError}</p>}
+        {insights && (
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <InsightCard title="ইতিবাচক দিক" icon={ThumbsUp} items={insights.positives} />
+            <InsightCard title="নেতিবাচক দিক" icon={ThumbsDown} items={insights.negatives} />
+            <InsightCard title="উন্নতির পরামর্শ" icon={Lightbulb} items={insights.suggestions} />
+          </div>
+        )}
+      </div>
+
+      {reviews.data.map((r) => (
+        <div key={r.id} className="surface-card flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
+          <label className="flex min-w-0 flex-1 cursor-pointer gap-3">
+            <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]" checked={selected.includes(r.id)} onChange={() => toggle(r.id)} aria-label="বিশ্লেষণের জন্য বাছুন" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2"><Stars n={r.rating} /><span className="font-semibold text-foreground">{r.reviewer_name}</span></div>
+              <p className="mt-1 break-words text-sm text-foreground">{r.comment}</p>
+              <p className="mt-1 break-words text-xs text-subtle-foreground">{r.item_type === "course" ? "কোর্স" : "প্রোডাক্ট"}: {r.item_slug} • {new Date(r.created_at).toLocaleDateString("bn-BD")}</p>
+            </div>
+          </label>
+          <div className="flex flex-wrap items-center gap-2 pl-7 sm:pl-0">
             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyle[r.status]}`}>{r.status === "approved" ? "প্রকাশিত" : orderStatusLabels[r.status]}</span>
             {r.status !== "approved" && <Button size="sm" onClick={() => run(() => setStatus({ data: { id: r.id, status: "approved" } }), "প্রকাশিত হয়েছে", keys)}>প্রকাশ করুন</Button>}
             {r.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => run(() => setStatus({ data: { id: r.id, status: "rejected" } }), "লুকানো হয়েছে", keys)}>লুকান</Button>}
@@ -53,6 +103,17 @@ export function ReviewsPanel() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function InsightCard({ title, icon: Icon, items }: { title: string; icon: typeof Star; items: string[] }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <p className="flex items-center gap-2 text-sm font-bold text-foreground"><Icon className="h-4 w-4 text-primary" />{title}</p>
+      {items.length ? (
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-foreground">{items.map((t, i) => <li key={i}>{t}</li>)}</ul>
+      ) : <p className="mt-2 text-sm text-muted-foreground">কিছু পাওয়া যায়নি।</p>}
     </div>
   );
 }

@@ -64,17 +64,17 @@ function AdminPage() {
 
   return (
     <div className="min-h-screen bg-primary-soft/40">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-3 py-4 sm:px-6 sm:py-6 lg:flex-row">
         {/* Sidebar */}
-        <aside className="shrink-0 lg:w-60">
-          <div className="rounded-2xl border border-border bg-card p-3 shadow-card lg:sticky lg:top-6">
-            <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-subtle-foreground">অ্যাডমিন মেনু</p>
-            <nav className="flex gap-1 overflow-x-auto lg:flex-col">
+        <aside className="sticky top-0 z-20 -mx-3 shrink-0 bg-primary-soft/80 px-3 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 lg:w-60">
+          <div className="rounded-2xl border border-border bg-card p-2 shadow-card sm:p-3 lg:sticky lg:top-6">
+            <p className="hidden px-3 pb-2 pt-1 text-xs lg:block font-semibold uppercase tracking-wide text-subtle-foreground">অ্যাডমিন মেনু</p>
+            <nav className="flex gap-1 overflow-x-auto [scrollbar-width:none] lg:flex-col">
               {NAV.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setSection(item.id)}
-                  className={`flex shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
+                  className={`flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium sm:px-3.5 sm:py-2.5 transition-colors ${
                     section === item.id
                       ? "bg-primary-soft text-primary-soft-foreground"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -90,14 +90,14 @@ function AdminPage() {
 
         {/* Main */}
         <main className="min-w-0 flex-1">
-          <header className="mb-6">
-            <h1 className="text-2xl font-extrabold text-foreground sm:text-3xl">স্বাগতম, অ্যাডমিন</h1>
+          <header className="mb-4 sm:mb-6">
+            <h1 className="text-xl font-extrabold text-foreground sm:text-3xl">স্বাগতম, অ্যাডমিন</h1>
             <p className="mt-1 text-sm text-muted-foreground">আপনার ব্যবসার সর্বশেষ অবস্থা এক নজরে।</p>
           </header>
 
           <StatsRow />
 
-          <div className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-card sm:p-6">
+          <div className="mt-4 rounded-2xl border border-border bg-card p-3 shadow-card sm:mt-6 sm:p-6">
             {section === "overview" && <OverviewPanel onGo={setSection} />}
             {section === "orders" && <OrdersPanel />}
             {section === "items" && <ItemsPanel />}
@@ -123,16 +123,16 @@ function StatsRow() {
     { label: "গ্রাহক", value: s ? String(s.customers) : "—", icon: Users },
   ];
   return (
-    <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
       {cards.map((c) => (
-        <div key={c.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">{c.label}</p>
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-soft text-primary-soft-foreground">
+        <div key={c.label} className="rounded-2xl border border-border bg-card p-3.5 shadow-card sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground sm:text-sm">{c.label}</p>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 bg-primary-soft text-primary-soft-foreground">
               <c.icon className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-2 text-2xl font-extrabold text-foreground">{c.value}</p>
+          <p className="mt-2 truncate text-lg font-extrabold text-foreground sm:text-2xl">{c.value}</p>
         </div>
       ))}
     </div>
@@ -174,7 +174,7 @@ function CustomersPanel() {
   const rows = (customers.data ?? []).filter((c) => !q || `${c.full_name} ${c.phone} ${c.email}`.toLowerCase().includes(q.toLowerCase()));
   return (
     <div className="space-y-4">
-      <Input className="max-w-xs" placeholder="নাম, ফোন, ইমেইল দিয়ে খুঁজুন" value={q} onChange={(e) => setQ(e.target.value)} />
+      <Input className="w-full sm:max-w-xs" placeholder="নাম, ফোন, ইমেইল দিয়ে খুঁজুন" value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full text-sm">
           <thead className="bg-muted/60 text-left text-subtle-foreground">

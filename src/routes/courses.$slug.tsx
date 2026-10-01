@@ -54,6 +54,7 @@ function CourseNotFound() {
 
 function CourseDetail() {
   const { course } = Route.useLoaderData();
+  const { courses, courseCategories } = useCatalog();
   const related = courses.filter((c) => c.slug !== course.slug).slice(0, 3);
 
   return (

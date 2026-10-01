@@ -23,10 +23,7 @@ function fail(error: { message: string } | null, msg = "সংরক্ষণ �
   }
 }
 
-const adminFn = <T extends z.ZodTypeAny>(schema: T) =>
-  createServerFn({ method: "POST" })
-    .middleware([requireSupabaseAuth])
-    .inputValidator((d: unknown) => schema.parse(d) as z.infer<T>);
+
 
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

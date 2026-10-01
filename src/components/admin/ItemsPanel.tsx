@@ -1,10 +1,8 @@
-import { useServerFn as useServerFnAi } from "@tanstack/react-start";
-import { Loader2, Wand2 } from "lucide-react";
 import { generateItemDescription, type GeneratedDescription } from "@/lib/review-insights.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Loader2, Wand2 } from "lucide-react";
 import { adminDeleteItem, adminGetItem, adminListCategories, adminListItems, adminSaveItem, type AdminItemInput } from "@/lib/admin.functions";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -117,6 +115,7 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
 
   if (!v) return <p className="text-muted-foreground">লোড হচ্ছে...</p>;
   const set = <K extends keyof AdminItemInput>(k: K, val: AdminItemInput[K]) => setV({ ...v, [k]: val });
+  const setMany = (patch: Partial<AdminItemInput>) => setV({ ...v, ...patch });
   const isCourse = v.kind === "course";
   const showLessons = v.access_type !== "link";
   const showLink = v.access_type !== "lessons";
@@ -321,7 +320,7 @@ function VideoUpload({ onUploaded, bucket = "course-videos", accept = "video/mp4
 }
 
 function AiDescribe({ name, duration, highlights, onResult }: { name: string; duration: string; highlights: string[]; onResult: (r: GeneratedDescription) => void }) {
-  const gen = useServerFnAi(generateItemDescription);
+  const gen = useServerFn(generateItemDescription);
   const [benefits, setBenefits] = useState(highlights.filter(Boolean).join(", "));
   const [dur, setDur] = useState(duration);
   const [busy, setBusy] = useState(false);

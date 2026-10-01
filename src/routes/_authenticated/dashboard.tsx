@@ -66,9 +66,13 @@ function Dashboard() {
                 <div key={o.id} className="surface-card p-5">
                   <p className="text-xs font-medium text-subtle-foreground">{o.item_type === "course" ? "কোর্স" : "ডিজিটাল প্রোডাক্ট"}</p>
                   <h3 className="mt-1 font-bold text-foreground">{o.item_name}</h3>
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    {o.item_type === "course" ? "ক্লাস শীঘ্রই এখানে দেখতে পাবেন।" : "ডাউনলোড শীঘ্রই এখানে চালু হবে।"}
-                  </p>
+                  {o.item_type === "course" ? (
+                    <Button asChild size="sm" className="mt-4">
+                      <Link to="/learn/$slug" params={{ slug: o.item_slug }}>ক্লাস শুরু করুন</Link>
+                    </Button>
+                  ) : (
+                    <p className="mt-3 text-sm text-muted-foreground">ডাউনলোড ফাইল শীঘ্রই এখানে চালু হবে।</p>
+                  )}
                 </div>
               ))}
             </div>

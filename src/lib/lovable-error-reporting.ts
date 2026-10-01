@@ -30,7 +30,7 @@ export function reportLovableError(error: unknown, context: Record<string, unkno
     error,
     {
       source: "react_error_boundary",
-      route: window.location.pathname,
+      route: "application",
       ...context,
     },
     {
@@ -46,7 +46,7 @@ export function reportLovableError(error: unknown, context: Record<string, unkno
   // opaque "[object Response]", so pull out the status and URL instead.
   const message =
     error instanceof Response
-      ? `Response ${error.status}${error.url ? ` at ${error.url}` : ""}`
+      ? `Response ${error.status}`
       : error instanceof Error
         ? error.message
         : String(error);
@@ -54,6 +54,6 @@ export function reportLovableError(error: unknown, context: Record<string, unkno
   window.__lovableReportRuntimeError?.({
     message,
     ...(stack !== undefined && { stack }),
-    filename: window.location.pathname,
+    filename: "application",
   });
 }

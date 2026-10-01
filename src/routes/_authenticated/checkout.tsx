@@ -40,6 +40,7 @@ function CheckoutPage() {
   const [proofBusy, setProofBusy] = useState(false);
   async function uploadProof(file: File) {
     if (file.size > 5 * 1024 * 1024) { toast.error("ছবি ৫MB-এর কম হতে হবে"); return; }
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { toast.error("শুধু PNG, JPG বা WebP ছবি দিন"); return; }
     setProofBusy(true);
     const { data: u } = await supabase.auth.getUser();
     const path = `${u.user?.id}/${crypto.randomUUID()}.${(file.name.split(".").pop() ?? "jpg").toLowerCase()}`;
@@ -154,12 +155,12 @@ function CheckoutPage() {
           </div>
         )}
         <div className="space-y-2">
-          <Label htmlFor="proof">পেমেন্টের স্ক্রিনশট (ঐচ্ছিক, দ্রুত যাচাইয়ের জন্য)</Label>
+          <Label htmlFor="proof">পেমেন্টের স্ক্রিনশট (বিকাশ/রকেটের জন্য আবশ্যক)</Label>
           <Input id="proof" type="file" accept="image/png,image/jpeg,image/webp" disabled={proofBusy} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadProof(f); }} />
           {proofBusy && <p className="text-xs text-muted-foreground">আপলোড হচ্ছে...</p>}
           {proof && !proofBusy && <p className="text-xs text-primary">স্ক্রিনশট যুক্ত হয়েছে</p>}
         </div>
-        <Button type="submit" size="lg" className="w-full font-semibold" disabled={busy || proofBusy}>
+        <Button type="submit" size="lg" className="w-full font-semibold" disabled={busy || proofBusy || ((method === "bkash" || method === "rocket") && !proof)}>
           {busy ? "জমা হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
         </Button>
         <p className="text-center text-xs text-subtle-foreground">

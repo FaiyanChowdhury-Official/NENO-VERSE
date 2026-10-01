@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
+const SAFE_CSS_VALUE = /^(#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([\d\s.,%/-]+\)|var\(--[a-z0-9-_]+\))$/i;
+const SAFE_KEY = /^[a-z0-9-_]+$/i;
 
 export type ChartConfig = {
   [k in string]: {
@@ -62,7 +64,10 @@ const ChartContainer = React.forwardRef<
 ChartContainer.displayName = "Chart";
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(([, config]) => config.theme || config.color);
+  const safeId = id.replace(/[^a-zA-Z0-9-_]/g, "");
+  const colorConfig = Object.entries(config).filter(([key, item]) =>
+    SAFE_KEY.test(key) && (item.theme || item.color),
+  );
 
   if (!colorConfig.length) {
     return null;
@@ -74,11 +79,11 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
         __html: Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart=${safeId}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    return color && SAFE_CSS_VALUE.test(color) ? `  --color-${key}: ${color};` : null;
   })
   .join("\n")}
 }

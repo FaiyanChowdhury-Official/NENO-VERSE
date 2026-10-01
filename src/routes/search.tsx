@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { Search, SearchX } from "lucide-react";
 import { useMemo } from "react";
 import { z } from "zod";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -121,7 +121,7 @@ function SearchPage() {
 
       <p className="mt-8 text-sm text-muted-foreground">{results.length.toLocaleString("bn-BD")}টি ফলাফল</p>
       {results.length === 0 ? (
-        <p className="mt-12 text-center text-muted-foreground">কিছু পাওয়া যায়নি। অন্য শব্দ বা ফিল্টার দিয়ে চেষ্টা করুন।</p>
+        <div className="mt-12 text-center text-muted-foreground"><SearchX className="mx-auto size-10 text-primary" /><p className="mt-3">কিছু পাওয়া যায়নি। অন্য শব্দ বা ফিল্টার দিয়ে চেষ্টা করুন।</p></div>
       ) : (
         <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((r) =>

@@ -83,7 +83,7 @@ export function OrdersPanel() {
                     {o.status === "approved" ? "অ্যাক্সেস বন্ধ" : "বাতিল"}
                   </Button>
                 )}
-                <ConfirmDelete onConfirm={() => run(() => del({ data: { id: o.id } }), "অর্ডার মুছে ফেলা হয়েছে", keys)} />
+                <ConfirmDelete label="আর্কাইভ" onConfirm={() => run(() => del({ data: { id: o.id } }), "অর্ডার আর্কাইভ হয়েছে", keys)} />
               </div>
               {o.status === "approved" && <DeliveryEditor order={o} />}
             </div>

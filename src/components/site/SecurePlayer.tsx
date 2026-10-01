@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PlayCircle } from "lucide-react";
 
-function embedUrl(raw: string): { type: "iframe" | "video"; src: string } {
+function embedUrl(raw: string): { type: "iframe" | "video" | "blocked"; src: string } {
   // Accept pasted <iframe src="..."> embed code too
   const m = raw.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i);
   const url = (m?.[1] ?? raw).trim();
@@ -11,8 +11,8 @@ function embedUrl(raw: string): { type: "iframe" | "video"; src: string } {
   if (vm) return { type: "iframe", src: `https://player.vimeo.com/video/${vm[1]}?dnt=1` };
   const gd = url.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
   if (gd) return { type: "iframe", src: `https://drive.google.com/file/d/${gd[1]}/preview` };
-  if (/\.(mp4|webm)(\?|$)/i.test(url)) return { type: "video", src: url };
-  return { type: "iframe", src: url };
+  if (/^https:\/\/.+\.(mp4|webm)(\?|$)/i.test(url)) return { type: "video", src: url };
+  return { type: "blocked", src: "" };
 }
 
 /**
@@ -62,7 +62,11 @@ export function SecurePlayer({
 
   return (
     <div className="relative size-full select-none" onContextMenu={(e) => e.preventDefault()} onDragStart={(e) => e.preventDefault()}>
-      {media.type === "video" ? (
+      {media.type === "blocked" ? (
+        <div className="flex size-full items-center justify-center p-6 text-center text-sm text-background">
+          এই ভিডিও উৎসটি অনুমোদিত নয়। YouTube, Vimeo বা Google Drive-এর লিংক ব্যবহার করুন।
+        </div>
+      ) : media.type === "video" ? (
         <video
           ref={videoRef}
           key={media.src}

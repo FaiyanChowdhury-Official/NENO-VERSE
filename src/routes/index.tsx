@@ -46,7 +46,7 @@ function Index() {
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground">
-              🇧🇩 বাংলাদেশের ডিজিটাল মার্কেটপ্লেস
+              বাংলাদেশের ডিজিটাল মার্কেটপ্লেস
             </span>
             <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               আপনার <span className="text-primary">ডিজিটাল প্রোডাক্ট</span> ও কোর্স এখন এক জায়গায়।

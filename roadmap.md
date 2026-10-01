@@ -1,14 +1,14 @@
 # Roadmap — অক্টোপাস (Bengali digital product & course marketplace)
 
 ## Phase 1 — Public Bengali storefront (in progress)
-- [ ] Design system (purple #4F2BD9, Noto Sans Bengali typography)
-- [ ] Octopus logo (eye-catching, with "অক্টোপাস" in Bengali)
-- [ ] Header + footer, Bengali navigation
-- [ ] Homepage: hero, feature strip, featured products, featured courses
-- [ ] /products, /products/$slug
-- [ ] /courses, /courses/$slug
-- [ ] /about, /faq, /support, /privacy, /terms
-- [ ] Sample catalog data
+- [x] Design system (purple #4F2BD9, Noto Sans Bengali typography)
+- [x] Octopus logo (eye-catching, with "অক্টোপাস" in Bengali)
+- [x] Header + footer, Bengali navigation
+- [x] Homepage: hero, feature strip, featured products, featured courses
+- [x] /products, /products/$slug
+- [x] /courses, /courses/$slug
+- [x] /about, /faq, /support, /privacy, /terms
+- [x] Sample catalog data
 
 ## Phase 2 — Accounts, checkout, dashboard (later)
 - Cloud backend, signup/login, bKash/Rocket/bank manual payment, order verification, entitlements, user dashboard

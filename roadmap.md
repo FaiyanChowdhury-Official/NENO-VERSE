@@ -13,6 +13,8 @@
 - [x] Eye-catching product/course/hero images
 - [x] Admin panel: colorful icons/cards design
 - [x] Global search page (/search) + /login /register /forgot-password links
+- [x] Nagad payment method (admin settings + checkout + proof upload)
+- [x] Social links (Facebook/YouTube/Instagram) editable in Admin settings, shown in footer
 
 - [x] Apply Cove palette (#006BBB, #30A0E0, #FFC872, #FFE3B3) with mostly white backgrounds
 - [x] Staff roles + separate admin/dashboard page addresses

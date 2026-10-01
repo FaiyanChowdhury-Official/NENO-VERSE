@@ -151,7 +151,9 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
             {(cats.data ?? []).filter((c) => c.kind === v.kind).map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
           </select>
         </Field>
-        <Field label="ছবির লিংক (URL)"><Input value={v.image_url} onChange={(e) => set("image_url", e.target.value)} placeholder="https://..." /></Field>
+        <Field label="থাম্বনেইল (১৬:৯ ছবি, সর্বোচ্চ ৫MB)">
+          <ThumbnailUpload value={v.image_url} onChange={(url) => set("image_url", url)} />
+        </Field>
         <AiDescribe name={v.name} duration={v.access_days ? `${v.access_days} দিন` : ""} highlights={v.highlights}
           onResult={(r) => setMany({ short_description: r.short_description, description: r.description, highlights: r.highlights })} />
         <Field label="ছোট বিবরণ" wide><Input value={v.short_description} onChange={(e) => set("short_description", e.target.value)} /></Field>
@@ -369,4 +371,37 @@ function moduleGroups<T extends { module_title: string }>(lessons: T[]) {
     else groups.push({ title: l.module_title, start: i, items: [l] });
   });
   return groups;
+}
+
+function ThumbnailUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="space-y-2">
+      <div className="relative aspect-video w-full max-w-xs overflow-hidden rounded-xl border border-dashed border-border bg-muted">
+        {value ? <img src={value} alt="থাম্বনেইল" className="h-full w-full object-cover" /> : <p className="flex h-full items-center justify-center text-xs text-muted-foreground">কোনো ছবি নেই</p>}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <label className={`inline-flex h-9 cursor-pointer items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground ${busy ? "opacity-50" : ""}`}>
+          {busy ? "আপলোড হচ্ছে..." : value ? "ছবি বদলান" : "ছবি আপলোড"}
+          <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" disabled={busy}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (!file) return;
+              if (file.size > 5 * 1024 * 1024) { toast.error("ছবি ৫MB-এর কম হতে হবে"); return; }
+              setBusy(true);
+              const path = `${crypto.randomUUID()}.${(file.name.split(".").pop() ?? "jpg").toLowerCase()}`;
+              const up = await supabase.storage.from("thumbnails").upload(path, file, { contentType: file.type });
+              const signed = up.error ? null : await supabase.storage.from("thumbnails").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+              setBusy(false);
+              if (!signed?.data) { toast.error("আপলোড হয়নি"); return; }
+              onChange(signed.data.signedUrl);
+              toast.success("ছবি আপলোড হয়েছে — সংরক্ষণ করতে ভুলবেন না");
+            }} />
+        </label>
+        {value && <Button type="button" size="sm" variant="ghost" onClick={() => onChange("")}>সরান</Button>}
+      </div>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder="অথবা ছবির লিংক দিন" className="h-9 text-xs" />
+    </div>
+  );
 }

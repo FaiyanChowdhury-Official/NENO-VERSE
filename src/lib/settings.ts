@@ -9,6 +9,7 @@ export type PaymentSettings = {
 export type GeneralSettings = {
   site_name: string; phone: string; email: string; address: string;
   facebook: string; youtube: string; instagram: string; whatsapp: string;
+  telegram?: string; messenger?: string;
 };
 
 export async function fetchSetting<T>(key: string): Promise<T | null> {

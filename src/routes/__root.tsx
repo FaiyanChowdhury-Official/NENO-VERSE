@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { ContactDock } from "@/components/site/ContactDock";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { catalogQuery } from "@/lib/catalog.functions";
@@ -150,6 +151,7 @@ function RootComponent() {
           <Outlet />
         </main>
         <Footer />
+        <ContactDock />
       </div>
       <Toaster richColors position="top-center" />
     </QueryClientProvider>

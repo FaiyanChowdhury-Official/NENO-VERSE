@@ -62,11 +62,13 @@ export function SettingsPanel() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-bold text-foreground">সাধারণ ও সোশ্যাল</h2>
+        <h2 className="text-lg font-bold text-foreground">যোগাযোগ ও সোশ্যাল</h2>
+        <p className="text-sm text-muted-foreground">WhatsApp, Telegram, Messenger দিলে ওয়েবসাইটের কোণে “যোগাযোগ” বোতামে দেখাবে।</p>
         <div className="grid gap-4 sm:grid-cols-2">
           {([
             ["site_name", "ওয়েবসাইটের নাম"], ["phone", "ফোন"], ["email", "ইমেইল"], ["address", "ঠিকানা"],
-            ["facebook", "Facebook লিংক"], ["youtube", "YouTube লিংক"], ["instagram", "Instagram লিংক"], ["whatsapp", "WhatsApp নম্বর"],
+            ["whatsapp", "WhatsApp নম্বর (যেমন 01XXXXXXXXX)"], ["telegram", "Telegram ইউজারনেম (যেমন @octopus)"], ["messenger", "Messenger লিংক (m.me/...)"],
+            ["facebook", "Facebook লিংক"], ["youtube", "YouTube লিংক"], ["instagram", "Instagram লিংক"],
           ] as [keyof GeneralSettings, string][]).map(([k, l]) => (
             <Field key={k} label={l} value={g[k] ?? ""} onChange={(v) => setG({ ...g, [k]: v })} />
           ))}

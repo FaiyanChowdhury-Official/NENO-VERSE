@@ -8,3 +8,7 @@
 - [ ] Staff roles (content/finance/support managers) — confirm with owner
 - [ ] Payment screenshot upload at checkout
 - [ ] Real bKash/Rocket/bank numbers — owner enters in Admin > সেটিংস
+- [x] Secure in-site access: device limit, access logs, private product files, in-site viewer
+- [ ] AI Bengali product description generator (name, benefits, duration)
+- [ ] Order delivery status + access steps for subscriptions (customer + admin)
+- [ ] Per-outlet products, prices and sales summary

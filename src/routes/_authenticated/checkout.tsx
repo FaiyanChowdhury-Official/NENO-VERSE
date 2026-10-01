@@ -103,7 +103,7 @@ function CheckoutPage() {
     }
   }
 
-  const ps = settings.data;
+  const ps = settings.data ? { ...settings.data, nagad: settings.data.nagad ?? defaultNagad } : null;
   const enabled = (Object.keys(paymentMethods) as PaymentMethod[]).filter((m) => !ps || ps[m]?.enabled !== false);
   const account = !ps
     ? "লোড হচ্ছে..."

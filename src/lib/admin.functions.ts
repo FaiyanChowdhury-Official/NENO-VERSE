@@ -311,3 +311,20 @@ export const adminDeleteStory = adminFn(z.object({ id: z.string().uuid() })).han
   fail((await context.supabase.from("success_stories").delete().eq("id", data.id)).error, "ডিলিট হয়নি");
   return { ok: true };
 });
+
+export const adminStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: orders } = await supabaseAdmin.from("orders").select("status,amount");
+    const { count: customers } = await supabaseAdmin.from("profiles").select("id", { count: "exact", head: true });
+    const all = orders ?? [];
+    const approved = all.filter((o) => o.status === "approved");
+    return {
+      revenue: approved.reduce((s, o) => s + (o.amount ?? 0), 0),
+      orders: all.length,
+      pending: all.filter((o) => o.status === "pending").length,
+      customers: customers ?? 0,
+    };
+  });

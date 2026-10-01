@@ -111,12 +111,14 @@ function Index() {
         </div>
       </section>
 
-      {/* Feature strip */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6">
+      {/* Feature strip — colorful icon chips */}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {features.map((f) => (
-            <div key={f.title} className="surface-card p-5">
-              <f.icon className="size-6 text-primary" strokeWidth={1.6} />
+          {features.map((f, i) => (
+            <div key={f.title} className="surface-card hover-lift p-5">
+              <span className={`inline-flex size-11 items-center justify-center rounded-xl ${i % 2 === 0 ? "bg-primary-soft text-primary-soft-foreground" : "bg-teal-soft text-teal"}`}>
+                <f.icon className="size-5" strokeWidth={1.8} />
+              </span>
               <h3 className="mt-3 text-sm font-semibold text-foreground">{f.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{f.text}</p>
             </div>
@@ -128,8 +130,9 @@ function Index() {
       <section className={`mx-auto max-w-6xl px-4 py-20 sm:px-6 ${sf.show_products ? "" : "hidden"}`}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
-              জনপ্রিয় ডিজিটাল প্রোডাক্ট
+            <span className="inline-block -rotate-2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">প্রোডাক্ট</span>
+            <h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">
+              জনপ্রিয় <span className="text-primary">ডিজিটাল প্রোডাক্ট</span>
             </h2>
             <p className="mt-2 text-muted-foreground">কিনলেই সঙ্গে সঙ্গে ডাউনলোডের সুবিধা।</p>
           </div>
@@ -151,7 +154,8 @@ function Index() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-foreground sm:text-3xl">জনপ্রিয় কোর্স</h2>
+              <span className="inline-block -rotate-2 rounded-full bg-teal px-3 py-1 text-xs font-semibold text-teal-foreground">কোর্স</span>
+              <h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">জনপ্রিয় <span className="text-primary">কোর্স</span></h2>
               <p className="mt-2 text-muted-foreground">
                 বাংলায় ধাপে ধাপে শেখার সুযোগ, যেকোনো সময় যেকোনো ডিভাইসে।
               </p>
@@ -172,9 +176,12 @@ function Index() {
 
       {/* How it works */}
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        <h2 className="text-center text-2xl font-bold text-foreground sm:text-3xl">
-          কীভাবে কাজ করে
-        </h2>
+        <div className="text-center">
+          <span className="inline-block -rotate-2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">ধাপে ধাপে</span>
+          <h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">
+            কীভাবে <span className="text-primary">কাজ করে</span>
+          </h2>
+        </div>
         <div className="mt-10 grid gap-6 md:grid-cols-4">
           {[
             { t: "পছন্দ করুন", d: "প্রোডাক্ট বা কোর্স বেছে নিন।" },

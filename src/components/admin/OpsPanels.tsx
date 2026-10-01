@@ -218,50 +218,119 @@ export function AnalyticsPanel() {
 
 /* ---------------- বিক্রয় চ্যানেল (Outlets) ---------------- */
 export function OutletsPanel() {
-  const gen = useSetting<GeneralSettings>("general");
-  const items = useQuery({
-    queryKey: ["outlet-items"],
-    queryFn: async () => (await supabase.from("items").select("id,kind,slug,name,published").eq("published", true).order("sort_order")).data ?? [],
-  });
+  const qc = useQueryClient();
+  const outlets = useQuery({ queryKey: ["outlets"], queryFn: async () => (await supabase.from("outlets").select("*").order("sort_order")).data ?? [] });
+  const orders = useQuery({ queryKey: ["outlet-orders"], queryFn: async () => (await supabase.from("orders").select("outlet_slug,amount,status,item_name").limit(5000)).data ?? [] });
+  const [sel, setSel] = useState<string | null>(null);
+  const [name, setName] = useState(""); const [slug, setSlug] = useState("");
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const copy = (t: string) => { navigator.clipboard.writeText(t); toast.success("লিংক কপি হয়েছে"); };
-  const g = gen.data;
-  const channels = g ? [
-    ["ওয়েবসাইট", origin], ["Facebook", g.facebook], ["YouTube", g.youtube], ["Instagram", g.instagram],
-    ["WhatsApp", g.whatsapp ? `https://wa.me/${g.whatsapp.replace(/\D/g, "")}` : ""],
-  ] : [];
+
+  const summary = (os: string) => {
+    const rows = (orders.data ?? []).filter((o) => (o.outlet_slug || "website") === os);
+    const ok = rows.filter((o) => o.status === "approved");
+    return { orders: rows.length, sold: ok.length, revenue: ok.reduce((t, o) => t + o.amount, 0), pending: rows.filter((o) => o.status === "pending").length };
+  };
+
+  async function add() {
+    const sl = slug.trim().toLowerCase();
+    if (!name.trim() || !/^[a-z0-9-]{2,40}$/.test(sl)) { toast.error("নাম ও ইংরেজি ছোট হাতের স্লাগ দিন (যেমন: tiktok)"); return; }
+    const { error } = await supabase.from("outlets").insert({ name: name.trim(), slug: sl, sort_order: (outlets.data?.length ?? 0) });
+    if (error) toast.error("যোগ করা যায়নি — স্লাগ আগে ব্যবহার হয়ে থাকতে পারে"); else { setName(""); setSlug(""); qc.invalidateQueries({ queryKey: ["outlets"] }); }
+  }
+  async function toggle(id: string, active: boolean) {
+    await supabase.from("outlets").update({ active }).eq("id", id);
+    qc.invalidateQueries({ queryKey: ["outlets"] });
+  }
+  async function remove(id: string) {
+    if (!confirm("এই আউটলেট মুছে ফেলবেন?")) return;
+    await supabase.from("outlets").delete().eq("id", id);
+    setSel(null); qc.invalidateQueries({ queryKey: ["outlets"] });
+  }
+
+  const current = (outlets.data ?? []).find((o) => o.id === sel);
+  const fmt = (n: number) => `৳${n.toLocaleString("bn-BD")}`;
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-foreground">বিক্রয় চ্যানেল</h2>
-        <p className="text-sm text-muted-foreground">যেখান থেকে গ্রাহকরা আপনার দোকানে আসবে। সোশ্যাল লিংকগুলো “সেটিংস” থেকে বদলাতে পারবেন।</p>
+        <h2 className="text-lg font-bold text-foreground">বিক্রয় চ্যানেল (আউটলেট)</h2>
+        <p className="text-sm text-muted-foreground">প্রতিটি আউটলেটের নিজস্ব লিংক, প্রোডাক্ট, দাম ও বিক্রির হিসাব। আউটলেট লিংক দিয়ে আসা গ্রাহক সেই আউটলেটের দামে কিনবে।</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {channels.map(([name, url]) => (
-          <div key={name} className="rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between"><p className="font-semibold">{name}</p><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${url ? "bg-primary-soft text-primary-soft-foreground" : "bg-muted text-muted-foreground"}`}>{url ? "চালু" : "যুক্ত নয়"}</span></div>
-            <p className="mt-1 truncate text-xs text-muted-foreground">{url || "লিংক যোগ করা হয়নি"}</p>
-            {url && <Button size="sm" variant="outline" className="mt-3" onClick={() => copy(url)}>কপি করুন</Button>}
-          </div>
-        ))}
-      </div>
-      <div>
-        <p className="mb-2 text-sm font-bold text-foreground">প্রোডাক্ট/কোর্স শেয়ার লিংক</p>
-        <div className="space-y-2">
-          {(items.data ?? []).map((it) => {
-            const url = `${origin}/${it.kind === "course" ? "courses" : "products"}/${it.slug}`;
-            return (
-              <div key={it.id} className="flex flex-col gap-2 rounded-xl border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0"><p className="truncate font-medium">{it.name}</p><p className="truncate text-xs text-muted-foreground">{url}</p></div>
-                <div className="flex shrink-0 flex-wrap gap-2">
-                  <Button size="sm" variant="outline" onClick={() => copy(url)}>কপি</Button>
-                  <Button size="sm" variant="outline" asChild><a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`} target="_blank" rel="noreferrer">Facebook</a></Button>
-                  <Button size="sm" variant="outline" asChild><a href={`https://wa.me/?text=${encodeURIComponent(`${it.name} ${url}`)}`} target="_blank" rel="noreferrer">WhatsApp</a></Button>
-                </div>
+        {(outlets.data ?? []).map((o) => {
+          const sm = summary(o.slug);
+          return (
+            <button key={o.id} onClick={() => setSel(o.id)} className={`rounded-xl border p-4 text-left transition-shadow hover:shadow-lift ${sel === o.id ? "border-primary bg-primary-soft/40" : "border-border"}`}>
+              <div className="flex items-center justify-between gap-2"><p className="font-semibold">{o.name}</p><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${o.active ? "bg-primary-soft text-primary-soft-foreground" : "bg-muted text-muted-foreground"}`}>{o.active ? "চালু" : "বন্ধ"}</span></div>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                <div><p className="text-muted-foreground">আয়</p><p className="font-bold">{fmt(sm.revenue)}</p></div>
+                <div><p className="text-muted-foreground">বিক্রি</p><p className="font-bold">{sm.sold.toLocaleString("bn-BD")}</p></div>
+                <div><p className="text-muted-foreground">অপেক্ষমাণ</p><p className="font-bold">{sm.pending.toLocaleString("bn-BD")}</p></div>
               </div>
-            );
-          })}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex flex-col gap-2 rounded-xl border border-dashed border-border p-3 sm:flex-row">
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="নতুন আউটলেটের নাম (যেমন: TikTok)" />
+        <Input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="স্লাগ (যেমন: tiktok)" className="sm:max-w-[180px]" />
+        <Button onClick={add}>আউটলেট যোগ করুন</Button>
+      </div>
+      {current && <OutletDetail outlet={current} origin={origin} onToggle={toggle} onRemove={remove} />}
+    </div>
+  );
+}
+
+function OutletDetail({ outlet, origin, onToggle, onRemove }: { outlet: { id: string; slug: string; name: string; active: boolean }; origin: string; onToggle: (id: string, a: boolean) => void; onRemove: (id: string) => void }) {
+  const qc = useQueryClient();
+  const items = useQuery({ queryKey: ["outlet-all-items"], queryFn: async () => (await supabase.from("items").select("id,kind,slug,name,price,published").order("sort_order")).data ?? [] });
+  const links = useQuery({ queryKey: ["outlet-items", outlet.id], queryFn: async () => (await supabase.from("outlet_items").select("*").eq("outlet_id", outlet.id)).data ?? [] });
+  const [prices, setPrices] = useState<Record<string, string>>({});
+  useEffect(() => { setPrices(Object.fromEntries((links.data ?? []).map((l) => [l.item_id, String(l.price)]))); }, [links.data]);
+  const link = `${origin}/?outlet=${outlet.slug}`;
+
+  async function saveItem(itemId: string, active: boolean) {
+    const price = Number(prices[itemId]);
+    if (!Number.isInteger(price) || price < 0) { toast.error("সঠিক দাম দিন"); return; }
+    const { error } = await supabase.from("outlet_items").upsert({ outlet_id: outlet.id, item_id: itemId, price, active }, { onConflict: "outlet_id,item_id" });
+    if (error) toast.error("সেভ হয়নি"); else { toast.success("সেভ হয়েছে"); qc.invalidateQueries({ queryKey: ["outlet-items", outlet.id] }); }
+  }
+  async function removeItem(itemId: string) {
+    await supabase.from("outlet_items").delete().eq("outlet_id", outlet.id).eq("item_id", itemId);
+    qc.invalidateQueries({ queryKey: ["outlet-items", outlet.id] });
+  }
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-border p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="font-bold text-foreground">{outlet.name}</p>
+          <p className="truncate text-xs text-muted-foreground">{link}</p>
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(link); toast.success("লিংক কপি হয়েছে"); }}>লিংক কপি</Button>
+          <label className="flex items-center gap-2 text-sm"><Switch checked={outlet.active} onCheckedChange={(c) => onToggle(outlet.id, c)} />চালু</label>
+          <Button size="sm" variant="outline" onClick={() => onRemove(outlet.id)}>মুছুন</Button>
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">দাম খালি রাখলে বা যোগ না করলে সাধারণ দাম প্রযোজ্য হবে।</p>
+      <div className="space-y-2">
+        {(items.data ?? []).map((it) => {
+          const l = (links.data ?? []).find((x) => x.item_id === it.id);
+          return (
+            <div key={it.id} className="flex flex-col gap-2 rounded-xl border border-border p-3 sm:flex-row sm:items-center">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{it.name}{!it.published && <span className="ml-2 text-xs text-muted-foreground">(অপ্রকাশিত)</span>}</p>
+                <p className="text-xs text-muted-foreground">সাধারণ দাম: ৳{it.price.toLocaleString("bn-BD")}{l ? ` • আউটলেটে ${l.active ? "চালু" : "বন্ধ"}` : ""}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input type="number" min={0} className="h-9 w-28" placeholder="আউটলেট দাম" value={prices[it.id] ?? ""} onChange={(e) => setPrices({ ...prices, [it.id]: e.target.value })} />
+                <Button size="sm" onClick={() => saveItem(it.id, true)}>সেভ</Button>
+                {l && <Button size="sm" variant="outline" onClick={() => (l.active ? saveItem(it.id, false) : removeItem(it.id))}>{l.active ? "বন্ধ" : "সরান"}</Button>}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

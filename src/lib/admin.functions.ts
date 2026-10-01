@@ -183,7 +183,7 @@ export const adminListCustomers = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: profiles }, { data: orders }, users] = await Promise.all([
       supabaseAdmin.from("profiles").select("id,full_name,phone,created_at").order("created_at", { ascending: false }).limit(1000),
-      supabaseAdmin.from("orders").select("user_id,amount,status"),
+      supabaseAdmin.from("orders").select("user_id,amount,status").is("deleted_at", null),
       supabaseAdmin.auth.admin.listUsers({ perPage: 1000 }),
     ]);
     const emails = new Map(users.data?.users.map((u) => [u.id, u.email ?? ""]) ?? []);

@@ -49,7 +49,7 @@ export const createOrder = createServerFn({ method: "POST" })
       const fileName = data.paymentProof.slice(context.userId.length + 1);
       const { data: objects, error: proofError } = await supabaseAdmin.storage.from("payment-proofs").list(context.userId, { search: fileName, limit: 10 });
       const proof = objects?.find((object) => object.name === fileName);
-      const mime = String(proof?.metadata?.mimetype ?? proof?.metadata?.contentType ?? "");
+      const mime = String(proof?.metadata?.['mimetype'] ?? proof?.metadata?.['contentType'] ?? "");
       const size = Number(proof?.metadata?.size ?? 0);
       if (proofError || !proof || !["image/png", "image/jpeg", "image/webp"].includes(mime) || size <= 0 || size > 5 * 1024 * 1024) {
         return { ok: false as const, error: "পেমেন্টের স্ক্রিনশটটি সঠিক নয়" };

@@ -1,4 +1,6 @@
-export type PaymentMethod = "bkash" | "rocket" | "bank";
+export type PaymentMethod = "bkash" | "rocket" | "nagad" | "bank";
+
+export const PROOF_METHODS: PaymentMethod[] = ["bkash", "rocket", "nagad"];
 
 // NOTE: placeholder merchant details — replace with the real business accounts.
 export const paymentMethods: Record<
@@ -19,6 +21,15 @@ export const paymentMethods: Record<
     account: "01XXXXXXXXX-X (মার্চেন্ট)",
     instructions: [
       "রকেট অ্যাপ বা *322# থেকে পেমেন্ট করুন",
+      "উপরের নম্বরে মোট টাকা পাঠান",
+      "ট্রানজেকশন আইডি নিচে লিখুন",
+    ],
+  },
+  nagad: {
+    label: "নগদ",
+    account: "01XXXXXXXXX (মার্চেন্ট)",
+    instructions: [
+      "নগদ অ্যাপ বা *167# থেকে \"সেন্ড মানি\" অপশনে যান",
       "উপরের নম্বরে মোট টাকা পাঠান",
       "ট্রানজেকশন আইডি নিচে লিখুন",
     ],

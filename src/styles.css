@@ -184,7 +184,7 @@
   background: linear-gradient(
     100deg,
     var(--color-primary),
-    color-mix(in oklab, var(--color-primary) 60%, oklch(0.6 0.18 330))
+    color-mix(in oklab, var(--color-primary) 60%, oklch(0.72 0.16 75))
   );
   background-clip: text;
   color: transparent;

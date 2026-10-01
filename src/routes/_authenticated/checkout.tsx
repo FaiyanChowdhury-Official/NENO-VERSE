@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useCatalog } from "@/data/catalog";
 import { createOrder } from "@/lib/orders.functions";
 import { paymentMethods, PROOF_METHODS, type PaymentMethod } from "@/lib/payments";
-import { useSetting, type PaymentSettings } from "@/lib/settings";
+import { useSetting, defaultNagad, type PaymentSettings } from "@/lib/settings";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

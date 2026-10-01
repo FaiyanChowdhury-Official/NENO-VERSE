@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_logs: {
+        Row: {
+          action: string
+          blocked: boolean
+          created_at: string
+          device_id: string
+          id: string
+          ip: string
+          item_kind: string
+          item_slug: string
+          user_agent: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          blocked?: boolean
+          created_at?: string
+          device_id?: string
+          id?: string
+          ip?: string
+          item_kind: string
+          item_slug: string
+          user_agent?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          blocked?: boolean
+          created_at?: string
+          device_id?: string
+          id?: string
+          ip?: string
+          item_kind?: string
+          item_slug?: string
+          user_agent?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -534,6 +573,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_devices: {
+        Row: {
+          device_id: string
+          first_seen: string
+          id: string
+          ip: string
+          last_seen: string
+          user_agent: string
+          user_id: string
+        }
+        Insert: {
+          device_id: string
+          first_seen?: string
+          id?: string
+          ip?: string
+          last_seen?: string
+          user_agent?: string
+          user_id: string
+        }
+        Update: {
+          device_id?: string
+          first_seen?: string
+          id?: string
+          ip?: string
+          last_seen?: string
+          user_agent?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

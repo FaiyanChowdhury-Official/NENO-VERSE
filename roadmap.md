@@ -18,3 +18,5 @@
 - [x] Staff roles + separate admin/dashboard page addresses
 - [x] Replace logo with uploaded NENO-VERSE logo (site + favicon)
 - [ ] Verify each staff role by signing in as test staff (blocked: user declined test sign-in)
+- [ ] Complete the NENO-VERSE security master audit, fix verified findings by severity, regression-test protected flows, and deliver the factual audit report
+- [ ] Audit customer-facing visual gaps and add relevant imagery only where it improves understanding or trust

@@ -216,13 +216,14 @@ export const adminSaveItem = adminFn(itemSchema).handler(async ({ data, context 
   const sb = context.supabase;
   const { id, link_url, link_label, lessons, ...row } = data;
   const lesson_count = lessons.length || undefined;
-  let itemId = id;
+  let itemId: string = id ?? "";
   if (id) {
     const { error } = await sb.from("items").update({ ...row, ...(lesson_count && { lesson_count }) }).eq("id", id);
     fail(error);
   } else {
     const { data: ins, error } = await sb.from("items").insert({ ...row, lesson_count: lessons.length }).select("id").single();
     fail(error);
+    if (!ins) throw new Error("Insert failed");
     itemId = ins.id;
   }
   const { error: le } = await sb.from("item_links").upsert({ item_id: itemId, url: link_url, label: link_label });

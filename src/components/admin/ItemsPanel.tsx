@@ -51,7 +51,7 @@ export function ItemsPanel() {
   const run = useAdminAction();
   const items = useQuery({ queryKey: ["admin-items"], queryFn: () => list() });
   const [kind, setKind] = useState<"product" | "course">("product");
-  const [editing, setEditing] = useState<{ id?: string; kind: "product" | "course" } | null>(null);
+  const [editing, setEditing] = useState<{ id?: string | undefined; kind: "product" | "course" } | null>(null);
   const rows = (items.data ?? []).filter((i) => i.kind === kind);
 
   return (
@@ -96,7 +96,7 @@ export function ItemsPanel() {
   );
 }
 
-function ItemEditor({ id, kind, onDone }: { id?: string; kind: "product" | "course"; onDone: () => void }) {
+function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "product" | "course"; onDone: () => void }) {
   const getItem = useServerFn(adminGetItem);
   const listCats = useServerFn(adminListCategories);
   const save = useServerFn(adminSaveItem);

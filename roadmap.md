@@ -10,3 +10,4 @@
 - [ ] Staff roles — confirm with owner
 - [ ] Payment screenshot upload
 - [ ] Real payment numbers — owner enters in Admin > সেটিংস
+- [ ] Eye-catching product/course/hero images

@@ -172,3 +172,44 @@ async function readSse(body: ReadableStream<Uint8Array>) {
   }
   return { text, failed };
 }
+
+export type GeneratedDescription = { short_description: string; description: string[]; highlights: string[] };
+
+export const generateItemDescription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ name: z.string().trim().min(2).max(150), benefits: z.string().trim().max(2000), duration: z.string().trim().max(100) }).parse(d))
+  .handler(async ({ data, context }): Promise<{ ok: true; result: GeneratedDescription } | { ok: false; error: string }> => {
+    const { supabase, userId } = context as { supabase: any; userId: string };
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Forbidden");
+    const key = process.env["LOVABLE_API_KEY"];
+    if (!key) return { ok: false, error: "AI কনফিগারেশন পাওয়া যায়নি।" };
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, "X-Lovable-AIG-SDK": "fetch" },
+      body: JSON.stringify({
+        model: "openai/gpt-6-astra",
+        stream: true,
+        store: false,
+        reasoning: { effort: "low" },
+        instructions:
+          "তুমি 'অক্টোপাস' নামের বাংলাদেশি ডিজিটাল মার্কেটপ্লেসের কপিরাইটার। ডিজিটাল সাবস্ক্রিপশনের জন্য বাংলাদেশি গ্রাহকদের উপযোগী সহজ, আকর্ষণীয়, সৎ বাংলা বিবরণ লেখো। শুধু দেওয়া তথ্য ব্যবহার করো; অফিসিয়াল সম্পর্ক, গ্যারান্টি বা যে সুবিধা দেওয়া হয়নি তা দাবি করবে না। short_description এক বাক্যে (সর্বোচ্চ ১৪০ অক্ষর)। description ২–৪টি ছোট অনুচ্ছেদ, শেষেরটিতে মেয়াদ ও পেমেন্ট যাচাইয়ের পর অ্যাক্টিভেশনের কথা বলো। highlights ৩–৬টি ছোট পয়েন্ট।",
+        input: `সাবস্ক্রিপশনের নাম: ${data.name}\nসুবিধা: ${data.benefits || "(দেওয়া হয়নি)"}\nমেয়াদ: ${data.duration || "(দেওয়া হয়নি)"}`,
+        text: { format: { type: "json_schema", name: "item_description", strict: true, schema: {
+          type: "object", additionalProperties: false, required: ["short_description", "description", "highlights"],
+          properties: { short_description: { type: "string" }, description: { type: "array", items: { type: "string" } }, highlights: { type: "array", items: { type: "string" } } },
+        } } },
+      }),
+    });
+    if (!res.ok || !res.body) {
+      console.error("AI gateway error", res.status, await res.text().catch(() => ""));
+      if (res.status === 429) return { ok: false, error: "অনেক বেশি অনুরোধ — কিছুক্ষণ পর আবার চেষ্টা করুন।" };
+      if (res.status === 402) return { ok: false, error: "AI ক্রেডিট শেষ — ওয়ার্কস্পেস সেটিংস থেকে ক্রেডিট যোগ করুন।" };
+      if (res.status === 403) return { ok: false, error: "AI ব্যবহারের অনুমতি নেই (403)।" };
+      return { ok: false, error: "বিবরণ তৈরি ব্যর্থ হয়েছে।" };
+    }
+    const out = await readSse(res.body);
+    if (out.failed) return { ok: false, error: out.failed };
+    try { return { ok: true, result: JSON.parse(out.text) as GeneratedDescription }; }
+    catch { return { ok: false, error: "AI-এর উত্তর বোঝা যায়নি।" }; }
+  });

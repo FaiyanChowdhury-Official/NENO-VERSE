@@ -26,6 +26,7 @@ import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as AuthenticatedLearnSlugRouteImport } from './routes/_authenticated/learn.$slug'
+import { Route as AuthenticatedAccessKindSlugRouteImport } from './routes/_authenticated/access.$kind.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -111,6 +112,12 @@ const AuthenticatedLearnSlugRoute = AuthenticatedLearnSlugRouteImport.update({
   path: '/learn/$slug',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAccessKindSlugRoute =
+  AuthenticatedAccessKindSlugRouteImport.update({
+    id: '/access/$kind/$slug',
+    path: '/access/$kind/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/courses/': typeof CoursesIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/access/$kind/$slug': typeof AuthenticatedAccessKindSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -147,6 +155,7 @@ export interface FileRoutesByTo {
   '/courses': typeof CoursesIndexRoute
   '/products': typeof ProductsIndexRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/access/$kind/$slug': typeof AuthenticatedAccessKindSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -167,6 +176,7 @@ export interface FileRoutesById {
   '/courses/': typeof CoursesIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/_authenticated/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/_authenticated/access/$kind/$slug': typeof AuthenticatedAccessKindSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/courses/'
     | '/products/'
     | '/learn/$slug'
+    | '/access/$kind/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/products'
     | '/learn/$slug'
+    | '/access/$kind/$slug'
   id:
     | '__root__'
     | '/'
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
     | '/courses/'
     | '/products/'
     | '/_authenticated/learn/$slug'
+    | '/_authenticated/access/$kind/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLearnSlugRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/access/$kind/$slug': {
+      id: '/_authenticated/access/$kind/$slug'
+      path: '/access/$kind/$slug'
+      fullPath: '/access/$kind/$slug'
+      preLoaderRoute: typeof AuthenticatedAccessKindSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -371,6 +391,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLearnSlugRoute: typeof AuthenticatedLearnSlugRoute
+  AuthenticatedAccessKindSlugRoute: typeof AuthenticatedAccessKindSlugRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -378,6 +399,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLearnSlugRoute: AuthenticatedLearnSlugRoute,
+  AuthenticatedAccessKindSlugRoute: AuthenticatedAccessKindSlugRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

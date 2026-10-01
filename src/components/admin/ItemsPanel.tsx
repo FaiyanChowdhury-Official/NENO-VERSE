@@ -1,7 +1,8 @@
+import { generateItemDescription, type GeneratedDescription } from "@/lib/review-insights.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Loader2, Wand2 } from "lucide-react";
 import { adminDeleteItem, adminGetItem, adminListCategories, adminListItems, adminSaveItem, type AdminItemInput } from "@/lib/admin.functions";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -114,6 +115,7 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
 
   if (!v) return <p className="text-muted-foreground">লোড হচ্ছে...</p>;
   const set = <K extends keyof AdminItemInput>(k: K, val: AdminItemInput[K]) => setV({ ...v, [k]: val });
+  const setMany = (patch: Partial<AdminItemInput>) => setV({ ...v, ...patch });
   const isCourse = v.kind === "course";
   const showLessons = v.access_type !== "link";
   const showLink = v.access_type !== "lessons";
@@ -149,7 +151,11 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
             {(cats.data ?? []).filter((c) => c.kind === v.kind).map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
           </select>
         </Field>
-        <Field label="ছবির লিংক (URL)"><Input value={v.image_url} onChange={(e) => set("image_url", e.target.value)} placeholder="https://..." /></Field>
+        <Field label="থাম্বনেইল (১৬:৯ ছবি, সর্বোচ্চ ৫MB)">
+          <ThumbnailUpload value={v.image_url} onChange={(url) => set("image_url", url)} />
+        </Field>
+        <AiDescribe name={v.name} duration={v.access_days ? `${v.access_days} দিন` : ""} highlights={v.highlights}
+          onResult={(r) => setMany({ short_description: r.short_description, description: r.description, highlights: r.highlights })} />
         <Field label="ছোট বিবরণ" wide><Input value={v.short_description} onChange={(e) => set("short_description", e.target.value)} /></Field>
         <Field label="বিস্তারিত বিবরণ (প্রতি প্যারাগ্রাফ আলাদা লাইনে)" wide>
           <Textarea rows={4} value={v.description.join("\n")} onChange={(e) => set("description", e.target.value.split("\n"))} />
@@ -203,8 +209,12 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
         </Field>
         {showLink && (
           <>
-            <Field label="অ্যাক্সেস লিংক (শুধু ক্রেতারা দেখবে)">
-              <Input value={v.link_url} onChange={(e) => set("link_url", e.target.value)} placeholder="Google Drive / Dropbox / যেকোনো লিংক" />
+            <Field label="অ্যাক্সেস ফাইল বা লিংক (সবচেয়ে নিরাপদ: ফাইল আপলোড)">
+              <div className="flex gap-2">
+                <Input value={v.link_url} onChange={(e) => set("link_url", e.target.value)} placeholder="ফাইল আপলোড করুন বা লিংক দিন" />
+                <VideoUpload bucket="product-files" accept="*/*" onUploaded={(path) => set("link_url", `storage:${path}`)} />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">আপলোড করা ফাইল গোপন থাকে; ক্রেতা শুধু ওয়েবসাইটের ভেতরে ২ মিনিটের লিংকে দেখতে পায়। বাইরের লিংক শেয়ার হয়ে যেতে পারে।</p>
             </Field>
             <Field label="বোতামের লেখা"><Input value={v.link_label} onChange={(e) => set("link_label", e.target.value)} placeholder="ফাইল ডাউনলোড করুন" /></Field>
           </>
@@ -213,34 +223,49 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
 
       {showLessons && (
         <section className="space-y-3">
-          <h3 className="font-bold text-foreground">ভিডিও ক্লাস</h3>
-          <p className="text-xs text-muted-foreground">সবচেয়ে নিরাপদ: ভিডিও ফাইল আপলোড করুন — এটি গোপন স্টোরেজে থাকে, শুধু ক্রেতারা ১০ মিনিট মেয়াদি লিংকে দেখতে পারে, ডাউনলোড বোতাম থাকে না। চাইলে YouTube (unlisted) বা Vimeo লিংকও দিতে পারেন।</p>
-          {lessons.map((l, i) => (
-            <div key={l.id ?? `new-${i}`} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_1fr_100px_auto]">
-              <Input value={l.module_title} onChange={(e) => setLesson(i, { module_title: e.target.value })} placeholder="মডিউল/অধ্যায়" />
-              <Input value={l.title} onChange={(e) => setLesson(i, { title: e.target.value })} placeholder="ক্লাসের নাম" />
-              <Input value={l.duration} onChange={(e) => setLesson(i, { duration: e.target.value })} placeholder="১০:০০" />
-              <div className="flex items-center gap-1">
-                <Button type="button" size="icon" variant="ghost" disabled={i === 0} onClick={() => move(i, -1)} aria-label="উপরে"><ArrowUp className="size-4" /></Button>
-                <Button type="button" size="icon" variant="ghost" disabled={i === lessons.length - 1} onClick={() => move(i, 1)} aria-label="নিচে"><ArrowDown className="size-4" /></Button>
-                <Button type="button" size="icon" variant="ghost" onClick={() => set("lessons", lessons.filter((_, j) => j !== i))} aria-label="মুছুন"><Trash2 className="size-4 text-destructive" /></Button>
+          <h3 className="font-bold text-foreground">কোর্স কারিকুলাম (মডিউল ও ক্লাস)</h3>
+          <p className="text-xs text-muted-foreground">সবচেয়ে নিরাপদ: ভিডিও ফাইল আপলোড করুন — এটি গোপন স্টোরেজে থাকে, শুধু ক্রেতারা ৫ মিনিট মেয়াদি লিংকে দেখতে পারে, ডাউনলোড বোতাম থাকে না। জায়গা বাঁচাতে YouTube-এ ভিডিওটি "Unlisted" করে আপলোড দিন, তারপর তার লিংক বা iframe (Embed) কোড এখানে বসান — ভিডিও কোর্সের ভেতরেই চলবে।</p>
+          {moduleGroups(lessons).map((g, gi) => (
+            <div key={gi} className="space-y-2 rounded-2xl border border-border bg-muted/30 p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <span className="shrink-0 rounded-lg bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">মডিউল {(gi + 1).toLocaleString("bn-BD")}</span>
+                <Input className="font-semibold" value={g.title} placeholder="মডিউলের নাম, যেমন: শুরু করার আগে"
+                  onChange={(e) => set("lessons", lessons.map((l, j) => (j >= g.start && j < g.start + g.items.length ? { ...l, module_title: e.target.value } : l)))} />
+                <span className="shrink-0 text-xs text-muted-foreground">{g.items.length.toLocaleString("bn-BD")}টি ক্লাস</span>
+                <Button type="button" size="sm" variant="ghost" onClick={() => { if (confirm("পুরো মডিউল ও এর সব ক্লাস মুছবেন?")) set("lessons", lessons.filter((_, j) => j < g.start || j >= g.start + g.items.length)); }}>
+                  <Trash2 className="size-4 text-destructive" />
+                </Button>
               </div>
-              <div className="flex gap-2 sm:col-span-3">
-                <Input value={l.video_url.startsWith("storage:") ? "🔒 আপলোড করা ভিডিও (সুরক্ষিত)" : l.video_url} readOnly={l.video_url.startsWith("storage:")} onChange={(e) => setLesson(i, { video_url: e.target.value })} placeholder="ভিডিও লিংক অথবা ফাইল আপলোড করুন" />
-                <VideoUpload onUploaded={(path) => setLesson(i, { video_url: `storage:${path}` })} />
-                {l.video_url && <Button type="button" size="sm" variant="ghost" className="h-10" onClick={() => setLesson(i, { video_url: "" })}>সরান</Button>}
-              </div>
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Switch checked={l.is_free} onCheckedChange={(c) => setLesson(i, { is_free: c })} /> ফ্রি প্রিভিউ
-              </label>
+              {g.items.map((l, k) => {
+                const i = g.start + k;
+                return (
+                  <div key={l.id ?? `new-${i}`} className="grid gap-2 rounded-xl border border-border bg-background p-3 sm:grid-cols-[1fr_100px_auto]">
+                    <Input value={l.title} onChange={(e) => setLesson(i, { title: e.target.value })} placeholder={`ক্লাস ${(k + 1).toLocaleString("bn-BD")}-এর নাম`} />
+                    <Input value={l.duration} onChange={(e) => setLesson(i, { duration: e.target.value })} placeholder="১০:০০" />
+                    <div className="flex items-center gap-1">
+                      <Button type="button" size="icon" variant="ghost" disabled={k === 0} onClick={() => move(i, -1)} aria-label="উপরে"><ArrowUp className="size-4" /></Button>
+                      <Button type="button" size="icon" variant="ghost" disabled={k === g.items.length - 1} onClick={() => move(i, 1)} aria-label="নিচে"><ArrowDown className="size-4" /></Button>
+                      <Button type="button" size="icon" variant="ghost" onClick={() => set("lessons", lessons.filter((_, j) => j !== i))} aria-label="মুছুন"><Trash2 className="size-4 text-destructive" /></Button>
+                    </div>
+                    <div className="flex gap-2 sm:col-span-3">
+                      <Input value={l.video_url.startsWith("storage:") ? "আপলোড করা ভিডিও (সুরক্ষিত)" : l.video_url} readOnly={l.video_url.startsWith("storage:")} onChange={(e) => setLesson(i, { video_url: e.target.value })} placeholder="YouTube/Vimeo লিংক বা iframe কোড দিন, অথবা ফাইল আপলোড করুন" />
+                      <VideoUpload onUploaded={(path) => setLesson(i, { video_url: `storage:${path}` })} />
+                      {l.video_url && <Button type="button" size="sm" variant="ghost" className="h-10" onClick={() => setLesson(i, { video_url: "" })}>সরান</Button>}
+                    </div>
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Switch checked={l.is_free} onCheckedChange={(c) => setLesson(i, { is_free: c })} /> ফ্রি প্রিভিউ
+                    </label>
+                  </div>
+                );
+              })}
+              <Button type="button" size="sm" variant="outline"
+                onClick={() => { const at = g.start + g.items.length; const next = [...lessons]; next.splice(at, 0, { module_title: g.title, title: "", duration: "", is_free: false, video_url: "" }); set("lessons", next); }}>
+                <Plus className="size-4" /> এই মডিউলে ক্লাস যোগ করুন
+              </Button>
             </div>
           ))}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => set("lessons", [...lessons, { module_title: lessons.at(-1)?.module_title ?? "", title: "", duration: "", is_free: false, video_url: "" }])}
-          >
-            <Plus className="size-4" /> ক্লাস যোগ করুন
+          <Button type="button" onClick={() => set("lessons", [...lessons, { module_title: `নতুন মডিউল ${(moduleGroups(lessons).length + 1).toLocaleString("bn-BD")}`, title: "", duration: "", is_free: false, video_url: "" }])}>
+            <Plus className="size-4" /> নতুন মডিউল যোগ করুন
           </Button>
         </section>
       )}
@@ -284,29 +309,99 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
-function VideoUpload({ onUploaded }: { onUploaded: (path: string) => void }) {
+function VideoUpload({ onUploaded, bucket = "course-videos", accept = "video/mp4,video/webm" }: { onUploaded: (path: string) => void; bucket?: string; accept?: string }) {
   const [busy, setBusy] = useState(false);
   return (
     <label className={`inline-flex h-10 shrink-0 cursor-pointer items-center rounded-md border border-input px-3 text-sm font-medium ${busy ? "opacity-50" : "hover:bg-muted"}`}>
       {busy ? "আপলোড হচ্ছে..." : "ফাইল আপলোড"}
       <input
         type="file"
-        accept="video/mp4,video/webm"
+        accept={accept}
         className="hidden"
         disabled={busy}
         onChange={async (e) => {
           const file = e.target.files?.[0];
           if (!file) return;
           setBusy(true);
-          const path = `${crypto.randomUUID()}.${file.name.split(".").pop() ?? "mp4"}`;
-          const { error } = await supabase.storage.from("course-videos").upload(path, file, { contentType: file.type });
+          const path = `${crypto.randomUUID()}.${(file.name.split(".").pop() ?? "bin").toLowerCase()}`;
+          const { error } = await supabase.storage.from(bucket).upload(path, file, { contentType: file.type });
           setBusy(false);
           e.target.value = "";
           if (error) return void toast.error("আপলোড হয়নি: ফাইল খুব বড় হতে পারে");
-          toast.success("ভিডিও আপলোড হয়েছে — সংরক্ষণ করতে ভুলবেন না");
+          toast.success("আপলোড হয়েছে — সংরক্ষণ করতে ভুলবেন না");
           onUploaded(path);
         }}
       />
     </label>
+  );
+}
+
+function AiDescribe({ name, duration, highlights, onResult }: { name: string; duration: string; highlights: string[]; onResult: (r: GeneratedDescription) => void }) {
+  const gen = useServerFn(generateItemDescription);
+  const [benefits, setBenefits] = useState(highlights.filter(Boolean).join(", "));
+  const [dur, setDur] = useState(duration);
+  const [busy, setBusy] = useState(false);
+  async function go() {
+    if (name.trim().length < 2) { toast.error("আগে নাম লিখুন"); return; }
+    setBusy(true);
+    try {
+      const r = await gen({ data: { name, benefits, duration: dur } });
+      if (r.ok) { onResult(r.result); toast.success("বিবরণ তৈরি হয়েছে — দেখে সংরক্ষণ করুন"); } else toast.error(r.error);
+    } catch { toast.error("বিবরণ তৈরি ব্যর্থ হয়েছে"); }
+    finally { setBusy(false); }
+  }
+  return (
+    <div className="space-y-2 rounded-xl border border-border bg-primary-soft/40 p-3 sm:col-span-2">
+      <p className="text-sm font-bold text-foreground">AI দিয়ে বাংলা বিবরণ লিখুন</p>
+      <div className="grid gap-2 sm:grid-cols-[1fr_160px_auto]">
+        <Input value={benefits} onChange={(e) => setBenefits(e.target.value)} placeholder="সুবিধা (কমা দিয়ে আলাদা করুন)" maxLength={2000} />
+        <Input value={dur} onChange={(e) => setDur(e.target.value)} placeholder="মেয়াদ, যেমন ১ মাস" maxLength={100} />
+        <Button type="button" onClick={go} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} তৈরি করুন</Button>
+      </div>
+    </div>
+  );
+}
+
+/** Groups consecutive lessons sharing the same module title. */
+function moduleGroups<T extends { module_title: string }>(lessons: T[]) {
+  const groups: { title: string; start: number; items: T[] }[] = [];
+  lessons.forEach((l, i) => {
+    const last = groups.at(-1);
+    if (last && last.title === l.module_title) last.items.push(l);
+    else groups.push({ title: l.module_title, start: i, items: [l] });
+  });
+  return groups;
+}
+
+function ThumbnailUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="space-y-2">
+      <div className="relative aspect-video w-full max-w-xs overflow-hidden rounded-xl border border-dashed border-border bg-muted">
+        {value ? <img src={value} alt="থাম্বনেইল" className="h-full w-full object-cover" /> : <p className="flex h-full items-center justify-center text-xs text-muted-foreground">কোনো ছবি নেই</p>}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <label className={`inline-flex h-9 cursor-pointer items-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground ${busy ? "opacity-50" : ""}`}>
+          {busy ? "আপলোড হচ্ছে..." : value ? "ছবি বদলান" : "ছবি আপলোড"}
+          <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" disabled={busy}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (!file) return;
+              if (file.size > 5 * 1024 * 1024) { toast.error("ছবি ৫MB-এর কম হতে হবে"); return; }
+              setBusy(true);
+              const path = `${crypto.randomUUID()}.${(file.name.split(".").pop() ?? "jpg").toLowerCase()}`;
+              const up = await supabase.storage.from("thumbnails").upload(path, file, { contentType: file.type });
+              const signed = up.error ? null : await supabase.storage.from("thumbnails").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+              setBusy(false);
+              if (!signed?.data) { toast.error("আপলোড হয়নি"); return; }
+              onChange(signed.data.signedUrl);
+              toast.success("ছবি আপলোড হয়েছে — সংরক্ষণ করতে ভুলবেন না");
+            }} />
+        </label>
+        {value && <Button type="button" size="sm" variant="ghost" onClick={() => onChange("")}>সরান</Button>}
+      </div>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder="অথবা ছবির লিংক দিন" className="h-9 text-xs" />
+    </div>
   );
 }

@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_logs: {
+        Row: {
+          action: string
+          blocked: boolean
+          created_at: string
+          device_id: string
+          id: string
+          ip: string
+          item_kind: string
+          item_slug: string
+          user_agent: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          blocked?: boolean
+          created_at?: string
+          device_id?: string
+          id?: string
+          ip?: string
+          item_kind: string
+          item_slug: string
+          user_agent?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          blocked?: boolean
+          created_at?: string
+          device_id?: string
+          id?: string
+          ip?: string
+          item_kind?: string
+          item_slug?: string
+          user_agent?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -190,6 +229,35 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_progress: {
+        Row: {
+          completed_at: string
+          id: string
+          lesson_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          lesson_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          lesson_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_videos: {
         Row: {
           lesson_id: string
@@ -300,10 +368,14 @@ export type Database = {
           approved_at: string | null
           created_at: string
           customer_note: string
+          delivered_at: string | null
+          delivery_note: string
+          delivery_status: string
           id: string
           item_name: string
           item_slug: string
           item_type: Database["public"]["Enums"]["item_type"]
+          outlet_slug: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           sender_number: string
           status: Database["public"]["Enums"]["order_status"]
@@ -317,10 +389,14 @@ export type Database = {
           approved_at?: string | null
           created_at?: string
           customer_note?: string
+          delivered_at?: string | null
+          delivery_note?: string
+          delivery_status?: string
           id?: string
           item_name: string
           item_slug: string
           item_type: Database["public"]["Enums"]["item_type"]
+          outlet_slug?: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           sender_number: string
           status?: Database["public"]["Enums"]["order_status"]
@@ -334,16 +410,98 @@ export type Database = {
           approved_at?: string | null
           created_at?: string
           customer_note?: string
+          delivered_at?: string | null
+          delivery_note?: string
+          delivery_status?: string
           id?: string
           item_name?: string
           item_slug?: string
           item_type?: Database["public"]["Enums"]["item_type"]
+          outlet_slug?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
           sender_number?: string
           status?: Database["public"]["Enums"]["order_status"]
           transaction_id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      outlet_items: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          item_id: string
+          outlet_id: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          item_id: string
+          outlet_id: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          item_id?: string
+          outlet_id?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outlet_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outlet_items_outlet_id_fkey"
+            columns: ["outlet_id"]
+            isOneToOne: false
+            referencedRelation: "outlets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outlets: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -534,6 +692,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_devices: {
+        Row: {
+          device_id: string
+          first_seen: string
+          id: string
+          ip: string
+          last_seen: string
+          user_agent: string
+          user_id: string
+        }
+        Insert: {
+          device_id: string
+          first_seen?: string
+          id?: string
+          ip?: string
+          last_seen?: string
+          user_agent?: string
+          user_id: string
+        }
+        Update: {
+          device_id?: string
+          first_seen?: string
+          id?: string
+          ip?: string
+          last_seen?: string
+          user_agent?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

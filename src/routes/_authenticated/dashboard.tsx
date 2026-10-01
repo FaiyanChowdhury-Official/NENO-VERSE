@@ -90,12 +90,12 @@ function Dashboard() {
                           <Link to="/learn/$slug" params={{ slug: o.slug }} search={{ kind: o.kind }}>ভিডিও দেখুন</Link>
                         </Button>
                       )}
-                      {o.linkUrl && (
+                      {o.hasLink && (
                         <Button asChild size="sm" variant={o.accessType === "link" ? "default" : "outline"}>
-                          <a href={o.linkUrl} target="_blank" rel="noopener noreferrer">{o.linkLabel}</a>
+                          <Link to="/access/$kind/$slug" params={{ kind: o.kind, slug: o.slug }}>{o.linkLabel}</Link>
                         </Button>
                       )}
-                      {o.accessType === "link" && !o.linkUrl && (
+                      {o.accessType === "link" && !o.hasLink && (
                         <p className="text-sm text-muted-foreground">অ্যাক্সেস লিংক শীঘ্রই যুক্ত হবে।</p>
                       )}
                     </div>
@@ -113,7 +113,7 @@ function Dashboard() {
             <div className="space-y-3">
               {orders.data!.map((o) => (
                 <div key={o.id} className="surface-card flex flex-wrap items-center justify-between gap-3 p-4">
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-semibold text-foreground">{o.item_name}</p>
                     <p className="text-xs text-subtle-foreground">
                       {paymentLabel(o.payment_method)} • TrxID: {o.transaction_id} •{" "}
@@ -126,6 +126,7 @@ function Dashboard() {
                       {orderStatusLabels[o.status]}
                     </span>
                   </div>
+                  <OrderSteps order={o} />
                 </div>
               ))}
             </div>
@@ -176,5 +177,35 @@ function ProfileForm({ initial }: { initial: { fullName: string; phone: string; 
       </div>
       <Button type="submit" disabled={busy}>সংরক্ষণ করুন</Button>
     </form>
+  );
+}
+
+function OrderSteps({ order }: { order: { status: string; created_at: string; approved_at: string | null; delivery_status: string; delivery_note: string; delivered_at: string | null } }) {
+  if (order.status === "rejected") {
+    return <p className="w-full basis-full rounded-lg bg-destructive/10 p-3 text-sm text-destructive">পেমেন্ট যাচাই সফল হয়নি। প্রশ্ন থাকলে সাপোর্ট ট্যাব থেকে টিকিট খুলুন।</p>;
+  }
+  const approved = order.status === "approved";
+  const steps = [
+    { t: "অর্ডার জমা হয়েছে", done: true, at: order.created_at },
+    { t: "পেমেন্ট যাচাই", done: approved, at: order.approved_at },
+    { t: "অ্যাক্টিভেশন চলছে", done: approved && ["processing", "delivered"].includes(order.delivery_status), at: null },
+    { t: "ডেলিভারি সম্পন্ন — ব্যবহার করুন", done: approved && order.delivery_status === "delivered", at: order.delivered_at },
+  ];
+  return (
+    <div className="w-full basis-full border-t border-border pt-3">
+      <ol className="grid gap-2 sm:grid-cols-4">
+        {steps.map((s, i) => (
+          <li key={s.t} className="flex items-start gap-2 text-xs">
+            <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${s.done ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{(i + 1).toLocaleString("bn-BD")}</span>
+            <span>
+              <span className={s.done ? "font-semibold text-foreground" : "text-muted-foreground"}>{s.t}</span>
+              {s.done && s.at && <span className="block text-subtle-foreground">{new Date(s.at).toLocaleString("bn-BD")}</span>}
+            </span>
+          </li>
+        ))}
+      </ol>
+      {order.delivery_status === "failed" && <p className="mt-2 text-xs text-destructive">ডেলিভারিতে সমস্যা হয়েছে — আমরা আপনার সাথে যোগাযোগ করব।</p>}
+      {order.delivery_note && <p className="mt-2 rounded-lg bg-primary-soft/60 p-2 text-xs text-foreground">{order.delivery_note}</p>}
+    </div>
   );
 }

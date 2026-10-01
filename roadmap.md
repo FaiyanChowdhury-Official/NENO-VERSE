@@ -1,10 +1,12 @@
 # Roadmap
-- [x] AI review insights, AI reply drafts, CSV export
-- [x] Mobile-friendly admin panel
-- [x] Payment settings (admin-editable), support tickets, notifications, audit log
-- [x] Pro subscriptions as digital products (category + draft items + activation info at checkout)
-- [x] Admin: অ্যানালিটিক্স, বিক্রয় চ্যানেল, স্টোরফ্রন্ট সেটিংস
-- [ ] Email notifications — needs a sender email domain from the owner
-- [ ] Staff roles (content/finance/support managers) — confirm with owner
-- [ ] Payment screenshot upload at checkout
-- [ ] Real bKash/Rocket/bank numbers — owner enters in Admin > সেটিংস
+- [x] AI review insights, AI reply drafts, CSV export, mobile admin
+- [x] Payment settings, support tickets, notifications, audit log
+- [x] Pro subscriptions, delivery status steps, AI product descriptions
+- [x] Analytics, outlets (per-outlet prices + sales), storefront settings
+- [x] Secure in-site access (device limit, logs, private files)
+- [x] LMS: modules, progress tracking; YouTube/iframe lessons
+- [x] Contact links (WhatsApp/Telegram/Messenger), AI help assistant, thumbnail upload
+- [ ] Email notifications — needs sender domain
+- [ ] Staff roles — confirm with owner
+- [ ] Payment screenshot upload
+- [ ] Real payment numbers — owner enters in Admin > সেটিংস

@@ -1,7 +1,7 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
-import { adminDeleteOrder, adminGrantAccess, adminListItems, adminListOrders, adminUpdateOrder } from "@/lib/admin.functions";
+import { adminDeleteOrder, adminGrantAccess, adminListItems, adminListOrders, adminUpdateOrder, adminUpdateDelivery } from "@/lib/admin.functions";
 import { orderStatusLabels, paymentLabel } from "@/lib/payments";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -82,6 +82,7 @@ export function OrdersPanel() {
                 )}
                 <ConfirmDelete onConfirm={() => run(() => del({ data: { id: o.id } }), "অর্ডার মুছে ফেলা হয়েছে", keys)} />
               </div>
+              {o.status === "approved" && <DeliveryEditor order={o} />}
             </div>
           ))}
         </div>
@@ -131,6 +132,25 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="surface-card p-5">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-extrabold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+const deliveryLabels: Record<string, string> = { waiting: "অপেক্ষমাণ", processing: "অ্যাক্টিভেশন চলছে", delivered: "ডেলিভারি সম্পন্ন", failed: "সমস্যা হয়েছে" };
+
+function DeliveryEditor({ order }: { order: { id: string; delivery_status: string; delivery_note: string; outlet_slug?: string } }) {
+  const save = useServerFn(adminUpdateDelivery);
+  const run = useAdminAction();
+  const [st, setSt] = useState(order.delivery_status);
+  const [note, setNote] = useState(order.delivery_note);
+  return (
+    <div className="flex w-full basis-full flex-col gap-2 rounded-xl bg-muted/50 p-3 sm:flex-row sm:items-center">
+      <span className="text-xs font-semibold text-muted-foreground">ডেলিভারি{order.outlet_slug ? ` • আউটলেট: ${order.outlet_slug}` : ""}</span>
+      <select value={st} onChange={(e) => setSt(e.target.value)} className="h-9 rounded-md border border-input bg-background px-2 text-sm">
+        {Object.entries(deliveryLabels).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+      </select>
+      <Input className="h-9 flex-1" value={note} onChange={(e) => setNote(e.target.value)} placeholder="গ্রাহকের জন্য বার্তা, যেমন: আপনার ইমেইলে ইনভাইট পাঠানো হয়েছে" maxLength={1000} />
+      <Button size="sm" onClick={() => run(() => save({ data: { id: order.id, delivery_status: st as "waiting", delivery_note: note } }), "ডেলিভারি আপডেট হয়েছে", [["admin-orders"]])}>সেভ</Button>
     </div>
   );
 }

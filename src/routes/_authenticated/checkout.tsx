@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useCatalog } from "@/data/catalog";
@@ -35,6 +35,19 @@ function CheckoutPage() {
   const submit = useServerFn(createOrder);
   const [method, setMethod] = useState<PaymentMethod>("bkash");
   const settings = useSetting<PaymentSettings>("payment");
+  const [outletSlug, setOutletSlug] = useState("");
+  useEffect(() => { setOutletSlug(localStorage.getItem("octopus-outlet") ?? ""); }, []);
+  const outletPrice = useQuery({
+    queryKey: ["outlet-price", outletSlug, type, slug],
+    enabled: !!outletSlug,
+    queryFn: async () => {
+      const { data: it } = await supabase.from("items").select("id").eq("kind", type).eq("slug", slug).maybeSingle();
+      const { data: o } = await supabase.from("outlets").select("id").eq("slug", outletSlug).maybeSingle();
+      if (!it || !o) return null;
+      const { data: oi } = await supabase.from("outlet_items").select("price").eq("outlet_id", o.id).eq("item_id", it.id).eq("active", true).maybeSingle();
+      return oi?.price ?? null;
+    },
+  });
   const extra = useQuery({
     queryKey: ["item-extra", type, slug],
     queryFn: async () => (await supabase.from("items").select("requires_customer_info,customer_info_label").eq("kind", type).eq("slug", slug).maybeSingle()).data,
@@ -63,6 +76,7 @@ function CheckoutPage() {
           senderNumber: String(f.get("sender")),
           transactionId: String(f.get("trx")),
           customerNote: String(f.get("note") ?? ""),
+          outletSlug: outletSlug,
         },
       });
       if (!r.ok) { toast.error(r.error); return; }
@@ -106,7 +120,7 @@ function CheckoutPage() {
 
         <div className="rounded-xl bg-muted p-4 text-sm">
           <p className="font-semibold text-foreground">টাকা পাঠান: {account}</p>
-          <p className="mt-1 font-semibold text-primary">পরিমাণ: {formatBdt(item.price)}</p>
+          <p className="mt-1 font-semibold text-primary">পরিমাণ: {formatBdt(outletPrice.data ?? item.price)}</p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-muted-foreground">
             {steps.map((s) => <li key={s}>{s}</li>)}
           </ol>
@@ -140,7 +154,7 @@ function CheckoutPage() {
         <h2 className="mt-1 font-bold text-foreground">{item.name}</h2>
         <div className="mt-4 flex justify-between border-t border-border pt-4 font-bold">
           <span>মোট</span>
-          <span className="text-primary">{formatBdt(item.price)}</span>
+          <span className="text-primary">{formatBdt(outletPrice.data ?? item.price)}</span>
         </div>
       </aside>
     </div>

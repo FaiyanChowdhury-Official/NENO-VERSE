@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { ContactDock } from "@/components/site/ContactDock";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { catalogQuery } from "@/lib/catalog.functions";
@@ -128,6 +129,11 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    const o = new URLSearchParams(window.location.search).get("outlet");
+    if (o && /^[a-z0-9-]{2,40}$/.test(o)) localStorage.setItem("octopus-outlet", o);
+  }, []);
+
+  useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
@@ -145,6 +151,7 @@ function RootComponent() {
           <Outlet />
         </main>
         <Footer />
+        <ContactDock />
       </div>
       <Toaster richColors position="top-center" />
     </QueryClientProvider>

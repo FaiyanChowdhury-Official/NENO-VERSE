@@ -95,7 +95,7 @@ export function SupportPanel() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        {[["active", "চলমান"], ["all", "সব"], ...Object.entries(ticketStatusLabels)].map(([k, l]) => (
+        {([["active", "চলমান"], ["all", "সব"], ...Object.entries(ticketStatusLabels)] as [string, string][]).map(([k, l]) => (
           <Button key={k} size="sm" variant={filter === k ? "default" : "outline"} onClick={() => setFilter(k)}>{l}</Button>
         ))}
       </div>

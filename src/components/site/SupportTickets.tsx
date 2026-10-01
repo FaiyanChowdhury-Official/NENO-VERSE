@@ -22,14 +22,14 @@ export function TicketThread({ ticketId, staff }: { ticketId: string; staff: boo
     queryKey: ["ticket-messages", ticketId],
     queryFn: async () => (await supabase.from("ticket_messages").select("*").eq("ticket_id", ticketId).order("created_at")).data ?? [],
   });
-  async function send(e: FormEvent) {
+  async function send(e: FormEvent): Promise<void> {
     e.preventDefault();
     if (!body.trim()) return;
     setBusy(true);
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("ticket_messages").insert({ ticket_id: ticketId, author_id: u.user!.id, is_staff: staff, body: body.trim().slice(0, 5000) });
     setBusy(false);
-    if (error) return toast.error("পাঠানো যায়নি");
+    if (error) { toast.error("পাঠানো যায়নি"); return; }
     setBody("");
     qc.invalidateQueries({ queryKey: ["ticket-messages", ticketId] });
     qc.invalidateQueries({ queryKey: ["tickets"] });
@@ -61,13 +61,13 @@ export function MySupportTickets() {
     queryFn: async () => (await supabase.from("support_tickets").select("*").order("updated_at", { ascending: false })).data ?? [],
   });
 
-  async function create(e: FormEvent<HTMLFormElement>) {
+  async function create(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const subject = String(f.get("subject") ?? "").trim();
     const message = String(f.get("message") ?? "").trim();
     const orderRaw = String(f.get("order") ?? "").trim();
-    if (subject.length < 3 || message.length < 5) return toast.error("বিষয় ও বার্তা লিখুন");
+    if (subject.length < 3 || message.length < 5) { toast.error("বিষয় ও বার্তা লিখুন"); return; }
     setBusy(true);
     const { data: u } = await supabase.auth.getUser();
     const isUuid = /^[0-9a-f-]{36}$/i.test(orderRaw);
@@ -76,7 +76,7 @@ export function MySupportTickets() {
       .select("id").single();
     if (!error && t) await supabase.from("ticket_messages").insert({ ticket_id: t.id, author_id: u.user!.id, body: message.slice(0, 5000) });
     setBusy(false);
-    if (error) return toast.error("টিকিট খোলা যায়নি");
+    if (error) { toast.error("টিকিট খোলা যায়নি"); return; }
     toast.success("টিকিট খোলা হয়েছে");
     (e.target as HTMLFormElement).reset();
     qc.invalidateQueries({ queryKey: ["tickets"] });

@@ -19,11 +19,11 @@ export function ContactForm() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const name = f.name.trim(), phone = f.phone.trim(), message = f.message.trim();
-    if (!name || phone.length < 6 || !message) return toast.error("নাম, ফোন ও বার্তা দিন");
+    if (!name || phone.length < 6 || !message) { toast.error("নাম, ফোন ও বার্তা দিন"); return; }
     setBusy(true);
     const { error } = await supabase.from("contact_messages").insert({ name: name.slice(0, 100), phone: phone.slice(0, 20), message: message.slice(0, 2000) });
     setBusy(false);
-    if (error) return toast.error("পাঠানো যায়নি, আবার চেষ্টা করুন");
+    if (error) { toast.error("পাঠানো যায়নি, আবার চেষ্টা করুন"); return; }
     toast.success("বার্তা পাঠানো হয়েছে");
     const wa = gen.data?.whatsapp;
     if (wa) {

@@ -46,12 +46,12 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 const CHIPS = [
-  "bg-primary-soft text-primary-soft-foreground",
-  "bg-teal-soft text-teal",
-  "bg-chip-violet-soft text-chip-violet",
-  "bg-chip-rose-soft text-chip-rose",
-  "bg-chip-amber-soft text-chip-amber",
-  "bg-chip-sky-soft text-chip-sky",
+  "bg-primary text-primary-foreground shadow-sm",
+  "bg-chip-violet text-primary-foreground shadow-sm",
+  "bg-chip-sky text-primary-foreground shadow-sm",
+  "bg-chip-rose text-primary-foreground shadow-sm",
+  "bg-chip-amber text-primary-foreground shadow-sm",
+  "bg-teal text-teal-foreground shadow-sm",
 ] as const;
 
 const NAV = [
@@ -90,10 +90,10 @@ function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-primary-soft/40">
+    <div className="min-h-screen bg-muted/50">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-3 py-4 sm:px-6 sm:py-6 lg:flex-row">
         {/* Sidebar */}
-        <aside className="sticky top-0 z-20 -mx-3 shrink-0 bg-primary-soft/80 px-3 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 lg:w-60">
+        <aside className="sticky top-0 z-20 -mx-3 shrink-0 bg-background/90 px-3 py-2 backdrop-blur sm:static sm:mx-0 sm:bg-transparent sm:p-0 lg:w-60">
           <div className="rounded-2xl border border-border bg-card p-2 shadow-card sm:p-3 lg:sticky lg:top-6">
             <p className="hidden px-3 pb-2 pt-1 text-xs lg:block font-semibold uppercase tracking-wide text-subtle-foreground">অ্যাডমিন মেনু</p>
             <nav className="flex gap-1 overflow-x-auto [scrollbar-width:none] lg:flex-col">
@@ -103,11 +103,11 @@ function AdminPage() {
                   onClick={() => setSection(item.id)}
                   className={`flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium sm:px-3.5 sm:py-2.5 transition-colors ${
                     section === item.id
-                      ? "bg-primary text-primary-foreground shadow-cta"
+                      ? "bg-foreground text-background shadow-card"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  <span className={`flex size-7 items-center justify-center rounded-lg ${section === item.id ? "bg-white/20 text-primary-foreground" : CHIPS[item.chip]}`}>
+                  <span className={`flex size-7 items-center justify-center rounded-lg ${section === item.id ? "bg-background/15 text-background" : CHIPS[item.chip]}`}>
                     <item.icon className="h-4 w-4" />
                   </span>
                   {item.label}

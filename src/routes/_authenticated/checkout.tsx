@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useCatalog } from "@/data/catalog";
@@ -120,7 +120,7 @@ function CheckoutPage() {
 
         <div className="rounded-xl bg-muted p-4 text-sm">
           <p className="font-semibold text-foreground">টাকা পাঠান: {account}</p>
-          <p className="mt-1 font-semibold text-primary">পরিমাণ: {formatBdt(item.price)}</p>
+          <p className="mt-1 font-semibold text-primary">পরিমাণ: {formatBdt(outletPrice.data ?? item.price)}</p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-muted-foreground">
             {steps.map((s) => <li key={s}>{s}</li>)}
           </ol>
@@ -154,7 +154,7 @@ function CheckoutPage() {
         <h2 className="mt-1 font-bold text-foreground">{item.name}</h2>
         <div className="mt-4 flex justify-between border-t border-border pt-4 font-bold">
           <span>মোট</span>
-          <span className="text-primary">{formatBdt(item.price)}</span>
+          <span className="text-primary">{formatBdt(outletPrice.data ?? item.price)}</span>
         </div>
       </aside>
     </div>

@@ -12,3 +12,4 @@
 - [ ] AI Bengali product description generator (name, benefits, duration)
 - [ ] Order delivery status + access steps for subscriptions (customer + admin)
 - [ ] Per-outlet products, prices and sales summary
+- [ ] LMS: module-wise course builder (admin), module-grouped classroom, lesson progress tracking

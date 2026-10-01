@@ -14,10 +14,224 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["item_type"]
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["item_type"]
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["item_type"]
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      item_links: {
+        Row: {
+          item_id: string
+          label: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          item_id: string
+          label?: string
+          updated_at?: string
+          url?: string
+        }
+        Update: {
+          item_id?: string
+          label?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_links_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: true
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      items: {
+        Row: {
+          access_days: number | null
+          access_note: string
+          access_type: string
+          category_slug: string
+          created_at: string
+          description: string[]
+          duration: string
+          file_info: string
+          highlights: string[]
+          id: string
+          image_url: string
+          instructor: string
+          is_new: boolean
+          kind: Database["public"]["Enums"]["item_type"]
+          lesson_count: number
+          level: string
+          name: string
+          original_price: number | null
+          popular: boolean
+          price: number
+          published: boolean
+          short_description: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          access_days?: number | null
+          access_note?: string
+          access_type?: string
+          category_slug?: string
+          created_at?: string
+          description?: string[]
+          duration?: string
+          file_info?: string
+          highlights?: string[]
+          id?: string
+          image_url?: string
+          instructor?: string
+          is_new?: boolean
+          kind: Database["public"]["Enums"]["item_type"]
+          lesson_count?: number
+          level?: string
+          name: string
+          original_price?: number | null
+          popular?: boolean
+          price?: number
+          published?: boolean
+          short_description?: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          access_days?: number | null
+          access_note?: string
+          access_type?: string
+          category_slug?: string
+          created_at?: string
+          description?: string[]
+          duration?: string
+          file_info?: string
+          highlights?: string[]
+          id?: string
+          image_url?: string
+          instructor?: string
+          is_new?: boolean
+          kind?: Database["public"]["Enums"]["item_type"]
+          lesson_count?: number
+          level?: string
+          name?: string
+          original_price?: number | null
+          popular?: boolean
+          price?: number
+          published?: boolean
+          short_description?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lesson_videos: {
+        Row: {
+          lesson_id: string
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          lesson_id: string
+          updated_at?: string
+          video_url?: string
+        }
+        Update: {
+          lesson_id?: string
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_videos_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: true
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          created_at: string
+          duration: string
+          id: string
+          is_free: boolean
+          item_id: string
+          module_title: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration?: string
+          id?: string
+          is_free?: boolean
+          item_id: string
+          module_title?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration?: string
+          id?: string
+          is_free?: boolean
+          item_id?: string
+          module_title?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           admin_note: string | null
           amount: number
+          approved_at: string | null
           created_at: string
           id: string
           item_name: string
@@ -33,6 +247,7 @@ export type Database = {
         Insert: {
           admin_note?: string | null
           amount: number
+          approved_at?: string | null
           created_at?: string
           id?: string
           item_name: string
@@ -48,6 +263,7 @@ export type Database = {
         Update: {
           admin_note?: string | null
           amount?: number
+          approved_at?: string | null
           created_at?: string
           id?: string
           item_name?: string
@@ -121,7 +337,7 @@ export type Database = {
       app_role: "admin" | "moderator" | "user"
       item_type: "product" | "course"
       order_status: "pending" | "approved" | "rejected"
-      payment_method: "bkash" | "rocket" | "bank"
+      payment_method: "bkash" | "rocket" | "bank" | "manual"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -252,7 +468,7 @@ export const Constants = {
       app_role: ["admin", "moderator", "user"],
       item_type: ["product", "course"],
       order_status: ["pending", "approved", "rejected"],
-      payment_method: ["bkash", "rocket", "bank"],
+      payment_method: ["bkash", "rocket", "bank", "manual"],
     },
   },
 } as const

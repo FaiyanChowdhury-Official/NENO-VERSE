@@ -168,7 +168,7 @@ const lessonSchema = z.object({
   title: z.string().trim().min(1).max(200),
   duration: z.string().max(40).default(""),
   is_free: z.boolean().default(false),
-  video_url: z.string().max(1000).default(""),
+  video_url: z.string().max(3000).default(""),
 });
 
 const itemSchema = z.object({

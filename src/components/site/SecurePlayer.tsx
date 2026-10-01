@@ -4,7 +4,7 @@ import { PlayCircle } from "lucide-react";
 function embedUrl(raw: string): { type: "iframe" | "video"; src: string } {
   // Accept pasted <iframe src="..."> embed code too
   const m = raw.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i);
-  const url = (m ? m[1] : raw).trim();
+  const url = (m?.[1] ?? raw).trim();
   const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/);
   if (yt) return { type: "iframe", src: `https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0&modestbranding=1&iv_load_policy=3` };
   const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);

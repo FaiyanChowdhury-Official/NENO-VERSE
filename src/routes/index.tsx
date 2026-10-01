@@ -91,10 +91,10 @@ function Index() {
             <div aria-hidden className="absolute inset-10 -z-10 rounded-full bg-primary/25 blur-3xl animate-glow" />
             <img
               src={heroImage}
-              alt="ল্যাপটপে অনলাইন কোর্স, ই-বুক, হেডফোন ও ডিজিটাল প্রোডাক্ট"
-              width={1600}
-              height={1008}
-              className="w-full animate-float [animation-duration:7s] mix-blend-multiply [mask-image:radial-gradient(ellipse_at_center,black_45%,transparent_75%)]"
+              alt="বই হাতে হাসিখুশি AI রোবট"
+              width={1200}
+              height={1200}
+              className="w-full animate-float [animation-duration:7s] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_70%)]"
             />
           </div>
         </div>

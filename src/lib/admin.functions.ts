@@ -31,14 +31,16 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
     const { data } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
     const roles = ((data ?? []) as { role: string }[]).map((r) => r.role);
     const isFullAdmin = roles.includes("admin");
+    const { data: sa } = await context.supabase.from("site_settings").select("value").eq("key", "staff_access").maybeSingle();
+    const staffEnabled = (sa?.value as { enabled?: boolean } | null)?.enabled !== false;
     const areas: StaffArea[] = isFullAdmin
       ? ["content", "finance", "support"]
-      : ([
+      : !staffEnabled ? [] : ([
           roles.includes("content_manager") && "content",
           roles.includes("finance_manager") && "finance",
           roles.includes("support_manager") && "support",
         ].filter(Boolean) as StaffArea[]);
-    return { isAdmin: isFullAdmin || areas.length > 0, isFullAdmin, roles, areas };
+    return { isAdmin: isFullAdmin || areas.length > 0, isFullAdmin, roles, areas, staffEnabled };
   });
 
 /* ---------------- Staff roles (full admin only) ---------------- */

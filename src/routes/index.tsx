@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchSetting, defaultStorefront, type StorefrontSettings } from "@/lib/settings";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BadgeCheck, HeadphonesIcon, ShieldCheck, Wallet, Zap } from "lucide-react";
+import { ArrowRight, BadgeCheck, HeadphonesIcon, Play, ShieldCheck, Wallet, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-dashboard.jpg";
 import { CourseCard } from "@/components/site/CourseCard";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -49,12 +49,18 @@ function Index() {
   return (
     <div>
       {sf.announcement && <div className="bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground">{sf.announcement}</div>}
-      {/* Hero */}
+      {/* Hero — DEVSKILL-style soft peach */}
       <section className="hero-wallpaper relative overflow-hidden">
-        <div className="pointer-events-none absolute -top-40 -right-32 size-[32rem] rounded-full bg-primary-soft blur-3xl" />
+        {/* floating decorative dots */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <span className="absolute top-[18%] left-[42%] size-3 rounded-full bg-primary" />
+          <span className="absolute top-[30%] right-[8%] size-3.5 rounded-full bg-teal" />
+          <span className="absolute bottom-[22%] left-[6%] size-2.5 rounded-full bg-teal" />
+          <span className="absolute top-[12%] right-[30%] size-2 rounded-full bg-primary/70" />
+        </div>
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground">
+            <span className="inline-flex -rotate-2 items-center gap-2 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground shadow-cta">
               {sf.badge}
             </span>
             <h1 className="animate-rise mt-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
@@ -63,32 +69,37 @@ function Index() {
             <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
               {sf.subtitle}
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="rounded-full px-7 font-semibold">
-                <Link to="/products">
-                  প্রোডাক্ট দেখুন <ArrowRight className="size-4" />
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Button asChild size="lg" className="rounded-full bg-teal px-7 font-semibold text-teal-foreground hover:bg-teal/90">
+                <Link to="/courses">
+                  শুরু করুন <ArrowRight className="size-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full px-7 font-semibold">
-                <Link to="/courses">কোর্স দেখুন</Link>
-              </Button>
+              <Link to="/products" className="group inline-flex items-center gap-3 font-semibold text-foreground">
+                <span className="inline-flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-cta transition-transform group-hover:scale-105">
+                  <Play className="size-5 fill-current" />
+                </span>
+                প্রোডাক্ট দেখুন
+              </Link>
             </div>
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-6">
+            <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-8">
               {[
                 { k: sf.stat1_label, v: sf.stat1_value },
                 { k: sf.stat2_label, v: sf.stat2_value },
                 { k: sf.stat3_label, v: sf.stat3_value },
               ].map((s) => (
                 <div key={s.k}>
-                  <dt className="text-sm text-muted-foreground">{s.k}</dt>
-                  <dd className="text-2xl font-bold text-foreground">{s.v}</dd>
+                  <dd className="text-3xl font-extrabold text-foreground">{s.v}</dd>
+                  <dt className="mt-1 text-sm text-muted-foreground">{s.k}</dt>
                 </div>
               ))}
             </dl>
           </div>
 
           <div className="relative animate-rise [animation-delay:200ms]">
-            <div aria-hidden className="absolute inset-10 -z-10 rounded-full bg-primary/25 blur-3xl animate-glow" />
+            <div aria-hidden className="absolute inset-10 -z-10 rounded-full bg-primary/20 blur-3xl animate-glow" />
+            <div aria-hidden className="absolute -top-4 right-6 size-16 rotate-12 rounded-2xl bg-teal-soft shadow-card animate-float" />
+            <div aria-hidden className="absolute bottom-8 -left-2 size-14 -rotate-6 rounded-2xl bg-primary-soft shadow-card animate-float [animation-delay:1.2s]" />
             <img
               src={heroImage}
               alt="বই হাতে হাসিখুশি AI রোবট"

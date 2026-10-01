@@ -119,7 +119,7 @@ function SearchPage() {
         </Row>
       </div>
 
-      <p className="mt-8 text-sm text-muted-foreground">{results.length}টি ফলাফল</p>
+      <p className="mt-8 text-sm text-muted-foreground">{results.length.toLocaleString("bn-BD")}টি ফলাফল</p>
       {results.length === 0 ? (
         <p className="mt-12 text-center text-muted-foreground">কিছু পাওয়া যায়নি। অন্য শব্দ বা ফিল্টার দিয়ে চেষ্টা করুন।</p>
       ) : (

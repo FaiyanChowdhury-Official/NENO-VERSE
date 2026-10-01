@@ -13,3 +13,6 @@
 - [x] Eye-catching product/course/hero images
 - [x] Admin panel: colorful icons/cards design
 - [x] Global search page (/search) + /login /register /forgot-password links
+
+- [ ] Apply Cove palette (#006BBB, #30A0E0, #FFC872, #FFE3B3) with mostly white backgrounds
+- [ ] Staff roles + separate admin/dashboard page addresses

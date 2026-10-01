@@ -11,3 +11,4 @@
 - [x] Payment screenshot upload
 - [ ] Real payment numbers — owner enters in Admin > সেটিংস
 - [x] Eye-catching product/course/hero images
+- [ ] Admin panel: Mentori-style colorful icons/cards design

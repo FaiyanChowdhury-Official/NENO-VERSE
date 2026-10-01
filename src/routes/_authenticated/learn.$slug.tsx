@@ -59,7 +59,7 @@ function LearnPage() {
             <div className="flex h-full items-center justify-center p-6 text-center text-sm text-background">{stream.data.reason}</div>
           ) : (
           <SecurePlayer
-            source={stream.data && stream.data.kind !== "blocked" ? stream.data : null}
+            source={stream.data ?? null}
             title={current?.title ?? ""}
             emptyText={!lessons.length ? "এখনো কোনো ক্লাস যুক্ত হয়নি" : stream.isLoading ? "লোড হচ্ছে..." : "এই ক্লাসের ভিডিও শীঘ্রই যুক্ত হবে"}
             onExpired={() => stream.refetch()}

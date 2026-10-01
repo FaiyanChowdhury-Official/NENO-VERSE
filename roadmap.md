@@ -16,4 +16,5 @@
 
 - [x] Apply Cove palette (#006BBB, #30A0E0, #FFC872, #FFE3B3) with mostly white backgrounds
 - [x] Staff roles + separate admin/dashboard page addresses
-- [ ] Replace logo with uploaded NENO-VERSE logo (site + favicon)
+- [x] Replace logo with uploaded NENO-VERSE logo (site + favicon)
+- [ ] Verify each staff role by signing in as test staff (blocked: user declined test sign-in)

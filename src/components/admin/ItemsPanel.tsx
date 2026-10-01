@@ -221,34 +221,49 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
 
       {showLessons && (
         <section className="space-y-3">
-          <h3 className="font-bold text-foreground">ভিডিও ক্লাস</h3>
-          <p className="text-xs text-muted-foreground">সবচেয়ে নিরাপদ: ভিডিও ফাইল আপলোড করুন — এটি গোপন স্টোরেজে থাকে, শুধু ক্রেতারা ১০ মিনিট মেয়াদি লিংকে দেখতে পারে, ডাউনলোড বোতাম থাকে না। চাইলে YouTube (unlisted) বা Vimeo লিংকও দিতে পারেন।</p>
-          {lessons.map((l, i) => (
-            <div key={l.id ?? `new-${i}`} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_1fr_100px_auto]">
-              <Input value={l.module_title} onChange={(e) => setLesson(i, { module_title: e.target.value })} placeholder="মডিউল/অধ্যায়" />
-              <Input value={l.title} onChange={(e) => setLesson(i, { title: e.target.value })} placeholder="ক্লাসের নাম" />
-              <Input value={l.duration} onChange={(e) => setLesson(i, { duration: e.target.value })} placeholder="১০:০০" />
-              <div className="flex items-center gap-1">
-                <Button type="button" size="icon" variant="ghost" disabled={i === 0} onClick={() => move(i, -1)} aria-label="উপরে"><ArrowUp className="size-4" /></Button>
-                <Button type="button" size="icon" variant="ghost" disabled={i === lessons.length - 1} onClick={() => move(i, 1)} aria-label="নিচে"><ArrowDown className="size-4" /></Button>
-                <Button type="button" size="icon" variant="ghost" onClick={() => set("lessons", lessons.filter((_, j) => j !== i))} aria-label="মুছুন"><Trash2 className="size-4 text-destructive" /></Button>
+          <h3 className="font-bold text-foreground">কোর্স কারিকুলাম (মডিউল ও ক্লাস)</h3>
+          <p className="text-xs text-muted-foreground">সবচেয়ে নিরাপদ: ভিডিও ফাইল আপলোড করুন — এটি গোপন স্টোরেজে থাকে, শুধু ক্রেতারা ৫ মিনিট মেয়াদি লিংকে দেখতে পারে, ডাউনলোড বোতাম থাকে না। চাইলে YouTube (unlisted) বা Vimeo লিংকও দিতে পারেন।</p>
+          {moduleGroups(lessons).map((g, gi) => (
+            <div key={gi} className="space-y-2 rounded-2xl border border-border bg-muted/30 p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <span className="shrink-0 rounded-lg bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">মডিউল {(gi + 1).toLocaleString("bn-BD")}</span>
+                <Input className="font-semibold" value={g.title} placeholder="মডিউলের নাম, যেমন: শুরু করার আগে"
+                  onChange={(e) => set("lessons", lessons.map((l, j) => (j >= g.start && j < g.start + g.items.length ? { ...l, module_title: e.target.value } : l)))} />
+                <span className="shrink-0 text-xs text-muted-foreground">{g.items.length.toLocaleString("bn-BD")}টি ক্লাস</span>
+                <Button type="button" size="sm" variant="ghost" onClick={() => { if (confirm("পুরো মডিউল ও এর সব ক্লাস মুছবেন?")) set("lessons", lessons.filter((_, j) => j < g.start || j >= g.start + g.items.length)); }}>
+                  <Trash2 className="size-4 text-destructive" />
+                </Button>
               </div>
-              <div className="flex gap-2 sm:col-span-3">
-                <Input value={l.video_url.startsWith("storage:") ? "🔒 আপলোড করা ভিডিও (সুরক্ষিত)" : l.video_url} readOnly={l.video_url.startsWith("storage:")} onChange={(e) => setLesson(i, { video_url: e.target.value })} placeholder="ভিডিও লিংক অথবা ফাইল আপলোড করুন" />
-                <VideoUpload onUploaded={(path) => setLesson(i, { video_url: `storage:${path}` })} />
-                {l.video_url && <Button type="button" size="sm" variant="ghost" className="h-10" onClick={() => setLesson(i, { video_url: "" })}>সরান</Button>}
-              </div>
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Switch checked={l.is_free} onCheckedChange={(c) => setLesson(i, { is_free: c })} /> ফ্রি প্রিভিউ
-              </label>
+              {g.items.map((l, k) => {
+                const i = g.start + k;
+                return (
+                  <div key={l.id ?? `new-${i}`} className="grid gap-2 rounded-xl border border-border bg-background p-3 sm:grid-cols-[1fr_100px_auto]">
+                    <Input value={l.title} onChange={(e) => setLesson(i, { title: e.target.value })} placeholder={`ক্লাস ${(k + 1).toLocaleString("bn-BD")}-এর নাম`} />
+                    <Input value={l.duration} onChange={(e) => setLesson(i, { duration: e.target.value })} placeholder="১০:০০" />
+                    <div className="flex items-center gap-1">
+                      <Button type="button" size="icon" variant="ghost" disabled={k === 0} onClick={() => move(i, -1)} aria-label="উপরে"><ArrowUp className="size-4" /></Button>
+                      <Button type="button" size="icon" variant="ghost" disabled={k === g.items.length - 1} onClick={() => move(i, 1)} aria-label="নিচে"><ArrowDown className="size-4" /></Button>
+                      <Button type="button" size="icon" variant="ghost" onClick={() => set("lessons", lessons.filter((_, j) => j !== i))} aria-label="মুছুন"><Trash2 className="size-4 text-destructive" /></Button>
+                    </div>
+                    <div className="flex gap-2 sm:col-span-3">
+                      <Input value={l.video_url.startsWith("storage:") ? "আপলোড করা ভিডিও (সুরক্ষিত)" : l.video_url} readOnly={l.video_url.startsWith("storage:")} onChange={(e) => setLesson(i, { video_url: e.target.value })} placeholder="ভিডিও লিংক অথবা ফাইল আপলোড করুন" />
+                      <VideoUpload onUploaded={(path) => setLesson(i, { video_url: `storage:${path}` })} />
+                      {l.video_url && <Button type="button" size="sm" variant="ghost" className="h-10" onClick={() => setLesson(i, { video_url: "" })}>সরান</Button>}
+                    </div>
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Switch checked={l.is_free} onCheckedChange={(c) => setLesson(i, { is_free: c })} /> ফ্রি প্রিভিউ
+                    </label>
+                  </div>
+                );
+              })}
+              <Button type="button" size="sm" variant="outline"
+                onClick={() => { const at = g.start + g.items.length; const next = [...lessons]; next.splice(at, 0, { module_title: g.title, title: "", duration: "", is_free: false, video_url: "" }); set("lessons", next); }}>
+                <Plus className="size-4" /> এই মডিউলে ক্লাস যোগ করুন
+              </Button>
             </div>
           ))}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => set("lessons", [...lessons, { module_title: lessons.at(-1)?.module_title ?? "", title: "", duration: "", is_free: false, video_url: "" }])}
-          >
-            <Plus className="size-4" /> ক্লাস যোগ করুন
+          <Button type="button" onClick={() => set("lessons", [...lessons, { module_title: `নতুন মডিউল ${(moduleGroups(lessons).length + 1).toLocaleString("bn-BD")}`, title: "", duration: "", is_free: false, video_url: "" }])}>
+            <Plus className="size-4" /> নতুন মডিউল যোগ করুন
           </Button>
         </section>
       )}
@@ -343,4 +358,15 @@ function AiDescribe({ name, duration, highlights, onResult }: { name: string; du
       </div>
     </div>
   );
+}
+
+/** Groups consecutive lessons sharing the same module title. */
+function moduleGroups<T extends { module_title: string }>(lessons: T[]) {
+  const groups: { title: string; start: number; items: T[] }[] = [];
+  lessons.forEach((l, i) => {
+    const last = groups.at(-1);
+    if (last && last.title === l.module_title) last.items.push(l);
+    else groups.push({ title: l.module_title, start: i, items: [l] });
+  });
+  return groups;
 }

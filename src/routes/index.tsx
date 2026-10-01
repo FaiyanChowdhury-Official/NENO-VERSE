@@ -50,7 +50,7 @@ function Index() {
     <div>
       {sf.announcement && <div className="bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground">{sf.announcement}</div>}
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="hero-wallpaper relative overflow-hidden">
         <div className="pointer-events-none absolute -top-40 -right-32 size-[32rem] rounded-full bg-primary-soft blur-3xl" />
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div>

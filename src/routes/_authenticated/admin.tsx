@@ -91,7 +91,7 @@ function AdminPage() {
         {/* Main */}
         <main className="min-w-0 flex-1">
           <header className="mb-6">
-            <h1 className="text-2xl font-extrabold text-foreground sm:text-3xl">স্বাগতম, অ্যাডমিন 👋</h1>
+            <h1 className="text-2xl font-extrabold text-foreground sm:text-3xl">স্বাগতম, অ্যাডমিন</h1>
             <p className="mt-1 text-sm text-muted-foreground">আপনার ব্যবসার সর্বশেষ অবস্থা এক নজরে।</p>
           </header>
 

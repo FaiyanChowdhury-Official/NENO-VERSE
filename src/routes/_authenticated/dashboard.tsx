@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { getMyProfile, listMyOrders, updateMyProfile } from "@/lib/orders.functions";
-import { orderStatusLabels, paymentMethods } from "@/lib/payments";
+import { orderStatusLabels, paymentLabel } from "@/lib/payments";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,7 +95,7 @@ function Dashboard() {
                   <div>
                     <p className="font-semibold text-foreground">{o.item_name}</p>
                     <p className="text-xs text-subtle-foreground">
-                      {paymentMethods[o.payment_method].label} • TrxID: {o.transaction_id} •{" "}
+                      {paymentLabel(o.payment_method)} • TrxID: {o.transaction_id} •{" "}
                       {new Date(o.created_at).toLocaleDateString("bn-BD")}
                     </p>
                   </div>

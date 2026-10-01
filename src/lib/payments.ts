@@ -39,3 +39,7 @@ export const orderStatusLabels = {
   approved: "অনুমোদিত",
   rejected: "বাতিল",
 } as const;
+
+export function paymentLabel(m: string): string {
+  return m === "manual" ? "অ্যাডমিন দ্বারা প্রদত্ত" : (paymentMethods[m as PaymentMethod]?.label ?? m);
+}

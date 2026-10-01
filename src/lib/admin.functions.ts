@@ -4,10 +4,18 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 type Ctx = { supabase: any; userId: string };
 
+export type StaffArea = "content" | "finance" | "support";
+async function assertArea(ctx: Ctx, area: StaffArea) {
+  const { data } = await ctx.supabase.rpc("has_staff_area", { _user_id: ctx.userId, _area: area });
+  if (!data) throw new Error("Forbidden");
+}
 async function assertAdmin(ctx: Ctx) {
   const { data } = await ctx.supabase.rpc("has_role", { _user_id: ctx.userId, _role: "admin" });
   if (!data) throw new Error("Forbidden");
 }
+
+const STAFF_ROLES = ["admin", "content_manager", "finance_manager", "support_manager"] as const;
+export type StaffRole = (typeof STAFF_ROLES)[number];
 function fail(error: { message: string } | null, msg = "সংরক্ষণ হয়নি") {
   if (error) {
     console.error(error);
@@ -23,9 +31,63 @@ const adminFn = <T extends z.ZodTypeAny>(schema: T) =>
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    return { isAdmin: !!data };
+    const { data } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
+    const roles = ((data ?? []) as { role: string }[]).map((r) => r.role);
+    const isFullAdmin = roles.includes("admin");
+    const areas: StaffArea[] = isFullAdmin
+      ? ["content", "finance", "support"]
+      : ([
+          roles.includes("content_manager") && "content",
+          roles.includes("finance_manager") && "finance",
+          roles.includes("support_manager") && "support",
+        ].filter(Boolean) as StaffArea[]);
+    return { isAdmin: isFullAdmin || areas.length > 0, isFullAdmin, roles, areas };
   });
+
+/* ---------------- Staff roles (full admin only) ---------------- */
+
+export const adminListStaff = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin.from("user_roles").select("id,user_id,role").in("role", [...STAFF_ROLES]);
+    const ids = [...new Set((rows ?? []).map((r) => r.user_id))];
+    const { data: profiles } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id,full_name,email").in("id", ids)
+      : { data: [] as { id: string; full_name: string | null; email: string | null }[] };
+    const pm = new Map((profiles ?? []).map((p) => [p.id, p]));
+    return (rows ?? []).map((r) => ({
+      id: r.id,
+      userId: r.user_id,
+      role: r.role as StaffRole,
+      name: pm.get(r.user_id)?.full_name ?? "",
+      email: pm.get(r.user_id)?.email ?? "",
+      isSelf: r.user_id === context.userId,
+    }));
+  });
+
+export const adminAddStaff = adminFn(
+  z.object({ email: z.string().trim().email().max(255), role: z.enum(STAFF_ROLES) }),
+).handler(async ({ data, context }) => {
+  await assertAdmin(context);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: prof } = await supabaseAdmin.from("profiles").select("id").ilike("email", data.email).maybeSingle();
+  if (!prof) throw new Error("এই ইমেইলে কোনো অ্যাকাউন্ট নেই — আগে তাকে রেজিস্টার করতে বলুন।");
+  const { error } = await supabaseAdmin.from("user_roles").upsert({ user_id: prof.id, role: data.role as never }, { onConflict: "user_id,role" });
+  fail(error);
+  return { ok: true };
+});
+
+export const adminRemoveStaff = adminFn(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
+  await assertAdmin(context);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: row } = await supabaseAdmin.from("user_roles").select("user_id,role").eq("id", data.id).maybeSingle();
+  if (row?.user_id === context.userId && row.role === "admin") throw new Error("নিজের অ্যাডমিন রোল মুছতে পারবেন না।");
+  const { error } = await supabaseAdmin.from("user_roles").delete().eq("id", data.id);
+  fail(error);
+  return { ok: true };
+});
 
 /* ---------------- Orders & customers ---------------- */
 

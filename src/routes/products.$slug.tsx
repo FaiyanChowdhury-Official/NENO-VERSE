@@ -3,11 +3,14 @@ import { ArrowLeft, Check, FileDown, ShieldCheck } from "lucide-react";
 import { PriceTag } from "@/components/site/PriceTag";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Button } from "@/components/ui/button";
-import { categoryName, getProduct, productCategories, products } from "@/data/catalog";
+import { ItemReviews } from "@/components/site/Reviews";
+import { categoryName, useCatalog } from "@/data/catalog";
+import { catalogQuery } from "@/lib/catalog.functions";
 
 export const Route = createFileRoute("/products/$slug")({
-  loader: ({ params }) => {
-    const product = getProduct(params.slug);
+  loader: async ({ params, context }) => {
+    const cat = await context.queryClient.ensureQueryData(catalogQuery);
+    const product = cat.products.find((p) => p.slug === params.slug);
     if (!product) throw notFound();
     return { product };
   },
@@ -45,6 +48,7 @@ function ProductNotFound() {
 
 function ProductDetail() {
   const { product } = Route.useLoaderData();
+  const { products, productCategories } = useCatalog();
   const related = products.filter((p) => p.slug !== product.slug).slice(0, 3);
 
   return (
@@ -123,6 +127,8 @@ function ProductDetail() {
           </div>
         </aside>
       </div>
+
+      <ItemReviews kind="product" slug={product.slug} />
 
       <section className="mt-20">
         <h2 className="text-2xl font-bold text-foreground">আরও প্রোডাক্ট</h2>

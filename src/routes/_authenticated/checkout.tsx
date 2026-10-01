@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { getCourse, getProduct } from "@/data/catalog";
+import { useCatalog } from "@/data/catalog";
 import { createOrder } from "@/lib/orders.functions";
 import { paymentMethods, type PaymentMethod } from "@/lib/payments";
 import { formatBdt } from "@/lib/format";
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/_authenticated/checkout")({
 
 function CheckoutPage() {
   const { type, slug } = Route.useSearch();
+  const { getProduct, getCourse } = useCatalog();
   const item = type === "product" ? getProduct(slug) : getCourse(slug);
   const navigate = useNavigate();
   const submit = useServerFn(createOrder);

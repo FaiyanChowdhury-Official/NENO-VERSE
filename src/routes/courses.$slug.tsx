@@ -3,18 +3,21 @@ import { ArrowLeft, Check, Clock, Lock, PlayCircle, User } from "lucide-react";
 import { CourseCard } from "@/components/site/CourseCard";
 import { PriceTag } from "@/components/site/PriceTag";
 import { Button } from "@/components/ui/button";
+import { ItemReviews } from "@/components/site/Reviews";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { categoryName, courseCategories, courses, getCourse, levelLabels } from "@/data/catalog";
+import { categoryName, levelLabels, useCatalog } from "@/data/catalog";
+import { catalogQuery } from "@/lib/catalog.functions";
 import { toBengaliDigits } from "@/lib/format";
 
 export const Route = createFileRoute("/courses/$slug")({
-  loader: ({ params }) => {
-    const course = getCourse(params.slug);
+  loader: async ({ params, context }) => {
+    const cat = await context.queryClient.ensureQueryData(catalogQuery);
+    const course = cat.courses.find((c) => c.slug === params.slug);
     if (!course) throw notFound();
     return { course };
   },
@@ -52,6 +55,7 @@ function CourseNotFound() {
 
 function CourseDetail() {
   const { course } = Route.useLoaderData();
+  const { courses, courseCategories } = useCatalog();
   const related = courses.filter((c) => c.slug !== course.slug).slice(0, 3);
 
   return (
@@ -164,6 +168,8 @@ function CourseDetail() {
           </div>
         </aside>
       </div>
+
+      <ItemReviews kind="course" slug={course.slug} />
 
       <section className="mt-20">
         <h2 className="text-2xl font-bold text-foreground">আরও কোর্স</h2>

@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CourseCard } from "@/components/site/CourseCard";
 import { Input } from "@/components/ui/input";
-import { courseCategories, courses, levelLabels } from "@/data/catalog";
+import { levelLabels, useCatalog } from "@/data/catalog";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/courses/")({
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/courses/")({
 const levels = ["beginner", "intermediate", "advanced"] as const;
 
 function CoursesPage() {
+  const { courseCategories, courses } = useCatalog();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [level, setLevel] = useState<string>("all");

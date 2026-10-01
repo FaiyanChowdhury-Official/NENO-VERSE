@@ -1,38 +1,37 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { getCourse, getProduct } from "@/data/catalog";
 
 const orderInput = z.object({
   itemType: z.enum(["product", "course"]),
   itemSlug: z.string().min(1).max(120),
   paymentMethod: z.enum(["bkash", "rocket", "bank"]),
   senderNumber: z.string().trim().min(5).max(60),
-  transactionId: z
-    .string()
-    .trim()
-    .min(4)
-    .max(60)
-    .regex(/^[A-Za-z0-9\-_/]+$/),
+  transactionId: z.string().trim().min(4).max(60).regex(/^[A-Za-z0-9\-_/]+$/),
 });
 
 export const createOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => orderInput.parse(data))
   .handler(async ({ data, context }) => {
-    const item = data.itemType === "product" ? getProduct(data.itemSlug) : getCourse(data.itemSlug);
-    if (!item) return { ok: false as const, error: "প্রোডাক্ট পাওয়া যায়নি" };
+    const { data: item } = await context.supabase
+      .from("items")
+      .select("name,price,published")
+      .eq("kind", data.itemType)
+      .eq("slug", data.itemSlug)
+      .maybeSingle();
+    if (!item || !item.published) return { ok: false as const, error: "প্রোডাক্ট পাওয়া যায়নি" };
 
-    // Block duplicate pending/approved orders for the same item
     const { data: existing } = await context.supabase
       .from("orders")
-      .select("id,status")
+      .select("id")
       .eq("user_id", context.userId)
+      .eq("item_type", data.itemType)
       .eq("item_slug", data.itemSlug)
-      .in("status", ["pending", "approved"])
+      .eq("status", "pending")
       .limit(1);
     if (existing && existing.length > 0) {
-      return { ok: false as const, error: "এই আইটেমের একটি অর্ডার ইতিমধ্যে আছে" };
+      return { ok: false as const, error: "এই আইটেমের একটি অর্ডার যাচাইয়ের অপেক্ষায় আছে" };
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -41,7 +40,7 @@ export const createOrder = createServerFn({ method: "POST" })
       item_type: data.itemType,
       item_slug: data.itemSlug,
       item_name: item.name,
-      amount: item.price, // price always taken from server-side catalog
+      amount: item.price, // price always from database, never from client
       payment_method: data.paymentMethod,
       sender_number: data.senderNumber,
       transaction_id: data.transactionId.toUpperCase(),
@@ -67,42 +66,141 @@ export const listMyOrders = createServerFn({ method: "GET" })
     return data;
   });
 
+type AccessItem = {
+  id: string;
+  kind: "product" | "course";
+  slug: string;
+  name: string;
+  image_url: string;
+  access_type: string;
+  access_note: string;
+  access_days: number | null;
+};
+
+/** Returns the user's active entitlements (approved + not expired). */
+async function activeEntitlements(supabase: any, userId: string) {
+  const { data: orders } = await supabase
+    .from("orders")
+    .select("item_type,item_slug,approved_at,created_at")
+    .eq("user_id", userId)
+    .eq("status", "approved");
+  if (!orders?.length) return [] as { item: AccessItem; expiresAt: string | null }[];
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: items } = await supabaseAdmin
+    .from("items")
+    .select("id,kind,slug,name,image_url,access_type,access_note,access_days");
+  const out = new Map<string, { item: AccessItem; expiresAt: string | null }>();
+  for (const o of orders as { item_type: string; item_slug: string; approved_at: string | null; created_at: string }[]) {
+    const item = (items ?? []).find((i) => i.kind === o.item_type && i.slug === o.item_slug) as AccessItem | undefined;
+    if (!item) continue;
+    const start = new Date(o.approved_at ?? o.created_at);
+    const expiresAt = item.access_days ? new Date(start.getTime() + item.access_days * 86400000).toISOString() : null;
+    if (expiresAt && new Date(expiresAt) < new Date()) continue;
+    const prev = out.get(item.id);
+    if (!prev || (prev.expiresAt && (!expiresAt || expiresAt > prev.expiresAt))) out.set(item.id, { item, expiresAt });
+  }
+  return [...out.values()];
+}
+
+export const getMyLibrary = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const ents = await activeEntitlements(context.supabase, context.userId);
+    if (!ents.length) return [];
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: links } = await supabaseAdmin
+      .from("item_links")
+      .select("item_id,url,label")
+      .in("item_id", ents.map((e) => e.item.id));
+    return ents.map(({ item, expiresAt }) => {
+      const link = (links ?? []).find((l) => l.item_id === item.id);
+      const hasLink = item.access_type !== "lessons" && !!link?.url;
+      return {
+        kind: item.kind,
+        slug: item.slug,
+        name: item.name,
+        image: item.image_url,
+        accessType: item.access_type,
+        note: item.access_note,
+        expiresAt,
+        linkUrl: hasLink ? link!.url : null,
+        linkLabel: hasLink ? link!.label || "অ্যাক্সেস লিংক খুলুন" : null,
+      };
+    });
+  });
+
+export const getCourseContent = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ kind: z.enum(["product", "course"]), slug: z.string().min(1).max(120) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const ents = await activeEntitlements(context.supabase, context.userId);
+    const ent = ents.find((e) => e.item.kind === data.kind && e.item.slug === data.slug);
+    if (!ent || ent.item.access_type === "link") return { hasAccess: false as const };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: lessons } = await supabaseAdmin
+      .from("lessons")
+      .select("id,module_title,title,duration,sort_order,lesson_videos(video_url)")
+      .eq("item_id", ent.item.id)
+      .order("sort_order");
+    return {
+      hasAccess: true as const,
+      name: ent.item.name,
+      note: ent.item.access_note,
+      lessons: (lessons ?? []).map((l: any) => ({
+        id: l.id as string,
+        module: l.module_title as string,
+        title: l.title as string,
+        duration: l.duration as string,
+        hasVideo: !!(Array.isArray(l.lesson_videos) ? l.lesson_videos[0] : l.lesson_videos)?.video_url,
+      })),
+    };
+  });
+
+/**
+ * Returns a playable source for ONE lesson, only to entitled users.
+ * Uploaded files live in a private bucket and are served via a short-lived signed URL.
+ */
+export const getLessonStream = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ lessonId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: lesson } = await supabaseAdmin
+      .from("lessons")
+      .select("item_id,lesson_videos(video_url),items(kind,slug)")
+      .eq("id", data.lessonId)
+      .maybeSingle();
+    const item = (lesson as any)?.items;
+    if (!lesson || !item) throw new Error("Not found");
+    const ents = await activeEntitlements(context.supabase, context.userId);
+    const ent = ents.find((e) => e.item.kind === item.kind && e.item.slug === item.slug);
+    if (!ent || ent.item.access_type === "link") throw new Error("Forbidden");
+    const lv = (lesson as any).lesson_videos;
+    const url: string = (Array.isArray(lv) ? lv[0] : lv)?.video_url ?? "";
+    const email = (context.claims as { email?: string }).email ?? "";
+    if (!url) return { kind: "none" as const, src: "", email };
+    if (url.startsWith("storage:")) {
+      const { data: signed, error } = await supabaseAdmin.storage
+        .from("course-videos")
+        .createSignedUrl(url.slice("storage:".length), 60 * 10); // 10 minutes
+      if (error || !signed) throw new Error("ভিডিও লোড হয়নি");
+      return { kind: "file" as const, src: signed.signedUrl, email };
+    }
+    return { kind: "external" as const, src: url, email };
+  });
+
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase
-      .from("profiles")
-      .select("full_name,phone")
-      .eq("id", context.userId)
-      .maybeSingle();
+    const { data } = await context.supabase.from("profiles").select("full_name,phone").eq("id", context.userId).maybeSingle();
     return { fullName: data?.full_name ?? "", phone: data?.phone ?? "", email: (context.claims as { email?: string }).email ?? "" };
   });
 
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
-    z.object({ fullName: z.string().trim().min(1).max(100), phone: z.string().trim().max(20) }).parse(d),
-  )
+  .inputValidator((d) => z.object({ fullName: z.string().trim().min(1).max(100), phone: z.string().trim().max(20) }).parse(d))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("profiles")
-      .update({ full_name: data.fullName, phone: data.phone })
-      .eq("id", context.userId);
+    const { error } = await context.supabase.from("profiles").update({ full_name: data.fullName, phone: data.phone }).eq("id", context.userId);
     if (error) throw new Error("প্রোফাইল সংরক্ষণ হয়নি");
     return { ok: true };
-  });
-
-export const getCourseAccess = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { data: rows } = await context.supabase
-      .from("orders")
-      .select("id")
-      .eq("user_id", context.userId)
-      .eq("item_slug", data.slug)
-      .eq("item_type", "course")
-      .eq("status", "approved")
-      .limit(1);
-    return { hasAccess: !!rows && rows.length > 0 };
   });

@@ -9,3 +9,5 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 - Order prices are computed server-side from src/data/catalog.ts in createOrder; orders are inserted only via service role — clients cannot set amount.
+
+- Admin sections live at /admin/$section and dashboard tabs at /dashboard/$tab; access per section is gated by staff area (content/finance/support/admin) via has_staff_area — why: shareable URLs and least-privilege staff.

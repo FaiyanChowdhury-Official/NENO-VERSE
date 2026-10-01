@@ -7,12 +7,12 @@
 - [x] LMS: modules, progress tracking; YouTube/iframe lessons
 - [x] Contact links (WhatsApp/Telegram/Messenger), AI help assistant, thumbnail upload
 - [ ] Email notifications — needs sender domain
-- [ ] Staff roles — confirm with owner
+- [x] Staff roles — confirm with owner
 - [x] Payment screenshot upload
 - [ ] Real payment numbers — owner enters in Admin > সেটিংস
 - [x] Eye-catching product/course/hero images
 - [x] Admin panel: colorful icons/cards design
 - [x] Global search page (/search) + /login /register /forgot-password links
 
-- [ ] Apply Cove palette (#006BBB, #30A0E0, #FFC872, #FFE3B3) with mostly white backgrounds
-- [ ] Staff roles + separate admin/dashboard page addresses
+- [x] Apply Cove palette (#006BBB, #30A0E0, #FFC872, #FFE3B3) with mostly white backgrounds
+- [x] Staff roles + separate admin/dashboard page addresses

@@ -1,19 +1,12 @@
 # Roadmap
-- [x] AI review insights, AI reply drafts, CSV export
-- [x] Mobile-friendly admin panel
-- [x] Payment settings (admin-editable), support tickets, notifications, audit log
-- [x] Pro subscriptions as digital products (category + draft items + activation info at checkout)
-- [x] Admin: অ্যানালিটিক্স, বিক্রয় চ্যানেল, স্টোরফ্রন্ট সেটিংস
-- [ ] Email notifications — needs a sender email domain from the owner
-- [ ] Staff roles (content/finance/support managers) — confirm with owner
-- [ ] Payment screenshot upload at checkout
-- [ ] Real bKash/Rocket/bank numbers — owner enters in Admin > সেটিংস
-- [x] Secure in-site access: device limit, access logs, private product files, in-site viewer
-- [ ] AI Bengali product description generator (name, benefits, duration)
-- [ ] Order delivery status + access steps for subscriptions (customer + admin)
-- [ ] Per-outlet products, prices and sales summary
-- [ ] LMS: module-wise course builder (admin), module-grouped classroom, lesson progress tracking
-- [ ] Admin-managed contact links (WhatsApp, Telegram, Messenger) + floating buttons
-- [ ] AI help agent answering course/product questions (one conversation, not saved)
-- [ ] Thumbnail upload from admin for products/courses
-- [x] YouTube link / iframe embed for lessons (no storage used)
+- [x] AI review insights, AI reply drafts, CSV export, mobile admin
+- [x] Payment settings, support tickets, notifications, audit log
+- [x] Pro subscriptions, delivery status steps, AI product descriptions
+- [x] Analytics, outlets (per-outlet prices + sales), storefront settings
+- [x] Secure in-site access (device limit, logs, private files)
+- [x] LMS: modules, progress tracking; YouTube/iframe lessons
+- [x] Contact links (WhatsApp/Telegram/Messenger), AI help assistant, thumbnail upload
+- [ ] Email notifications — needs sender domain
+- [ ] Staff roles — confirm with owner
+- [ ] Payment screenshot upload
+- [ ] Real payment numbers — owner enters in Admin > সেটিংস

@@ -10,7 +10,7 @@
 - [x] /about, /faq, /support, /privacy, /terms
 - [x] Sample catalog data
 
-## Phase 2 — Accounts, checkout, dashboard (later)
+## Phase 2 — Accounts, checkout, dashboard (later) — DONE (accounts, checkout, manual bKash/Rocket/bank verification, dashboard). Pending: real merchant numbers from user.
 - Cloud backend, signup/login, bKash/Rocket/bank manual payment, order verification, entitlements, user dashboard
 
 ## Phase 3 — Admin panel, CRM, LMS & secure video (later)

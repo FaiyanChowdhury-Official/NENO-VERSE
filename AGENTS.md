@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Order prices are computed server-side from src/data/catalog.ts in createOrder; orders are inserted only via service role — clients cannot set amount.

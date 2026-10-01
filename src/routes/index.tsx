@@ -57,7 +57,7 @@ function Index() {
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground">
               {sf.badge}
             </span>
-            <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            <h1 className="animate-rise mt-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
               {titleA}<span className="text-primary">{sf.highlight}</span>{titleB}
             </h1>
             <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
@@ -87,13 +87,14 @@ function Index() {
             </dl>
           </div>
 
-          <div className="relative">
+          <div className="relative animate-rise [animation-delay:200ms]">
+            <div aria-hidden className="absolute inset-10 -z-10 rounded-full bg-primary/25 blur-3xl animate-glow" />
             <img
               src={heroImage}
-              alt="ল্যাপটপে অনলাইন কোর্স, ই-বুক, হেডফোন ও ডিজিটাল প্রোডাক্ট"
-              width={1600}
-              height={1008}
-              className="w-full mix-blend-multiply [mask-image:radial-gradient(ellipse_at_center,black_45%,transparent_75%)]"
+              alt="বই হাতে হাসিখুশি AI রোবট"
+              width={1200}
+              height={1200}
+              className="w-full animate-float [animation-duration:7s] [mask-image:radial-gradient(circle_at_center,black_40%,transparent_70%)]"
             />
           </div>
         </div>

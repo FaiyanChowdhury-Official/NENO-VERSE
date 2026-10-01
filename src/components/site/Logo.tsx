@@ -10,7 +10,7 @@ export function Logo({ className }: { className?: string }) {
         alt="অক্টোপাস লোগো"
         width={40}
         height={40}
-        className="h-9 w-9 object-contain"
+        className="h-10 w-10 object-contain animate-float"
       />
       <span className="text-xl font-extrabold tracking-tight text-foreground">
         অক্টো<span className="text-primary">পাস</span>

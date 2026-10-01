@@ -49,7 +49,7 @@ export function ContactDock() {
       {open === "chat" && (
         <div className="flex h-[min(520px,75vh)] w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lift">
           <div className="flex items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
-            <p className="flex items-center gap-2 text-sm font-bold"><Bot className="h-4 w-4" /> অক্টোপাস সহকারী</p>
+            <p className="flex items-center gap-2 text-sm font-bold"><Bot className="h-4 w-4" /> NENO-VERSE সহকারী</p>
             <button onClick={() => setOpen("none")} aria-label="বন্ধ করুন"><X className="h-4 w-4" /></button>
           </div>
           <div className="flex-1 space-y-3 overflow-y-auto p-3">

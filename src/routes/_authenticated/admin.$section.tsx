@@ -32,7 +32,7 @@ const PANELS: Record<AdminSlug, ComponentType> = {
 export const Route = createFileRoute("/_authenticated/admin/$section")({
   head: ({ params }) => {
     const n = ADMIN_NAV.find((x) => x.slug === params.section);
-    const t = `${n?.label ?? "অ্যাডমিন"} — অক্টোপাস অ্যাডমিন`;
+    const t = `${n?.label ?? "অ্যাডমিন"} — NENO-VERSE অ্যাডমিন`;
     return { meta: [{ title: t }, { property: "og:title", content: t }, { name: "robots", content: "noindex" }] };
   },
   component: SectionPage,

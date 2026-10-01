@@ -17,15 +17,15 @@ export const Route = createFileRoute("/products/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "প্রোডাক্ট পাওয়া যায়নি — অক্টোপাস" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "প্রোডাক্ট পাওয়া যায়নি — NENO-VERSE" }, { name: "robots", content: "noindex" }],
       };
     }
     const { product } = loaderData;
     return {
       meta: [
-        { title: `${product.name} — অক্টোপাস` },
+        { title: `${product.name} — NENO-VERSE` },
         { name: "description", content: product.shortDescription },
-        { property: "og:title", content: `${product.name} — অক্টোপাস` },
+        { property: "og:title", content: `${product.name} — NENO-VERSE` },
         { property: "og:description", content: product.shortDescription },
       ],
     };

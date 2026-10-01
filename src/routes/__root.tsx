@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "অক্টোপাস — ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স" },
+      { title: "NENO-VERSE — ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স" },
       {
         name: "description",
         content: "বাংলাদেশের জন্য ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্সের নিরাপদ প্ল্যাটফর্ম।",

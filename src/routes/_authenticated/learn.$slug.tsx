@@ -15,9 +15,9 @@ export const Route = createFileRoute("/_authenticated/learn/$slug")({
   validateSearch: z.object({ kind: z.enum(["product", "course"]).optional() }),
   head: () => ({
     meta: [
-      { title: "ক্লাসরুম — অক্টোপাস" },
+      { title: "ক্লাসরুম — NENO-VERSE" },
       { name: "description", content: "আপনার কেনা কোর্সের ভিডিও দেখুন।" },
-      { property: "og:title", content: "ক্লাসরুম — অক্টোপাস" },
+      { property: "og:title", content: "ক্লাসরুম — NENO-VERSE" },
       { property: "og:description", content: "কোর্সের ভিডিও।" },
     ],
   }),

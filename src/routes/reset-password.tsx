@@ -9,9 +9,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "নতুন পাসওয়ার্ড — অক্টোপাস" },
-      { name: "description", content: "আপনার অক্টোপাস অ্যাকাউন্টের নতুন পাসওয়ার্ড সেট করুন।" },
-      { property: "og:title", content: "নতুন পাসওয়ার্ড — অক্টোপাস" },
+      { title: "নতুন পাসওয়ার্ড — NENO-VERSE" },
+      { name: "description", content: "আপনার NENO-VERSE অ্যাকাউন্টের নতুন পাসওয়ার্ড সেট করুন।" },
+      { property: "og:title", content: "নতুন পাসওয়ার্ড — NENO-VERSE" },
       { property: "og:description", content: "পাসওয়ার্ড রিসেট করুন।" },
     ],
   }),

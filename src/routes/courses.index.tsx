@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/courses/")({
   head: () => ({
     meta: [
-      { title: "অনলাইন কোর্স — অক্টোপাস" },
+      { title: "অনলাইন কোর্স — NENO-VERSE" },
       {
         name: "description",
         content: "ফ্রিল্যান্সিং, ডিজাইন, মার্কেটিং ও ডেভেলপমেন্ট নিয়ে বাংলায় অনলাইন কোর্স।",
       },
-      { property: "og:title", content: "অনলাইন কোর্স — অক্টোপাস" },
+      { property: "og:title", content: "অনলাইন কোর্স — NENO-VERSE" },
       { property: "og:description", content: "বাংলায় ধাপে ধাপে শেখার অনলাইন কোর্স।" },
     ],
   }),

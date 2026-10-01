@@ -29,10 +29,10 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "লগইন বা অ্যাকাউন্ট খুলুন — অক্টোপাস" },
-      { name: "description", content: "অক্টোপাসে লগইন করুন বা নতুন অ্যাকাউন্ট খুলে প্রোডাক্ট ও কোর্স কিনুন।" },
-      { property: "og:title", content: "লগইন — অক্টোপাস" },
-      { property: "og:description", content: "আপনার অক্টোপাস অ্যাকাউন্টে প্রবেশ করুন।" },
+      { title: "লগইন বা অ্যাকাউন্ট খুলুন — NENO-VERSE" },
+      { name: "description", content: "NENO-VERSEে লগইন করুন বা নতুন অ্যাকাউন্ট খুলে প্রোডাক্ট ও কোর্স কিনুন।" },
+      { property: "og:title", content: "লগইন — NENO-VERSE" },
+      { property: "og:description", content: "আপনার NENO-VERSE অ্যাকাউন্টে প্রবেশ করুন।" },
     ],
   }),
   component: AuthPage,

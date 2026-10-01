@@ -1,3 +1,6 @@
+import { useServerFn as useServerFnAi } from "@tanstack/react-start";
+import { Loader2, Wand2 } from "lucide-react";
+import { generateItemDescription, type GeneratedDescription } from "@/lib/review-insights.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -150,6 +153,8 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
           </select>
         </Field>
         <Field label="ছবির লিংক (URL)"><Input value={v.image_url} onChange={(e) => set("image_url", e.target.value)} placeholder="https://..." /></Field>
+        <AiDescribe name={v.name} duration={v.access_days ? `${v.access_days} দিন` : ""} highlights={v.highlights}
+          onResult={(r) => setMany({ short_description: r.short_description, description: r.description, highlights: r.highlights })} />
         <Field label="ছোট বিবরণ" wide><Input value={v.short_description} onChange={(e) => set("short_description", e.target.value)} /></Field>
         <Field label="বিস্তারিত বিবরণ (প্রতি প্যারাগ্রাফ আলাদা লাইনে)" wide>
           <Textarea rows={4} value={v.description.join("\n")} onChange={(e) => set("description", e.target.value.split("\n"))} />
@@ -312,5 +317,31 @@ function VideoUpload({ onUploaded, bucket = "course-videos", accept = "video/mp4
         }}
       />
     </label>
+  );
+}
+
+function AiDescribe({ name, duration, highlights, onResult }: { name: string; duration: string; highlights: string[]; onResult: (r: GeneratedDescription) => void }) {
+  const gen = useServerFnAi(generateItemDescription);
+  const [benefits, setBenefits] = useState(highlights.filter(Boolean).join(", "));
+  const [dur, setDur] = useState(duration);
+  const [busy, setBusy] = useState(false);
+  async function go() {
+    if (name.trim().length < 2) { toast.error("আগে নাম লিখুন"); return; }
+    setBusy(true);
+    try {
+      const r = await gen({ data: { name, benefits, duration: dur } });
+      if (r.ok) { onResult(r.result); toast.success("বিবরণ তৈরি হয়েছে — দেখে সংরক্ষণ করুন"); } else toast.error(r.error);
+    } catch { toast.error("বিবরণ তৈরি ব্যর্থ হয়েছে"); }
+    finally { setBusy(false); }
+  }
+  return (
+    <div className="space-y-2 rounded-xl border border-border bg-primary-soft/40 p-3 sm:col-span-2">
+      <p className="text-sm font-bold text-foreground">AI দিয়ে বাংলা বিবরণ লিখুন</p>
+      <div className="grid gap-2 sm:grid-cols-[1fr_160px_auto]">
+        <Input value={benefits} onChange={(e) => setBenefits(e.target.value)} placeholder="সুবিধা (কমা দিয়ে আলাদা করুন)" maxLength={2000} />
+        <Input value={dur} onChange={(e) => setDur(e.target.value)} placeholder="মেয়াদ, যেমন ১ মাস" maxLength={100} />
+        <Button type="button" onClick={go} disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />} তৈরি করুন</Button>
+      </div>
+    </div>
   );
 }

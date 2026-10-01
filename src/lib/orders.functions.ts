@@ -9,6 +9,7 @@ const orderInput = z.object({
   senderNumber: z.string().trim().min(5).max(60),
   transactionId: z.string().trim().min(4).max(60).regex(/^[A-Za-z0-9\-_/]+$/),
   customerNote: z.string().trim().max(500).optional().default(""),
+  outletSlug: z.string().regex(/^[a-z0-9-]{0,40}$/).optional().default(""),
 });
 
 export const createOrder = createServerFn({ method: "POST" })
@@ -17,7 +18,7 @@ export const createOrder = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: item } = await context.supabase
       .from("items")
-      .select("name,price,published,requires_customer_info,customer_info_label")
+      .select("id,name,price,published,requires_customer_info,customer_info_label")
       .eq("kind", data.itemType)
       .eq("slug", data.itemSlug)
       .maybeSingle();
@@ -39,12 +40,24 @@ export const createOrder = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Outlet-specific price (server-side only)
+    let amount = item.price;
+    let outletSlug = "";
+    if (data.outletSlug) {
+      const { data: outlet } = await supabaseAdmin.from("outlets").select("id,active").eq("slug", data.outletSlug).maybeSingle();
+      if (outlet?.active) {
+        outletSlug = data.outletSlug;
+        const { data: oi } = await supabaseAdmin.from("outlet_items").select("price,active").eq("outlet_id", outlet.id).eq("item_id", item.id).maybeSingle();
+        if (oi?.active) amount = oi.price;
+      }
+    }
     const { error } = await supabaseAdmin.from("orders").insert({
       user_id: context.userId,
       item_type: data.itemType,
       item_slug: data.itemSlug,
       item_name: item.name,
-      amount: item.price, // price always from database, never from client
+      amount, // price always from database (outlet price if applicable), never from client
+      outlet_slug: outletSlug,
       payment_method: data.paymentMethod,
       sender_number: data.senderNumber,
       transaction_id: data.transactionId.toUpperCase(),
@@ -64,7 +77,7 @@ export const listMyOrders = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("orders")
-      .select("id,item_type,item_slug,item_name,amount,payment_method,transaction_id,status,created_at")
+      .select("id,item_type,item_slug,item_name,amount,payment_method,transaction_id,status,created_at,approved_at,delivery_status,delivery_note,delivered_at")
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error("অর্ডার লোড করা যায়নি");

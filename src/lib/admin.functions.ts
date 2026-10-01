@@ -57,6 +57,19 @@ export const adminUpdateOrder = adminFn(
   return { ok: true };
 });
 
+export const adminUpdateDelivery = adminFn(
+  z.object({ id: z.string().uuid(), delivery_status: z.enum(["waiting", "processing", "delivered", "failed"]), delivery_note: z.string().max(1000) }),
+).handler(async ({ data, context }) => {
+  await assertAdmin(context);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { error } = await supabaseAdmin
+    .from("orders")
+    .update({ delivery_status: data.delivery_status, delivery_note: data.delivery_note, delivered_at: data.delivery_status === "delivered" ? new Date().toISOString() : null })
+    .eq("id", data.id);
+  fail(error, "আপডেট হয়নি");
+  return { ok: true };
+});
+
 export const adminDeleteOrder = adminFn(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
   await assertAdmin(context);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { checkIsAdmin } from "@/lib/admin.functions";
-import { getMyProfile, listMyOrders, updateMyProfile } from "@/lib/orders.functions";
+import { getMyLibrary, getMyProfile, listMyOrders, updateMyProfile } from "@/lib/orders.functions";
 import { orderStatusLabels, paymentLabel } from "@/lib/payments";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,9 @@ function Dashboard() {
   const profile = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
   const isAdminFn = useServerFn(checkIsAdmin);
   const role = useQuery({ queryKey: ["is-admin"], queryFn: () => isAdminFn() });
-  const owned = (orders.data ?? []).filter((o) => o.status === "approved");
+  const fetchLib = useServerFn(getMyLibrary);
+  const lib = useQuery({ queryKey: ["my-library"], queryFn: () => fetchLib() });
+  const owned = lib.data ?? [];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
@@ -56,7 +58,7 @@ function Dashboard() {
         </TabsList>
 
         <TabsContent value="library" className="mt-6">
-          {orders.isLoading ? (
+          {lib.isLoading ? (
             <p className="text-muted-foreground">লোড হচ্ছে...</p>
           ) : owned.length === 0 ? (
             <div className="surface-card p-8 text-center">
@@ -69,16 +71,31 @@ function Dashboard() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {owned.map((o) => (
-                <div key={o.id} className="surface-card p-5">
-                  <p className="text-xs font-medium text-subtle-foreground">{o.item_type === "course" ? "কোর্স" : "ডিজিটাল প্রোডাক্ট"}</p>
-                  <h3 className="mt-1 font-bold text-foreground">{o.item_name}</h3>
-                  {o.item_type === "course" ? (
-                    <Button asChild size="sm" className="mt-4">
-                      <Link to="/learn/$slug" params={{ slug: o.item_slug }}>ক্লাস শুরু করুন</Link>
-                    </Button>
-                  ) : (
-                    <p className="mt-3 text-sm text-muted-foreground">ডাউনলোড ফাইল শীঘ্রই এখানে চালু হবে।</p>
-                  )}
+                <div key={o.kind + o.slug} className="surface-card overflow-hidden">
+                  {o.image && <img src={o.image} alt={o.name} className="aspect-[16/7] w-full object-cover" />}
+                  <div className="p-5">
+                    <p className="text-xs font-medium text-subtle-foreground">{o.kind === "course" ? "কোর্স" : "ডিজিটাল প্রোডাক্ট"}</p>
+                    <h3 className="mt-1 font-bold text-foreground">{o.name}</h3>
+                    {o.note && <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{o.note}</p>}
+                    {o.expiresAt && (
+                      <p className="mt-2 text-xs text-subtle-foreground">মেয়াদ: {new Date(o.expiresAt).toLocaleDateString("bn-BD")} পর্যন্ত</p>
+                    )}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {o.accessType !== "link" && (
+                        <Button asChild size="sm">
+                          <Link to="/learn/$slug" params={{ slug: o.slug }} search={{ kind: o.kind }}>ভিডিও দেখুন</Link>
+                        </Button>
+                      )}
+                      {o.linkUrl && (
+                        <Button asChild size="sm" variant={o.accessType === "link" ? "default" : "outline"}>
+                          <a href={o.linkUrl} target="_blank" rel="noopener noreferrer">{o.linkLabel}</a>
+                        </Button>
+                      )}
+                      {o.accessType === "link" && !o.linkUrl && (
+                        <p className="text-sm text-muted-foreground">অ্যাক্সেস লিংক শীঘ্রই যুক্ত হবে।</p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

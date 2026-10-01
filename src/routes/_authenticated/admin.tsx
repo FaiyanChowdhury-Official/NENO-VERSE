@@ -124,6 +124,7 @@ function AdminPage() {
             {section === "stories" && <StoriesPanel />}
             {section === "customers" && <CustomersPanel />}
             {section === "support" && <SupportPanel />}
+            {section === "contacts" && <ContactsPanel />}
             {section === "audit" && <AuditPanel />}
             {section === "settings" && <SettingsPanel />}
             {section === "analytics" && <AnalyticsPanel />}

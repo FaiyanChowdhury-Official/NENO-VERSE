@@ -1,8 +1,9 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
-import { Star, Wand2, ThumbsUp, ThumbsDown, Lightbulb, Loader2 } from "lucide-react";
-import { analyzeReviews, type ReviewInsights } from "@/lib/review-insights.functions";
+import { Star, Wand2, ThumbsUp, ThumbsDown, Lightbulb, Loader2, Download, MessageSquareReply, Copy } from "lucide-react";
+import { toast } from "sonner";
+import { analyzeReviews, draftReviewReply, type ReviewInsights } from "@/lib/review-insights.functions";
 import {
   adminDeleteReview,
   adminDeleteStory,
@@ -68,6 +69,9 @@ export function ReviewsPanel() {
             <Button size="sm" variant="outline" onClick={() => setSelected(selected.length === all.length ? [] : all)}>
               {selected.length === all.length ? "সব বাদ দিন" : "সব বাছুন"}
             </Button>
+            <Button size="sm" variant="outline" onClick={() => exportCsv(selected.length ? reviews.data!.filter((r) => selected.includes(r.id)) : reviews.data!)}>
+              <Download className="h-4 w-4" /> CSV {selected.length ? `(${selected.length})` : "(সব)"}
+            </Button>
             <Button size="sm" disabled={!selected.length || busy} onClick={runAnalysis}>
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
               বিশ্লেষণ করুন ({selected.length})
@@ -86,7 +90,7 @@ export function ReviewsPanel() {
       </div>
 
       {reviews.data.map((r) => (
-        <div key={r.id} className="surface-card flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
+        <div key={r.id} className="surface-card flex flex-col flex-wrap gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
           <label className="flex min-w-0 flex-1 cursor-pointer gap-3">
             <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[hsl(var(--primary))]" checked={selected.includes(r.id)} onChange={() => toggle(r.id)} aria-label="বিশ্লেষণের জন্য বাছুন" />
             <div className="min-w-0 flex-1">
@@ -101,8 +105,57 @@ export function ReviewsPanel() {
             {r.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => run(() => setStatus({ data: { id: r.id, status: "rejected" } }), "লুকানো হয়েছে", keys)}>লুকান</Button>}
             <ConfirmDelete onConfirm={() => run(() => del({ data: { id: r.id } }), "মুছে ফেলা হয়েছে", keys)} />
           </div>
+          <ReplyDraft id={r.id} />
         </div>
       ))}
+    </div>
+  );
+}
+
+function csvCell(v: unknown) {
+  const t = String(v ?? "");
+  return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+}
+
+function exportCsv(rows: { reviewer_name: string; rating: number; comment: string; item_type: string; item_slug: string; status: string; created_at: string }[]) {
+  const head = ["গ্রাহক", "রেটিং", "রিভিউ", "ধরন", "পণ্য", "স্ট্যাটাস", "তারিখ"];
+  const lines = rows.map((r) => [r.reviewer_name, r.rating, r.comment, r.item_type === "course" ? "কোর্স" : "প্রোডাক্ট", r.item_slug, r.status, new Date(r.created_at).toISOString().slice(0, 10)].map(csvCell).join(","));
+  const blob = new Blob(["\uFEFF" + [head.join(","), ...lines].join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `reviews-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function ReplyDraft({ id }: { id: string }) {
+  const draft = useServerFn(draftReviewReply);
+  const [busy, setBusy] = useState(false);
+  const [text, setText] = useState("");
+  const [err, setErr] = useState("");
+  async function go() {
+    setBusy(true); setErr("");
+    try {
+      const r = await draft({ data: { id } });
+      if (r.ok) setText(r.reply); else setErr(r.error);
+    } catch { setErr("খসড়া তৈরি ব্যর্থ হয়েছে।"); }
+    finally { setBusy(false); }
+  }
+  return (
+    <div className="w-full basis-full pl-7">
+      <Button size="sm" variant="ghost" className="text-primary" disabled={busy} onClick={go}>
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageSquareReply className="h-4 w-4" />}
+        {text ? "নতুন খসড়া" : "AI জবাবের খসড়া"}
+      </Button>
+      {err && <p className="mt-1 text-sm text-destructive">{err}</p>}
+      {text && (
+        <div className="mt-2 space-y-2">
+          <Textarea rows={4} value={text} onChange={(e) => setText(e.target.value)} />
+          <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(text); toast.success("কপি হয়েছে"); }}>
+            <Copy className="h-4 w-4" /> কপি করুন
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

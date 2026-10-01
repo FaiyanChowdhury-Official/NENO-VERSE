@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          target: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          target?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          target?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -80,6 +107,7 @@ export type Database = {
           access_type: string
           category_slug: string
           created_at: string
+          customer_info_label: string
           description: string[]
           duration: string
           file_info: string
@@ -96,6 +124,7 @@ export type Database = {
           popular: boolean
           price: number
           published: boolean
+          requires_customer_info: boolean
           short_description: string
           slug: string
           sort_order: number
@@ -107,6 +136,7 @@ export type Database = {
           access_type?: string
           category_slug?: string
           created_at?: string
+          customer_info_label?: string
           description?: string[]
           duration?: string
           file_info?: string
@@ -123,6 +153,7 @@ export type Database = {
           popular?: boolean
           price?: number
           published?: boolean
+          requires_customer_info?: boolean
           short_description?: string
           slug: string
           sort_order?: number
@@ -134,6 +165,7 @@ export type Database = {
           access_type?: string
           category_slug?: string
           created_at?: string
+          customer_info_label?: string
           description?: string[]
           duration?: string
           file_info?: string
@@ -150,6 +182,7 @@ export type Database = {
           popular?: boolean
           price?: number
           published?: boolean
+          requires_customer_info?: boolean
           short_description?: string
           slug?: string
           sort_order?: number
@@ -227,12 +260,46 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          link: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind: string
+          link?: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          link?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           admin_note: string | null
           amount: number
           approved_at: string | null
           created_at: string
+          customer_note: string
           id: string
           item_name: string
           item_slug: string
@@ -249,6 +316,7 @@ export type Database = {
           amount: number
           approved_at?: string | null
           created_at?: string
+          customer_note?: string
           id?: string
           item_name: string
           item_slug: string
@@ -265,6 +333,7 @@ export type Database = {
           amount?: number
           approved_at?: string | null
           created_at?: string
+          customer_note?: string
           id?: string
           item_name?: string
           item_slug?: string
@@ -341,6 +410,24 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       success_stories: {
         Row: {
           created_at: string
@@ -380,6 +467,74 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          order_id: string | null
+          status: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ticket_messages: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          is_staff: boolean
+          ticket_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          is_staff?: boolean
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          is_staff?: boolean
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -416,6 +571,12 @@ export type Database = {
       item_type: "product" | "course"
       order_status: "pending" | "approved" | "rejected"
       payment_method: "bkash" | "rocket" | "bank" | "manual"
+      ticket_status:
+        | "open"
+        | "in_progress"
+        | "waiting_user"
+        | "resolved"
+        | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -547,6 +708,13 @@ export const Constants = {
       item_type: ["product", "course"],
       order_status: ["pending", "approved", "rejected"],
       payment_method: ["bkash", "rocket", "bank", "manual"],
+      ticket_status: [
+        "open",
+        "in_progress",
+        "waiting_user",
+        "resolved",
+        "closed",
+      ],
     },
   },
 } as const

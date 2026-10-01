@@ -12,7 +12,14 @@ import {
   Users,
   Wallet,
   Clock,
+  Settings,
+  LifeBuoy,
+  ScrollText,
+  BarChart3,
+  Store,
+  Share2,
 } from "lucide-react";
+import { SettingsPanel, SupportPanel, AuditPanel, AnalyticsPanel, OutletsPanel, StorefrontPanel } from "@/components/admin/OpsPanels";
 import { checkIsAdmin, adminListCustomers, adminStats } from "@/lib/admin.functions";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -38,11 +45,17 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const NAV = [
   { id: "overview", label: "ড্যাশবোর্ড", icon: LayoutDashboard },
   { id: "orders", label: "অর্ডার", icon: ShoppingCart },
+  { id: "analytics", label: "অ্যানালিটিক্স", icon: BarChart3 },
+  { id: "outlets", label: "বিক্রয় চ্যানেল", icon: Share2 },
+  { id: "storefront", label: "স্টোরফ্রন্ট সেটিংস", icon: Store },
   { id: "items", label: "প্রোডাক্ট ও কোর্স", icon: Package },
   { id: "categories", label: "ক্যাটাগরি", icon: FolderPlus },
   { id: "reviews", label: "রিভিউ", icon: Star },
   { id: "stories", label: "সাফল্যের গল্প", icon: Sparkles },
   { id: "customers", label: "গ্রাহক (CRM)", icon: Users },
+  { id: "support", label: "সাপোর্ট টিকিট", icon: LifeBuoy },
+  { id: "audit", label: "অডিট লগ", icon: ScrollText },
+  { id: "settings", label: "সেটিংস", icon: Settings },
 ] as const;
 
 type Section = (typeof NAV)[number]["id"];
@@ -105,6 +118,12 @@ function AdminPage() {
             {section === "reviews" && <ReviewsPanel />}
             {section === "stories" && <StoriesPanel />}
             {section === "customers" && <CustomersPanel />}
+            {section === "support" && <SupportPanel />}
+            {section === "audit" && <AuditPanel />}
+            {section === "settings" && <SettingsPanel />}
+            {section === "analytics" && <AnalyticsPanel />}
+            {section === "outlets" && <OutletsPanel />}
+            {section === "storefront" && <StorefrontPanel />}
           </div>
         </main>
       </div>
@@ -147,6 +166,8 @@ function OverviewPanel({ onGo }: { onGo: (s: Section) => void }) {
     { id: "reviews" as Section, title: "রিভিউ", desc: "গ্রাহকের রিভিউ অনুমোদন করুন।", icon: Star },
     { id: "stories" as Section, title: "সাফল্যের গল্প", desc: "হোমপেজের গল্প যোগ বা সম্পাদনা করুন।", icon: Sparkles },
     { id: "customers" as Section, title: "গ্রাহক (CRM)", desc: "গ্রাহকের তথ্য ও খরচ দেখুন।", icon: Users },
+    { id: "support" as Section, title: "সাপোর্ট টিকিট", desc: "গ্রাহকের প্রশ্নের উত্তর দিন।", icon: LifeBuoy },
+    { id: "settings" as Section, title: "সেটিংস", desc: "বিকাশ/রকেট/ব্যাংক তথ্য ও যোগাযোগ।", icon: Settings },
   ];
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

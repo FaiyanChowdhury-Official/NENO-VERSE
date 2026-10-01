@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, type FormEvent } from "react";
@@ -6,6 +8,7 @@ import { toast } from "sonner";
 import { useCatalog } from "@/data/catalog";
 import { createOrder } from "@/lib/orders.functions";
 import { paymentMethods, type PaymentMethod } from "@/lib/payments";
+import { useSetting, type PaymentSettings } from "@/lib/settings";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +34,11 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const submit = useServerFn(createOrder);
   const [method, setMethod] = useState<PaymentMethod>("bkash");
+  const settings = useSetting<PaymentSettings>("payment");
+  const extra = useQuery({
+    queryKey: ["item-extra", type, slug],
+    queryFn: async () => (await supabase.from("items").select("requires_customer_info,customer_info_label").eq("kind", type).eq("slug", slug).maybeSingle()).data,
+  });
   const [busy, setBusy] = useState(false);
 
   if (!item) {
@@ -54,6 +62,7 @@ function CheckoutPage() {
           paymentMethod: method,
           senderNumber: String(f.get("sender")),
           transactionId: String(f.get("trx")),
+          customerNote: String(f.get("note") ?? ""),
         },
       });
       if (!r.ok) { toast.error(r.error); return; }
@@ -66,7 +75,14 @@ function CheckoutPage() {
     }
   }
 
-  const pm = paymentMethods[method];
+  const ps = settings.data;
+  const enabled = (Object.keys(paymentMethods) as PaymentMethod[]).filter((m) => !ps || ps[m]?.enabled !== false);
+  const account = !ps
+    ? "লোড হচ্ছে..."
+    : method === "bank"
+      ? [ps.bank.bank_name, ps.bank.account_name, ps.bank.account_number && `A/C: ${ps.bank.account_number}`, ps.bank.branch && `শাখা: ${ps.bank.branch}`].filter(Boolean).join(", ") || "তথ্য শীঘ্রই যোগ হবে"
+      : ps[method].number || "নম্বর শীঘ্রই যোগ হবে";
+  const steps = ps?.[method]?.instructions ? ps[method].instructions.split(/\n+/).filter(Boolean) : paymentMethods[method].instructions;
 
   return (
     <div className="mx-auto grid max-w-5xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_340px]">
@@ -74,7 +90,7 @@ function CheckoutPage() {
         <h1 className="text-2xl font-extrabold text-foreground">পেমেন্ট করুন</h1>
 
         <div className="grid grid-cols-3 gap-2">
-          {(Object.keys(paymentMethods) as PaymentMethod[]).map((m) => (
+          {enabled.map((m) => (
             <button
               key={m}
               type="button"
@@ -89,10 +105,10 @@ function CheckoutPage() {
         </div>
 
         <div className="rounded-xl bg-muted p-4 text-sm">
-          <p className="font-semibold text-foreground">টাকা পাঠান: {pm.account}</p>
+          <p className="font-semibold text-foreground">টাকা পাঠান: {account}</p>
           <p className="mt-1 font-semibold text-primary">পরিমাণ: {formatBdt(item.price)}</p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-muted-foreground">
-            {pm.instructions.map((s) => <li key={s}>{s}</li>)}
+            {steps.map((s) => <li key={s}>{s}</li>)}
           </ol>
         </div>
 
@@ -104,6 +120,12 @@ function CheckoutPage() {
           <Label htmlFor="trx">ট্রানজেকশন আইডি</Label>
           <Input id="trx" name="trx" required minLength={4} maxLength={60} placeholder="যেমন: 9A7B3C2D1E" />
         </div>
+        {extra.data?.requires_customer_info && (
+          <div className="space-y-2">
+            <Label htmlFor="note">{extra.data.customer_info_label || "অ্যাক্টিভেশনের তথ্য"}</Label>
+            <Input id="note" name="note" required minLength={3} maxLength={500} />
+          </div>
+        )}
         <Button type="submit" size="lg" className="w-full font-semibold" disabled={busy}>
           {busy ? "জমা হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
         </Button>

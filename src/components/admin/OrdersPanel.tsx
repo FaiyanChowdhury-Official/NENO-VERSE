@@ -66,6 +66,7 @@ export function OrdersPanel() {
                 <p className="text-sm text-muted-foreground">{o.customer_name || "নাম নেই"} • {o.customer_phone}</p>
                 <p className="text-xs text-subtle-foreground">
                   {paymentLabel(o.payment_method)} • প্রেরক: {o.sender_number} • TrxID: <b>{o.transaction_id}</b> • {new Date(o.created_at).toLocaleString("bn-BD")}
+                  {o.customer_note && <span className="mt-1 block font-semibold text-primary">অ্যাক্টিভেশন তথ্য: {o.customer_note}</span>}
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">

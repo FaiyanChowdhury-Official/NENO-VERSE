@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { fetchSetting, defaultStorefront, type StorefrontSettings } from "@/lib/settings";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, BadgeCheck, HeadphonesIcon, ShieldCheck, Wallet, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-dashboard.jpg";
@@ -40,22 +42,26 @@ function Index() {
   const featuredProducts = products.filter((p) => p.popular || p.isNew).slice(0, 3);
   const featuredCourses = courses.slice(0, 3);
 
+  const sfq = useQuery({ queryKey: ["setting", "storefront"], queryFn: () => fetchSetting<StorefrontSettings>("storefront") });
+  const sf = { ...defaultStorefront, ...(sfq.data ?? {}) };
+  const [titleA, titleB] = sf.title.includes("{highlight}") ? sf.title.split("{highlight}") : [sf.title + " ", ""];
+
   return (
     <div>
+      {sf.announcement && <div className="bg-primary px-4 py-2 text-center text-sm font-medium text-primary-foreground">{sf.announcement}</div>}
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute -top-40 -right-32 size-[32rem] rounded-full bg-primary-soft blur-3xl" />
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground">
-              বাংলাদেশের ডিজিটাল মার্কেটপ্লেস
+              {sf.badge}
             </span>
             <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              আপনার <span className="text-primary">ডিজিটাল প্রোডাক্ট</span> ও কোর্স এখন এক জায়গায়।
+              {titleA}<span className="text-primary">{sf.highlight}</span>{titleB}
             </h1>
             <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
-              প্রয়োজনীয় ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স সহজে খুঁজুন, কিনুন এবং পেমেন্ট সম্পন্ন
-              হওয়ার পর সরাসরি অ্যাক্সেস নিন।
+              {sf.subtitle}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full px-7 font-semibold">
@@ -69,9 +75,9 @@ function Index() {
             </div>
             <dl className="mt-10 grid max-w-md grid-cols-3 gap-6">
               {[
-                { k: "প্রোডাক্ট", v: "১২০+" },
-                { k: "কোর্স", v: "৪৫+" },
-                { k: "শিক্ষার্থী", v: "৮,০০০+" },
+                { k: sf.stat1_label, v: sf.stat1_value },
+                { k: sf.stat2_label, v: sf.stat2_value },
+                { k: sf.stat3_label, v: sf.stat3_value },
               ].map((s) => (
                 <div key={s.k}>
                   <dt className="text-sm text-muted-foreground">{s.k}</dt>
@@ -107,7 +113,7 @@ function Index() {
       </section>
 
       {/* Featured products */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <section className={`mx-auto max-w-6xl px-4 py-20 sm:px-6 ${sf.show_products ? "" : "hidden"}`}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
@@ -129,7 +135,7 @@ function Index() {
       </section>
 
       {/* Featured courses */}
-      <section className="bg-card py-20">
+      <section className={`bg-card py-20 ${sf.show_courses ? "" : "hidden"}`}>
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -174,7 +180,7 @@ function Index() {
           ))}
         </div>
       </section>
-      <SuccessStories />
+      {sf.show_stories && <SuccessStories />}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MySupportTickets } from "@/components/site/SupportTickets";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -51,11 +52,14 @@ function Dashboard() {
       )}
 
       <Tabs defaultValue="library" className="mt-8">
-        <TabsList>
+        <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="library">আমার লাইব্রেরি</TabsTrigger>
           <TabsTrigger value="orders">অর্ডার</TabsTrigger>
+          <TabsTrigger value="support">সাপোর্ট</TabsTrigger>
           <TabsTrigger value="profile">প্রোফাইল</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="support" className="mt-6"><MySupportTickets /></TabsContent>
 
         <TabsContent value="library" className="mt-6">
           {lib.isLoading ? (

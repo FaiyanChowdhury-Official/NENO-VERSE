@@ -181,6 +181,8 @@ const itemSchema = z.object({
   access_type: z.enum(["lessons", "link", "both"]),
   access_note: z.string().max(2000),
   access_days: z.number().int().positive().nullable(),
+  requires_customer_info: z.boolean().default(false),
+  customer_info_label: z.string().max(200).default(""),
   link_url: z.string().max(2000),
   link_label: z.string().max(120),
   lessons: z.array(lessonSchema).max(500),

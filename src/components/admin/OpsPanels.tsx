@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useSetting, defaultStorefront, type GeneralSettings, type PaymentSettings, type StorefrontSettings } from "@/lib/settings";
+import { useSetting, defaultStorefront, defaultNagad, type GeneralSettings, type PaymentSettings, type StorefrontSettings } from "@/lib/settings";
+import { paymentMethods, paymentLabel } from "@/lib/payments";
 import { TicketThread, ticketCategories, ticketStatusLabels } from "@/components/site/SupportTickets";
 
 function Field({ label, value, onChange, multiline }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean }) {
@@ -30,8 +31,7 @@ export function SettingsPanel() {
   const gen = useSetting<GeneralSettings>("general");
   const [p, setP] = useState<PaymentSettings | null>(null);
   const [g, setG] = useState<GeneralSettings | null>(null);
-  useEffect(() => { if (pay.data) setP(pay.data); }, [pay.data]);
-  useEffect(() => { if (gen.data) setG(gen.data); }, [gen.data]);
+  useEffect(() => { if (pay.data) setP({ ...pay.data, nagad: pay.data.nagad ?? defaultNagad }); }, [pay.data]);
   if (!p || !g) return <p className="text-muted-foreground">লোড হচ্ছে...</p>;
 
   const up = <K extends keyof PaymentSettings>(k: K, patch: Partial<PaymentSettings[K]>) => setP({ ...p, [k]: { ...p[k], ...patch } });

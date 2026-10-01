@@ -32,6 +32,7 @@ export function SettingsPanel() {
   const [p, setP] = useState<PaymentSettings | null>(null);
   const [g, setG] = useState<GeneralSettings | null>(null);
   useEffect(() => { if (pay.data) setP({ ...pay.data, nagad: pay.data.nagad ?? defaultNagad }); }, [pay.data]);
+  useEffect(() => { if (gen.data) setG(gen.data); }, [gen.data]);
   if (!p || !g) return <p className="text-muted-foreground">লোড হচ্ছে...</p>;
 
   const up = <K extends keyof PaymentSettings>(k: K, patch: Partial<PaymentSettings[K]>) => setP({ ...p, [k]: { ...p[k], ...patch } });

@@ -178,14 +178,14 @@ function StatsRow() {
 
 function OverviewPanel({ onGo }: { onGo: (s: Section) => void }) {
   const items = [
-    { id: "orders" as Section, title: "অর্ডার পর্যালোচনা", desc: "নতুন পেমেন্ট অনুমোদন বা বাতিল করুন।", icon: ShoppingCart },
-    { id: "items" as Section, title: "প্রোডাক্ট ও কোর্স", desc: "দাম, অ্যাক্সেস ধরন, ভিডিও ও লিংক পরিচালনা।", icon: Package },
-    { id: "categories" as Section, title: "ক্যাটাগরি", desc: "নতুন ক্যাটাগরি তৈরি, সম্পাদনা বা মুছুন।", icon: FolderPlus },
-    { id: "reviews" as Section, title: "রিভিউ", desc: "গ্রাহকের রিভিউ অনুমোদন করুন।", icon: Star },
-    { id: "stories" as Section, title: "সাফল্যের গল্প", desc: "হোমপেজের গল্প যোগ বা সম্পাদনা করুন।", icon: Sparkles },
-    { id: "customers" as Section, title: "গ্রাহক (CRM)", desc: "গ্রাহকের তথ্য ও খরচ দেখুন।", icon: Users },
-    { id: "support" as Section, title: "সাপোর্ট টিকিট", desc: "গ্রাহকের প্রশ্নের উত্তর দিন।", icon: LifeBuoy },
-    { id: "settings" as Section, title: "সেটিংস", desc: "বিকাশ/রকেট/ব্যাংক তথ্য ও যোগাযোগ।", icon: Settings },
+    { id: "orders" as Section, title: "অর্ডার পর্যালোচনা", desc: "নতুন পেমেন্ট অনুমোদন বা বাতিল করুন।", icon: ShoppingCart, chip: 3 },
+    { id: "items" as Section, title: "প্রোডাক্ট ও কোর্স", desc: "দাম, অ্যাক্সেস ধরন, ভিডিও ও লিংক পরিচালনা।", icon: Package, chip: 5 },
+    { id: "categories" as Section, title: "ক্যাটাগরি", desc: "নতুন ক্যাটাগরি তৈরি, সম্পাদনা বা মুছুন।", icon: FolderPlus, chip: 1 },
+    { id: "reviews" as Section, title: "রিভিউ", desc: "গ্রাহকের রিভিউ অনুমোদন করুন।", icon: Star, chip: 4 },
+    { id: "stories" as Section, title: "সাফল্যের গল্প", desc: "হোমপেজের গল্প যোগ বা সম্পাদনা করুন।", icon: Sparkles, chip: 3 },
+    { id: "customers" as Section, title: "গ্রাহক (CRM)", desc: "গ্রাহকের তথ্য ও খরচ দেখুন।", icon: Users, chip: 2 },
+    { id: "support" as Section, title: "সাপোর্ট টিকিট", desc: "গ্রাহকের প্রশ্নের উত্তর দিন।", icon: LifeBuoy, chip: 1 },
+    { id: "settings" as Section, title: "সেটিংস", desc: "বিকাশ/রকেট/ব্যাংক তথ্য ও যোগাযোগ।", icon: Settings, chip: 0 },
   ];
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -195,7 +195,7 @@ function OverviewPanel({ onGo }: { onGo: (s: Section) => void }) {
           onClick={() => onGo(it.id)}
           className="rounded-2xl border border-border bg-background p-5 text-left transition-shadow hover:shadow-lift"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary-soft-foreground">
+          <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${CHIPS[it.chip]}`}>
             <it.icon className="h-5 w-5" />
           </span>
           <p className="mt-3 font-bold text-foreground">{it.title}</p>

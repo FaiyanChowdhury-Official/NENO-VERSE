@@ -90,7 +90,7 @@ function Index() {
           <div className="relative">
             <img
               src={heroImage}
-              alt="অর্ডার, কাস্টমার ও আয়ের সারসংক্ষেপ দেখানো ড্যাশবোর্ড"
+              alt="ল্যাপটপ, ভিডিও, বই ও ডিজাইনের জিনিস হাতে অক্টোপাস মাসকট"
               width={1200}
               height={1008}
               className="w-full rounded-3xl"

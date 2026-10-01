@@ -32,6 +32,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const submit = useServerFn(createOrder);
   const [method, setMethod] = useState<PaymentMethod>("bkash");
+  const settings = useSetting<PaymentSettings>("payment");
   const [busy, setBusy] = useState(false);
 
   if (!item) {

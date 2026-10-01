@@ -54,15 +54,17 @@ export const adminListStaff = createServerFn({ method: "GET" })
     const { data: rows } = await supabaseAdmin.from("user_roles").select("id,user_id,role").in("role", [...STAFF_ROLES]);
     const ids = [...new Set((rows ?? []).map((r) => r.user_id))];
     const { data: profiles } = ids.length
-      ? await supabaseAdmin.from("profiles").select("id,full_name,email").in("id", ids)
-      : { data: [] as { id: string; full_name: string | null; email: string | null }[] };
-    const pm = new Map((profiles ?? []).map((p) => [p.id, p]));
+      ? await supabaseAdmin.from("profiles").select("id,full_name").in("id", ids)
+      : { data: [] as { id: string; full_name: string | null }[] };
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+    const em = new Map((users?.users ?? []).map((u) => [u.id, u.email ?? ""]));
+    const pm = new Map((profiles ?? []).map((p) => [p.id, { full_name: p.full_name, email: em.get(p.id) ?? "" }]));
     return (rows ?? []).map((r) => ({
       id: r.id,
       userId: r.user_id,
       role: r.role as StaffRole,
       name: pm.get(r.user_id)?.full_name ?? "",
-      email: pm.get(r.user_id)?.email ?? "",
+      email: pm.get(r.user_id)?.email ?? em.get(r.user_id) ?? "",
       isSelf: r.user_id === context.userId,
     }));
   });
@@ -72,7 +74,8 @@ export const adminAddStaff = adminFn(
 ).handler(async ({ data, context }) => {
   await assertAdmin(context);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: prof } = await supabaseAdmin.from("profiles").select("id").ilike("email", data.email).maybeSingle();
+  const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+  const prof = users?.users.find((u) => u.email?.toLowerCase() === data.email.toLowerCase());
   if (!prof) throw new Error("এই ইমেইলে কোনো অ্যাকাউন্ট নেই — আগে তাকে রেজিস্টার করতে বলুন।");
   const { error } = await supabaseAdmin.from("user_roles").upsert({ user_id: prof.id, role: data.role as never }, { onConflict: "user_id,role" });
   fail(error);

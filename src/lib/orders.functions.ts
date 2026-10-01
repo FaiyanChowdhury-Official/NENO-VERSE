@@ -10,6 +10,7 @@ const orderInput = z.object({
   transactionId: z.string().trim().min(4).max(60).regex(/^[A-Za-z0-9\-_/]+$/),
   customerNote: z.string().trim().max(500).optional().default(""),
   outletSlug: z.string().regex(/^[a-z0-9-]{0,40}$/).optional().default(""),
+  paymentProof: z.string().max(200).optional().default(""),
 });
 
 export const createOrder = createServerFn({ method: "POST" })
@@ -58,6 +59,8 @@ export const createOrder = createServerFn({ method: "POST" })
       item_name: item.name,
       amount, // price always from database (outlet price if applicable), never from client
       outlet_slug: outletSlug,
+      // only accept a file inside the caller's own folder
+      payment_proof: data.paymentProof.startsWith(`${context.userId}/`) ? data.paymentProof : "",
       payment_method: data.paymentMethod,
       sender_number: data.senderNumber,
       transaction_id: data.transactionId.toUpperCase(),

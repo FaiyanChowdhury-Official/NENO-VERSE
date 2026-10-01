@@ -36,6 +36,18 @@ function CheckoutPage() {
   const [method, setMethod] = useState<PaymentMethod>("bkash");
   const settings = useSetting<PaymentSettings>("payment");
   const [outletSlug, setOutletSlug] = useState("");
+  const [proof, setProof] = useState("");
+  const [proofBusy, setProofBusy] = useState(false);
+  async function uploadProof(file: File) {
+    if (file.size > 5 * 1024 * 1024) { toast.error("ছবি ৫MB-এর কম হতে হবে"); return; }
+    setProofBusy(true);
+    const { data: u } = await supabase.auth.getUser();
+    const path = `${u.user?.id}/${crypto.randomUUID()}.${(file.name.split(".").pop() ?? "jpg").toLowerCase()}`;
+    const { error } = await supabase.storage.from("payment-proofs").upload(path, file, { contentType: file.type });
+    setProofBusy(false);
+    if (error) { toast.error("স্ক্রিনশট আপলোড হয়নি"); return; }
+    setProof(path); toast.success("স্ক্রিনশট যুক্ত হয়েছে");
+  }
   useEffect(() => { setOutletSlug(localStorage.getItem("octopus-outlet") ?? ""); }, []);
   const outletPrice = useQuery({
     queryKey: ["outlet-price", outletSlug, type, slug],
@@ -77,6 +89,7 @@ function CheckoutPage() {
           transactionId: String(f.get("trx")),
           customerNote: String(f.get("note") ?? ""),
           outletSlug: outletSlug,
+          paymentProof: proof,
         },
       });
       if (!r.ok) { toast.error(r.error); return; }
@@ -140,7 +153,13 @@ function CheckoutPage() {
             <Input id="note" name="note" required minLength={3} maxLength={500} />
           </div>
         )}
-        <Button type="submit" size="lg" className="w-full font-semibold" disabled={busy}>
+        <div className="space-y-2">
+          <Label htmlFor="proof">পেমেন্টের স্ক্রিনশট (ঐচ্ছিক, দ্রুত যাচাইয়ের জন্য)</Label>
+          <Input id="proof" type="file" accept="image/png,image/jpeg,image/webp" disabled={proofBusy} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadProof(f); }} />
+          {proofBusy && <p className="text-xs text-muted-foreground">আপলোড হচ্ছে...</p>}
+          {proof && !proofBusy && <p className="text-xs text-primary">স্ক্রিনশট যুক্ত হয়েছে</p>}
+        </div>
+        <Button type="submit" size="lg" className="w-full font-semibold" disabled={busy || proofBusy}>
           {busy ? "জমা হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
         </Button>
         <p className="text-center text-xs text-subtle-foreground">

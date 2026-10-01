@@ -8,5 +8,6 @@
 - [x] Contact links (WhatsApp/Telegram/Messenger), AI help assistant, thumbnail upload
 - [ ] Email notifications — needs sender domain
 - [ ] Staff roles — confirm with owner
-- [ ] Payment screenshot upload
+- [x] Payment screenshot upload
 - [ ] Real payment numbers — owner enters in Admin > সেটিংস
+- [x] Eye-catching product/course/hero images

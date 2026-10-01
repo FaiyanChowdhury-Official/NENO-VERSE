@@ -377,6 +377,7 @@ export type Database = {
           item_type: Database["public"]["Enums"]["item_type"]
           outlet_slug: string
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_proof: string
           sender_number: string
           status: Database["public"]["Enums"]["order_status"]
           transaction_id: string
@@ -398,6 +399,7 @@ export type Database = {
           item_type: Database["public"]["Enums"]["item_type"]
           outlet_slug?: string
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_proof?: string
           sender_number: string
           status?: Database["public"]["Enums"]["order_status"]
           transaction_id: string
@@ -419,6 +421,7 @@ export type Database = {
           item_type?: Database["public"]["Enums"]["item_type"]
           outlet_slug?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_proof?: string
           sender_number?: string
           status?: Database["public"]["Enums"]["order_status"]
           transaction_id?: string

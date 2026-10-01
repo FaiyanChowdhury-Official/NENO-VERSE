@@ -148,7 +148,7 @@ function CourseDetail() {
           <div className="surface-card p-6">
             <PriceTag price={course.price} {...(course.originalPrice !== undefined && { originalPrice: course.originalPrice })} size="lg" />
             <Button size="lg" className="mt-6 w-full rounded-xl font-semibold" asChild>
-              <Link to="/register">এখনই কিনুন</Link>
+              <Link to="/checkout" search={{ type: "course", slug: course.slug }}>এখনই কিনুন</Link>
             </Button>
             <p className="mt-3 text-center text-xs text-subtle-foreground">
               কেনার জন্য অ্যাকাউন্ট প্রয়োজন

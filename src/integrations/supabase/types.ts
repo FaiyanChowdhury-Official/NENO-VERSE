@@ -783,6 +783,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_staff_area: {
+        Args: { _area: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:

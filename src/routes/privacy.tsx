@@ -3,9 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "প্রাইভেসি পলিসি — অক্টোপাস" },
-      { name: "description", content: "অক্টোপাস কীভাবে আপনার তথ্য সংগ্রহ ও সুরক্ষা করে।" },
-      { property: "og:title", content: "প্রাইভেসি পলিসি — অক্টোপাস" },
+      { title: "প্রাইভেসি পলিসি — NENO-VERSE" },
+      { name: "description", content: "NENO-VERSE কীভাবে আপনার তথ্য সংগ্রহ ও সুরক্ষা করে।" },
+      { property: "og:title", content: "প্রাইভেসি পলিসি — NENO-VERSE" },
       { property: "og:description", content: "তথ্য সংগ্রহ ও সুরক্ষার নীতিমালা।" },
     ],
   }),

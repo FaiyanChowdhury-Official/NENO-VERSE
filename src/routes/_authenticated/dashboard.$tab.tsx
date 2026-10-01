@@ -6,7 +6,7 @@ const TITLES: Record<string, string> = { orders: "আমার অর্ডা�
 
 export const Route = createFileRoute("/_authenticated/dashboard/$tab")({
   head: ({ params }) => {
-    const t = `${TITLES[params.tab] ?? "ড্যাশবোর্ড"} — অক্টোপাস`;
+    const t = `${TITLES[params.tab] ?? "ড্যাশবোর্ড"} — NENO-VERSE`;
     return { meta: [{ title: t }, { property: "og:title", content: t }, { name: "robots", content: "noindex" }] };
   },
   component: TabPage,

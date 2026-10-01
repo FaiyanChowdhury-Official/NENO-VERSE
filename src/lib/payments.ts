@@ -25,7 +25,7 @@ export const paymentMethods: Record<
   },
   bank: {
     label: "ব্যাংক ট্রান্সফার",
-    account: "অক্টোপাস লিমিটেড, A/C: XXXXXXXXXXXX, ব্যাংক: XXXX, শাখা: XXXX",
+    account: "NENO-VERSE লিমিটেড, A/C: XXXXXXXXXXXX, ব্যাংক: XXXX, শাখা: XXXX",
     instructions: [
       "উপরের অ্যাকাউন্টে মোট টাকা ট্রান্সফার করুন",
       "রেফারেন্স/ট্রানজেকশন নম্বর নিচে লিখুন",

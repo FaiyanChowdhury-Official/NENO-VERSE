@@ -5,12 +5,12 @@ import { ContactForm } from "@/components/site/ContactForm";
 export const Route = createFileRoute("/support")({
   head: () => ({
     meta: [
-      { title: "সহায়তা — অক্টোপাস" },
+      { title: "সহায়তা — NENO-VERSE" },
       {
         name: "description",
-        content: "অর্ডার, পেমেন্ট বা অ্যাক্সেস নিয়ে সমস্যা হলে অক্টোপাস সাপোর্টে যোগাযোগ করুন।",
+        content: "অর্ডার, পেমেন্ট বা অ্যাক্সেস নিয়ে সমস্যা হলে NENO-VERSE সাপোর্টে যোগাযোগ করুন।",
       },
-      { property: "og:title", content: "সহায়তা — অক্টোপাস" },
+      { property: "og:title", content: "সহায়তা — NENO-VERSE" },
       { property: "og:description", content: "সাপোর্ট টিমের সঙ্গে যোগাযোগের মাধ্যম।" },
     ],
   }),

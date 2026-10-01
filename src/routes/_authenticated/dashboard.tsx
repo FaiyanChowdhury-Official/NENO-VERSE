@@ -8,9 +8,9 @@ import { useStaffAccess } from "@/components/admin/useStaffAccess";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "আমার ড্যাশবোর্ড — অক্টোপাস" },
+      { title: "আমার ড্যাশবোর্ড — NENO-VERSE" },
       { name: "description", content: "আপনার কেনা প্রোডাক্ট, কোর্স ও অর্ডারের অবস্থা দেখুন।" },
-      { property: "og:title", content: "আমার ড্যাশবোর্ড — অক্টোপাস" },
+      { property: "og:title", content: "আমার ড্যাশবোর্ড — NENO-VERSE" },
       { property: "og:description", content: "আপনার লাইব্রেরি ও অর্ডার।" },
     ],
   }),

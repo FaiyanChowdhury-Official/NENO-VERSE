@@ -20,9 +20,9 @@ export const Route = createFileRoute("/search")({
   validateSearch: schema,
   head: () => ({
     meta: [
-      { title: "খুঁজুন — অক্টোপাস" },
+      { title: "খুঁজুন — NENO-VERSE" },
       { name: "description", content: "সব ডিজিটাল প্রোডাক্ট ও কোর্স এক জায়গায় খুঁজুন — নাম, বিবরণ, ক্যাটাগরি ও দাম অনুযায়ী।" },
-      { property: "og:title", content: "খুঁজুন — অক্টোপাস" },
+      { property: "og:title", content: "খুঁজুন — NENO-VERSE" },
       { property: "og:description", content: "প্রোডাক্ট ও কোর্স খুঁজুন, ক্যাটাগরি ও দাম দিয়ে ফিল্টার করুন।" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

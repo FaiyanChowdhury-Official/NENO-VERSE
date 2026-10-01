@@ -3,9 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "শর্তাবলি — অক্টোপাস" },
-      { name: "description", content: "অক্টোপাস ব্যবহারের শর্তাবলি ও ক্রয় নীতিমালা।" },
-      { property: "og:title", content: "শর্তাবলি — অক্টোপাস" },
+      { title: "শর্তাবলি — NENO-VERSE" },
+      { name: "description", content: "NENO-VERSE ব্যবহারের শর্তাবলি ও ক্রয় নীতিমালা।" },
+      { property: "og:title", content: "শর্তাবলি — NENO-VERSE" },
       { property: "og:description", content: "ব্যবহারের শর্ত ও ক্রয় নীতিমালা।" },
     ],
   }),

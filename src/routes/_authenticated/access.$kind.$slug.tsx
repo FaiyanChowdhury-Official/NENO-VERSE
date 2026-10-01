@@ -10,9 +10,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/access/$kind/$slug")({
   head: () => ({
     meta: [
-      { title: "আমার প্রোডাক্ট — অক্টোপাস" },
+      { title: "আমার প্রোডাক্ট — NENO-VERSE" },
       { name: "description", content: "আপনার কেনা ডিজিটাল প্রোডাক্ট নিরাপদে ব্যবহার করুন।" },
-      { property: "og:title", content: "আমার প্রোডাক্ট — অক্টোপাস" },
+      { property: "og:title", content: "আমার প্রোডাক্ট — NENO-VERSE" },
       { property: "og:description", content: "সুরক্ষিত অ্যাক্সেস।" },
       { name: "robots", content: "noindex" },
     ],

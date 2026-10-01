@@ -13,13 +13,13 @@ import { toBengaliDigits } from "@/lib/format";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "অক্টোপাস — ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স" },
+      { title: "NENO-VERSE — ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স" },
       {
         name: "description",
         content:
           "বাংলাদেশের জন্য তৈরি ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্সের প্ল্যাটফর্ম। বিকাশ, রকেট ও ব্যাংক ট্রান্সফারে নিরাপদ পেমেন্ট।",
       },
-      { property: "og:title", content: "অক্টোপাস — ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স" },
+      { property: "og:title", content: "NENO-VERSE — ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স" },
       {
         property: "og:description",
         content: "প্রয়োজনীয় ডিজিটাল প্রোডাক্ট ও কোর্স কিনুন, পেমেন্ট যাচাইয়ের পর সরাসরি অ্যাক্সেস নিন।",

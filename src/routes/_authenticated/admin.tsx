@@ -11,9 +11,9 @@ import { useStaffAccess } from "@/components/admin/useStaffAccess";
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "অ্যাডমিন প্যানেল — অক্টোপাস" },
+      { title: "অ্যাডমিন প্যানেল — NENO-VERSE" },
       { name: "description", content: "প্রোডাক্ট, কোর্স, অর্ডার ও গ্রাহক ব্যবস্থাপনা।" },
-      { property: "og:title", content: "অ্যাডমিন — অক্টোপাস" },
+      { property: "og:title", content: "অ্যাডমিন — NENO-VERSE" },
       { property: "og:description", content: "অভ্যন্তরীণ প্যানেল।" },
       { name: "robots", content: "noindex" },
     ],

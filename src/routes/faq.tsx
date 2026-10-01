@@ -9,12 +9,12 @@ import {
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "সাধারণ প্রশ্ন — অক্টোপাস" },
+      { title: "সাধারণ প্রশ্ন — NENO-VERSE" },
       {
         name: "description",
         content: "পেমেন্ট, অ্যাক্সেস ও ডেলিভারি নিয়ে সবচেয়ে বেশি জিজ্ঞাসিত প্রশ্নের উত্তর।",
       },
-      { property: "og:title", content: "সাধারণ প্রশ্ন — অক্টোপাস" },
+      { property: "og:title", content: "সাধারণ প্রশ্ন — NENO-VERSE" },
       { property: "og:description", content: "পেমেন্ট ও অ্যাক্সেস সম্পর্কিত প্রশ্নের উত্তর।" },
     ],
   }),

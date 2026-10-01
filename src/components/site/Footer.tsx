@@ -59,7 +59,7 @@ export function Footer() {
         ))}
       </div>
       <div className="border-t border-border py-6 text-center text-sm text-subtle-foreground">
-        © ২০২৬ অক্টোপাস — সর্বস্বত্ব সংরক্ষিত।
+        © ২০২৬ NENO-VERSE — সর্বস্বত্ব সংরক্ষিত।
       </div>
     </footer>
   );

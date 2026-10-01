@@ -3,12 +3,12 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "আমাদের সম্পর্কে — অক্টোপাস" },
+      { title: "আমাদের সম্পর্কে — NENO-VERSE" },
       {
         name: "description",
-        content: "অক্টোপাস বাংলাদেশের ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্সের নিরাপদ প্ল্যাটফর্ম।",
+        content: "NENO-VERSE বাংলাদেশের ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্সের নিরাপদ প্ল্যাটফর্ম।",
       },
-      { property: "og:title", content: "আমাদের সম্পর্কে — অক্টোপাস" },
+      { property: "og:title", content: "আমাদের সম্পর্কে — NENO-VERSE" },
       { property: "og:description", content: "আমরা কারা এবং কী করি।" },
     ],
   }),
@@ -21,7 +21,7 @@ function AboutPage() {
       <h1 className="text-3xl font-extrabold text-foreground sm:text-4xl">আমাদের সম্পর্কে</h1>
       <div className="mt-6 space-y-5 text-muted-foreground">
         <p>
-          অক্টোপাস বাংলাদেশের মানুষের জন্য তৈরি একটি ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স প্ল্যাটফর্ম।
+          NENO-VERSE বাংলাদেশের মানুষের জন্য তৈরি একটি ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স প্ল্যাটফর্ম।
           আমাদের লক্ষ্য—প্রয়োজনীয় ডিজিটাল রিসোর্স সহজে, সাশ্রয়ী দামে ও নিরাপদে পৌঁছে দেওয়া।
         </p>
         <p>

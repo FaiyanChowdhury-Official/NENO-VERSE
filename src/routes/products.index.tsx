@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/products/")({
   head: () => ({
     meta: [
-      { title: "ডিজিটাল প্রোডাক্ট — অক্টোপাস" },
+      { title: "ডিজিটাল প্রোডাক্ট — NENO-VERSE" },
       {
         name: "description",
         content: "টেমপ্লেট, ই-বুক, ডিজাইন অ্যাসেট ও বিজনেস টুল — সব ডিজিটাল প্রোডাক্ট এক জায়গায়।",
       },
-      { property: "og:title", content: "ডিজিটাল প্রোডাক্ট — অক্টোপাস" },
+      { property: "og:title", content: "ডিজিটাল প্রোডাক্ট — NENO-VERSE" },
       { property: "og:description", content: "প্রয়োজনীয় ডিজিটাল প্রোডাক্ট খুঁজুন ও কিনুন।" },
     ],
   }),

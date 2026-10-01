@@ -24,15 +24,15 @@ export const Route = createFileRoute("/courses/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "কোর্স পাওয়া যায়নি — অক্টোপাস" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "কোর্স পাওয়া যায়নি — NENO-VERSE" }, { name: "robots", content: "noindex" }],
       };
     }
     const { course } = loaderData;
     return {
       meta: [
-        { title: `${course.name} — অক্টোপাস` },
+        { title: `${course.name} — NENO-VERSE` },
         { name: "description", content: course.shortDescription },
-        { property: "og:title", content: `${course.name} — অক্টোপাস` },
+        { property: "og:title", content: `${course.name} — NENO-VERSE` },
         { property: "og:description", content: course.shortDescription },
       ],
     };

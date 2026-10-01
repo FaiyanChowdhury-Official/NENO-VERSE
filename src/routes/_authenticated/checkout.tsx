@@ -18,9 +18,9 @@ export const Route = createFileRoute("/_authenticated/checkout")({
   validateSearch: z.object({ type: z.enum(["product", "course"]), slug: z.string() }),
   head: () => ({
     meta: [
-      { title: "চেকআউট — অক্টোপাস" },
+      { title: "চেকআউট — NENO-VERSE" },
       { name: "description", content: "বিকাশ, রকেট বা ব্যাংক ট্রান্সফারে নিরাপদে পেমেন্ট করুন।" },
-      { property: "og:title", content: "চেকআউট — অক্টোপাস" },
+      { property: "og:title", content: "চেকআউট — NENO-VERSE" },
       { property: "og:description", content: "নিরাপদ পেমেন্ট।" },
     ],
   }),

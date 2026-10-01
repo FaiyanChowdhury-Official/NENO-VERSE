@@ -56,6 +56,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-teal: var(--teal);
+  --color-teal-foreground: var(--teal-foreground);
+  --color-teal-soft: var(--teal-soft);
 
   --shadow-card: 0 1px 2px oklch(0.25 0.09 265 / 0.06), 0 8px 24px oklch(0.25 0.09 265 / 0.08);
   --shadow-lift: 0 2px 6px oklch(0.25 0.09 265 / 0.08), 0 18px 40px oklch(0.62 0.19 48 / 0.16);
@@ -98,6 +101,9 @@
   --sidebar-accent-foreground: oklch(0.5 0.16 45);
   --sidebar-border: oklch(0.91 0.012 265);
   --sidebar-ring: oklch(0.68 0.19 45);
+  --teal: oklch(0.7 0.13 185);
+  --teal-foreground: oklch(1 0 0);
+  --teal-soft: oklch(0.94 0.05 185);
   color-scheme: light;
 }
 

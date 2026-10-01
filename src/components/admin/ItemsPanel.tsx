@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete, useAdminAction } from "./shared";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const accessLabels = { lessons: "ড্যাশবোর্ডে ভিডিও", link: "লিংকের মাধ্যমে", both: "ভিডিও + লিংক" } as const;
 
@@ -204,7 +206,7 @@ function ItemEditor({ id, kind, onDone }: { id?: string; kind: "product" | "cour
       {showLessons && (
         <section className="space-y-3">
           <h3 className="font-bold text-foreground">ভিডিও ক্লাস</h3>
-          <p className="text-xs text-muted-foreground">YouTube (unlisted), Vimeo, Google Drive বা সরাসরি MP4 লিংক দিন। ভিডিও লিংক শুধু ক্রেতারাই পাবে।</p>
+          <p className="text-xs text-muted-foreground">সবচেয়ে নিরাপদ: ভিডিও ফাইল আপলোড করুন — এটি গোপন স্টোরেজে থাকে, শুধু ক্রেতারা ১০ মিনিট মেয়াদি লিংকে দেখতে পারে, ডাউনলোড বোতাম থাকে না। চাইলে YouTube (unlisted) বা Vimeo লিংকও দিতে পারেন।</p>
           {lessons.map((l, i) => (
             <div key={l.id ?? `new-${i}`} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_1fr_100px_auto]">
               <Input value={l.module_title} onChange={(e) => setLesson(i, { module_title: e.target.value })} placeholder="মডিউল/অধ্যায়" />
@@ -215,7 +217,11 @@ function ItemEditor({ id, kind, onDone }: { id?: string; kind: "product" | "cour
                 <Button type="button" size="icon" variant="ghost" disabled={i === lessons.length - 1} onClick={() => move(i, 1)} aria-label="নিচে"><ArrowDown className="size-4" /></Button>
                 <Button type="button" size="icon" variant="ghost" onClick={() => set("lessons", lessons.filter((_, j) => j !== i))} aria-label="মুছুন"><Trash2 className="size-4 text-destructive" /></Button>
               </div>
-              <Input className="sm:col-span-3" value={l.video_url} onChange={(e) => setLesson(i, { video_url: e.target.value })} placeholder="ভিডিও লিংক" />
+              <div className="flex gap-2 sm:col-span-3">
+                <Input value={l.video_url.startsWith("storage:") ? "🔒 আপলোড করা ভিডিও (সুরক্ষিত)" : l.video_url} readOnly={l.video_url.startsWith("storage:")} onChange={(e) => setLesson(i, { video_url: e.target.value })} placeholder="ভিডিও লিংক অথবা ফাইল আপলোড করুন" />
+                <VideoUpload onUploaded={(path) => setLesson(i, { video_url: `storage:${path}` })} />
+                {l.video_url && <Button type="button" size="sm" variant="ghost" className="h-10" onClick={() => setLesson(i, { video_url: "" })}>সরান</Button>}
+              </div>
               <label className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Switch checked={l.is_free} onCheckedChange={(c) => setLesson(i, { is_free: c })} /> ফ্রি প্রিভিউ
               </label>
@@ -266,6 +272,33 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   return (
     <label className="flex items-center gap-3 text-sm text-foreground">
       <Switch checked={checked} onCheckedChange={onChange} /> {label}
+    </label>
+  );
+}
+
+function VideoUpload({ onUploaded }: { onUploaded: (path: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <label className={`inline-flex h-10 shrink-0 cursor-pointer items-center rounded-md border border-input px-3 text-sm font-medium ${busy ? "opacity-50" : "hover:bg-muted"}`}>
+      {busy ? "আপলোড হচ্ছে..." : "ফাইল আপলোড"}
+      <input
+        type="file"
+        accept="video/mp4,video/webm"
+        className="hidden"
+        disabled={busy}
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          setBusy(true);
+          const path = `${crypto.randomUUID()}.${file.name.split(".").pop() ?? "mp4"}`;
+          const { error } = await supabase.storage.from("course-videos").upload(path, file, { contentType: file.type });
+          setBusy(false);
+          e.target.value = "";
+          if (error) return void toast.error("আপলোড হয়নি: ফাইল খুব বড় হতে পারে");
+          toast.success("ভিডিও আপলোড হয়েছে — সংরক্ষণ করতে ভুলবেন না");
+          onUploaded(path);
+        }}
+      />
     </label>
   );
 }

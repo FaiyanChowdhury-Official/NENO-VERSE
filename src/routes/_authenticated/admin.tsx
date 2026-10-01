@@ -45,22 +45,31 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+const CHIPS = [
+  "bg-primary-soft text-primary-soft-foreground",
+  "bg-teal-soft text-teal",
+  "bg-chip-violet-soft text-chip-violet",
+  "bg-chip-rose-soft text-chip-rose",
+  "bg-chip-amber-soft text-chip-amber",
+  "bg-chip-sky-soft text-chip-sky",
+] as const;
+
 const NAV = [
-  { id: "overview", label: "ড্যাশবোর্ড", icon: LayoutDashboard },
-  { id: "orders", label: "অর্ডার", icon: ShoppingCart },
-  { id: "analytics", label: "অ্যানালিটিক্স", icon: BarChart3 },
-  { id: "outlets", label: "বিক্রয় চ্যানেল", icon: Share2 },
-  { id: "storefront", label: "স্টোরফ্রন্ট সেটিংস", icon: Store },
-  { id: "items", label: "প্রোডাক্ট ও কোর্স", icon: Package },
-  { id: "categories", label: "ক্যাটাগরি", icon: FolderPlus },
-  { id: "reviews", label: "রিভিউ", icon: Star },
-  { id: "stories", label: "সাফল্যের গল্প", icon: Sparkles },
-  { id: "customers", label: "গ্রাহক (CRM)", icon: Users },
-  { id: "contacts", label: "যোগাযোগ বার্তা", icon: Inbox },
-  { id: "support", label: "সাপোর্ট টিকিট", icon: LifeBuoy },
-  { id: "security", label: "অ্যাক্সেস নিরাপত্তা", icon: ShieldCheck },
-  { id: "audit", label: "অডিট লগ", icon: ScrollText },
-  { id: "settings", label: "সেটিংস", icon: Settings },
+  { id: "overview", label: "ড্যাশবোর্ড", icon: LayoutDashboard, chip: 0 },
+  { id: "orders", label: "অর্ডার", icon: ShoppingCart, chip: 3 },
+  { id: "analytics", label: "অ্যানালিটিক্স", icon: BarChart3, chip: 2 },
+  { id: "outlets", label: "বিক্রয় চ্যানেল", icon: Share2, chip: 1 },
+  { id: "storefront", label: "স্টোরফ্রন্ট সেটিংস", icon: Store, chip: 4 },
+  { id: "items", label: "প্রোডাক্ট ও কোর্স", icon: Package, chip: 5 },
+  { id: "categories", label: "ক্যাটাগরি", icon: FolderPlus, chip: 1 },
+  { id: "reviews", label: "রিভিউ", icon: Star, chip: 4 },
+  { id: "stories", label: "সাফল্যের গল্প", icon: Sparkles, chip: 3 },
+  { id: "customers", label: "গ্রাহক (CRM)", icon: Users, chip: 2 },
+  { id: "contacts", label: "যোগাযোগ বার্তা", icon: Inbox, chip: 5 },
+  { id: "support", label: "সাপোর্ট টিকিট", icon: LifeBuoy, chip: 1 },
+  { id: "security", label: "অ্যাক্সেস নিরাপত্তা", icon: ShieldCheck, chip: 0 },
+  { id: "audit", label: "অডিট লগ", icon: ScrollText, chip: 4 },
+  { id: "settings", label: "সেটিংস", icon: Settings, chip: 2 },
 ] as const;
 
 type Section = (typeof NAV)[number]["id"];
@@ -94,11 +103,13 @@ function AdminPage() {
                   onClick={() => setSection(item.id)}
                   className={`flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium sm:px-3.5 sm:py-2.5 transition-colors ${
                     section === item.id
-                      ? "bg-primary-soft text-primary-soft-foreground"
+                      ? "bg-primary text-primary-foreground shadow-cta"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  <item.icon className="h-4 w-4" />
+                  <span className={`flex size-7 items-center justify-center rounded-lg ${section === item.id ? "bg-white/20 text-primary-foreground" : CHIPS[item.chip]}`}>
+                    <item.icon className="h-4 w-4" />
+                  </span>
                   {item.label}
                 </button>
               ))}
@@ -143,10 +154,10 @@ function StatsRow() {
   const stats = useQuery({ queryKey: ["admin-stats"], queryFn: () => statsFn() });
   const s = stats.data;
   const cards = [
-    { label: "মোট আয়", value: s ? formatBdt(s.revenue) : "—", icon: Wallet },
-    { label: "মোট অর্ডার", value: s ? String(s.orders) : "—", icon: ShoppingCart },
-    { label: "অপেক্ষমাণ অর্ডার", value: s ? String(s.pending) : "—", icon: Clock },
-    { label: "গ্রাহক", value: s ? String(s.customers) : "—", icon: Users },
+    { label: "মোট আয়", value: s ? formatBdt(s.revenue) : "—", icon: Wallet, chip: 0 },
+    { label: "মোট অর্ডার", value: s ? String(s.orders) : "—", icon: ShoppingCart, chip: 3 },
+    { label: "অপেক্ষমাণ অর্ডার", value: s ? String(s.pending) : "—", icon: Clock, chip: 4 },
+    { label: "গ্রাহক", value: s ? String(s.customers) : "—", icon: Users, chip: 2 },
   ];
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -154,7 +165,7 @@ function StatsRow() {
         <div key={c.label} className="rounded-2xl border border-border bg-card p-3.5 shadow-card sm:p-5">
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs text-muted-foreground sm:text-sm">{c.label}</p>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 bg-primary-soft text-primary-soft-foreground">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 ${CHIPS[c.chip]}`}>
               <c.icon className="h-4 w-4" />
             </span>
           </div>
@@ -167,14 +178,14 @@ function StatsRow() {
 
 function OverviewPanel({ onGo }: { onGo: (s: Section) => void }) {
   const items = [
-    { id: "orders" as Section, title: "অর্ডার পর্যালোচনা", desc: "নতুন পেমেন্ট অনুমোদন বা বাতিল করুন।", icon: ShoppingCart },
-    { id: "items" as Section, title: "প্রোডাক্ট ও কোর্স", desc: "দাম, অ্যাক্সেস ধরন, ভিডিও ও লিংক পরিচালনা।", icon: Package },
-    { id: "categories" as Section, title: "ক্যাটাগরি", desc: "নতুন ক্যাটাগরি তৈরি, সম্পাদনা বা মুছুন।", icon: FolderPlus },
-    { id: "reviews" as Section, title: "রিভিউ", desc: "গ্রাহকের রিভিউ অনুমোদন করুন।", icon: Star },
-    { id: "stories" as Section, title: "সাফল্যের গল্প", desc: "হোমপেজের গল্প যোগ বা সম্পাদনা করুন।", icon: Sparkles },
-    { id: "customers" as Section, title: "গ্রাহক (CRM)", desc: "গ্রাহকের তথ্য ও খরচ দেখুন।", icon: Users },
-    { id: "support" as Section, title: "সাপোর্ট টিকিট", desc: "গ্রাহকের প্রশ্নের উত্তর দিন।", icon: LifeBuoy },
-    { id: "settings" as Section, title: "সেটিংস", desc: "বিকাশ/রকেট/ব্যাংক তথ্য ও যোগাযোগ।", icon: Settings },
+    { id: "orders" as Section, title: "অর্ডার পর্যালোচনা", desc: "নতুন পেমেন্ট অনুমোদন বা বাতিল করুন।", icon: ShoppingCart, chip: 3 },
+    { id: "items" as Section, title: "প্রোডাক্ট ও কোর্স", desc: "দাম, অ্যাক্সেস ধরন, ভিডিও ও লিংক পরিচালনা।", icon: Package, chip: 5 },
+    { id: "categories" as Section, title: "ক্যাটাগরি", desc: "নতুন ক্যাটাগরি তৈরি, সম্পাদনা বা মুছুন।", icon: FolderPlus, chip: 1 },
+    { id: "reviews" as Section, title: "রিভিউ", desc: "গ্রাহকের রিভিউ অনুমোদন করুন।", icon: Star, chip: 4 },
+    { id: "stories" as Section, title: "সাফল্যের গল্প", desc: "হোমপেজের গল্প যোগ বা সম্পাদনা করুন।", icon: Sparkles, chip: 3 },
+    { id: "customers" as Section, title: "গ্রাহক (CRM)", desc: "গ্রাহকের তথ্য ও খরচ দেখুন।", icon: Users, chip: 2 },
+    { id: "support" as Section, title: "সাপোর্ট টিকিট", desc: "গ্রাহকের প্রশ্নের উত্তর দিন।", icon: LifeBuoy, chip: 1 },
+    { id: "settings" as Section, title: "সেটিংস", desc: "বিকাশ/রকেট/ব্যাংক তথ্য ও যোগাযোগ।", icon: Settings, chip: 0 },
   ];
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -184,7 +195,7 @@ function OverviewPanel({ onGo }: { onGo: (s: Section) => void }) {
           onClick={() => onGo(it.id)}
           className="rounded-2xl border border-border bg-background p-5 text-left transition-shadow hover:shadow-lift"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary-soft-foreground">
+          <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${CHIPS[it.chip]}`}>
             <it.icon className="h-5 w-5" />
           </span>
           <p className="mt-3 font-bold text-foreground">{it.title}</p>

@@ -56,6 +56,17 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-teal: var(--teal);
+  --color-teal-foreground: var(--teal-foreground);
+  --color-teal-soft: var(--teal-soft);
+  --color-chip-violet: var(--chip-violet);
+  --color-chip-violet-soft: var(--chip-violet-soft);
+  --color-chip-rose: var(--chip-rose);
+  --color-chip-rose-soft: var(--chip-rose-soft);
+  --color-chip-amber: var(--chip-amber);
+  --color-chip-amber-soft: var(--chip-amber-soft);
+  --color-chip-sky: var(--chip-sky);
+  --color-chip-sky-soft: var(--chip-sky-soft);
 
   --shadow-card: 0 1px 2px oklch(0.25 0.09 265 / 0.06), 0 8px 24px oklch(0.25 0.09 265 / 0.08);
   --shadow-lift: 0 2px 6px oklch(0.25 0.09 265 / 0.08), 0 18px 40px oklch(0.62 0.19 48 / 0.16);
@@ -98,6 +109,17 @@
   --sidebar-accent-foreground: oklch(0.5 0.16 45);
   --sidebar-border: oklch(0.91 0.012 265);
   --sidebar-ring: oklch(0.68 0.19 45);
+  --teal: oklch(0.7 0.13 185);
+  --teal-foreground: oklch(1 0 0);
+  --teal-soft: oklch(0.94 0.05 185);
+  --chip-violet: oklch(0.55 0.22 290);
+  --chip-violet-soft: oklch(0.94 0.04 290);
+  --chip-rose: oklch(0.62 0.2 350);
+  --chip-rose-soft: oklch(0.95 0.03 350);
+  --chip-amber: oklch(0.72 0.16 75);
+  --chip-amber-soft: oklch(0.96 0.05 85);
+  --chip-sky: oklch(0.62 0.14 230);
+  --chip-sky-soft: oklch(0.94 0.04 230);
   color-scheme: light;
 }
 
@@ -191,22 +213,22 @@
   color: transparent;
 }
 
-/* Top wallpaper stays deep blue; everything below is white. */
+/* Soft peach hero like the DEVSKILL reference; everything below is white. */
 @utility hero-wallpaper {
   color: var(--foreground);
   background:
-    radial-gradient(55% 70% at 78% 12%, oklch(0.5 0.16 272 / 0.75), transparent),
-    radial-gradient(45% 55% at 8% 88%, oklch(0.62 0.19 48 / 0.22), transparent),
-    linear-gradient(165deg, oklch(0.32 0.14 268), oklch(0.24 0.12 272));
-  --foreground: oklch(0.98 0.01 270);
-  --muted-foreground: oklch(0.84 0.05 270);
-  --subtle-foreground: oklch(0.78 0.06 270);
-  --card: oklch(1 0 0 / 10%);
-  --border: oklch(1 0 0 / 16%);
-  --input: oklch(1 0 0 / 18%);
-  --primary-soft: oklch(1 0 0 / 12%);
-  --primary-soft-foreground: oklch(0.9 0.12 60);
-  --background: oklch(0.28 0.13 270);
+    radial-gradient(50% 60% at 85% 10%, oklch(0.9 0.06 60 / 0.7), transparent),
+    radial-gradient(45% 55% at 5% 90%, oklch(0.92 0.05 185 / 0.55), transparent),
+    linear-gradient(160deg, oklch(0.97 0.025 55), oklch(0.95 0.03 45));
+  --foreground: oklch(0.24 0.08 265);
+  --muted-foreground: oklch(0.5 0.04 265);
+  --subtle-foreground: oklch(0.62 0.03 265);
+  --card: oklch(1 0 0);
+  --border: oklch(0.9 0.02 50);
+  --input: oklch(0.9 0.02 50);
+  --primary-soft: oklch(0.93 0.05 55);
+  --primary-soft-foreground: oklch(0.5 0.16 45);
+  --background: oklch(0.96 0.025 50);
 }
 
 @keyframes float-soft { 0%,100% { transform: translateY(0) rotate(0) } 50% { transform: translateY(-6px) rotate(-3deg) } }

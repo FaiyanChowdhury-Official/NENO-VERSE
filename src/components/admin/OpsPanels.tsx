@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useSetting, defaultStorefront, type GeneralSettings, type PaymentSettings, type StorefrontSettings } from "@/lib/settings";
+import { useSetting, defaultStorefront, defaultNagad, type GeneralSettings, type PaymentSettings, type StorefrontSettings } from "@/lib/settings";
+import { paymentMethods } from "@/lib/payments";
 import { TicketThread, ticketCategories, ticketStatusLabels } from "@/components/site/SupportTickets";
 
 function Field({ label, value, onChange, multiline }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean }) {
@@ -30,7 +31,7 @@ export function SettingsPanel() {
   const gen = useSetting<GeneralSettings>("general");
   const [p, setP] = useState<PaymentSettings | null>(null);
   const [g, setG] = useState<GeneralSettings | null>(null);
-  useEffect(() => { if (pay.data) setP(pay.data); }, [pay.data]);
+  useEffect(() => { if (pay.data) setP({ ...pay.data, nagad: pay.data.nagad ?? defaultNagad }); }, [pay.data]);
   useEffect(() => { if (gen.data) setG(gen.data); }, [gen.data]);
   if (!p || !g) return <p className="text-muted-foreground">লোড হচ্ছে...</p>;
 
@@ -42,9 +43,9 @@ export function SettingsPanel() {
         <h2 className="text-lg font-bold text-foreground">পেমেন্ট সেটিংস</h2>
         <p className="text-sm text-muted-foreground">চেকআউট পেজে গ্রাহকরা এখানকার তথ্যই দেখবেন।</p>
         <div className="grid gap-4 lg:grid-cols-3">
-          {(["bkash", "rocket"] as const).map((k) => (
+          {(["bkash", "rocket", "nagad"] as const).map((k) => (
             <div key={k} className="space-y-3 rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between"><p className="font-semibold">{k === "bkash" ? "বিকাশ" : "রকেট"}</p><Switch checked={p[k].enabled} onCheckedChange={(v) => up(k, { enabled: v })} /></div>
+              <div className="flex items-center justify-between"><p className="font-semibold">{paymentMethods[k].label}</p><Switch checked={p[k].enabled} onCheckedChange={(v) => up(k, { enabled: v })} /></div>
               <Field label="নম্বর" value={p[k].number} onChange={(v) => up(k, { number: v })} />
               <Field label="নির্দেশনা" multiline value={p[k].instructions} onChange={(v) => up(k, { instructions: v })} />
             </div>
@@ -172,8 +173,8 @@ export function AnalyticsPanel() {
   const top = new Map<string, { n: number; amt: number }>();
   approved.forEach((o) => { const t = top.get(o.item_name) ?? { n: 0, amt: 0 }; top.set(o.item_name, { n: t.n + 1, amt: t.amt + o.amount }); });
   const topList = [...top.entries()].sort((a, b) => b[1].amt - a[1].amt).slice(0, 8);
-  const methods = ["bkash", "rocket", "bank"].map((m) => ({ m, n: approved.filter((o) => o.payment_method === m).length }));
-  const methodLabel: Record<string, string> = { bkash: "বিকাশ", rocket: "রকেট", bank: "ব্যাংক" };
+  const methods = ["bkash", "rocket", "nagad", "bank"].map((m) => ({ m, n: approved.filter((o) => o.payment_method === m).length }));
+  const methodLabel: Record<string, string> = { bkash: "বিকাশ", rocket: "রকেট", nagad: "নগদ", bank: "ব্যাংক" };
   const fmt = (n: number) => `৳${n.toLocaleString("bn-BD")}`;
   const approvalRate = rows.length ? Math.round((approved.length / rows.length) * 100) : 0;
 

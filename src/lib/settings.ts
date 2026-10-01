@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 export type PaymentSettings = {
   bkash: { enabled: boolean; number: string; instructions: string };
   rocket: { enabled: boolean; number: string; instructions: string };
+  nagad: { enabled: boolean; number: string; instructions: string };
   bank: { enabled: boolean; bank_name: string; account_name: string; account_number: string; branch: string; instructions: string };
 };
+export const defaultNagad = { enabled: false, number: "", instructions: "নগদ অ্যাপ বা *167# থেকে \"সেন্ড মানি\" অপশনে যান\nউপরের নম্বরে মোট টাকা পাঠান\nট্রানজেকশন আইডি নিচে লিখুন" };
 export type GeneralSettings = {
   site_name: string; phone: string; email: string; address: string;
   facebook: string; youtube: string; instagram: string; whatsapp: string;

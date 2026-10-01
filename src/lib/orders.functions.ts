@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { PROOF_METHODS } from "@/lib/payments";
 
 const orderInput = z.object({
   itemType: z.enum(["product", "course"]),
   itemSlug: z.string().min(1).max(120),
-  paymentMethod: z.enum(["bkash", "rocket", "bank"]),
+  paymentMethod: z.enum(["bkash", "rocket", "nagad", "bank"]),
   senderNumber: z.string().trim().min(5).max(60),
   transactionId: z.string().trim().min(4).max(60).regex(/^[A-Za-z0-9\-_/]+$/),
   customerNote: z.string().trim().max(500).optional().default(""),
@@ -41,7 +42,7 @@ export const createOrder = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (["bkash", "rocket"].includes(data.paymentMethod) && !data.paymentProof.startsWith(`${context.userId}/`)) {
+    if (PROOF_METHODS.includes(data.paymentMethod) && !data.paymentProof.startsWith(`${context.userId}/`)) {
       return { ok: false as const, error: "পেমেন্টের স্ক্রিনশট দিন" };
     }
     if (data.paymentProof) {

@@ -19,6 +19,7 @@ import {
   Store,
   Share2,
   ShieldCheck,
+  Inbox,
 } from "lucide-react";
 import { SettingsPanel, SupportPanel, AuditPanel, AnalyticsPanel, OutletsPanel, StorefrontPanel, SecurityPanel } from "@/components/admin/OpsPanels";
 import { checkIsAdmin, adminListCustomers, adminStats } from "@/lib/admin.functions";
@@ -28,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { OrdersPanel } from "@/components/admin/OrdersPanel";
 import { ItemsPanel } from "@/components/admin/ItemsPanel";
 import { CategoriesPanel } from "@/components/admin/CategoriesPanel";
+import { ContactsPanel } from "@/components/admin/ContactsPanel";
 import { ReviewsPanel, StoriesPanel } from "@/components/admin/ReviewsPanel";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -54,6 +56,7 @@ const NAV = [
   { id: "reviews", label: "রিভিউ", icon: Star },
   { id: "stories", label: "সাফল্যের গল্প", icon: Sparkles },
   { id: "customers", label: "গ্রাহক (CRM)", icon: Users },
+  { id: "contacts", label: "যোগাযোগ বার্তা", icon: Inbox },
   { id: "support", label: "সাপোর্ট টিকিট", icon: LifeBuoy },
   { id: "security", label: "অ্যাক্সেস নিরাপত্তা", icon: ShieldCheck },
   { id: "audit", label: "অডিট লগ", icon: ScrollText },
@@ -121,6 +124,7 @@ function AdminPage() {
             {section === "stories" && <StoriesPanel />}
             {section === "customers" && <CustomersPanel />}
             {section === "support" && <SupportPanel />}
+            {section === "contacts" && <ContactsPanel />}
             {section === "audit" && <AuditPanel />}
             {section === "settings" && <SettingsPanel />}
             {section === "analytics" && <AnalyticsPanel />}

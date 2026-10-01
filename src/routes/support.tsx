@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageCircle, Phone } from "lucide-react";
+import { ContactForm } from "@/components/site/ContactForm";
 
 export const Route = createFileRoute("/support")({
   head: () => ({
@@ -38,6 +39,7 @@ function SupportPage() {
         ))}
       </div>
 
+      <ContactForm />
       <div className="surface-card mt-8 p-6">
         <h2 className="font-semibold text-foreground">যোগাযোগের তথ্য এখনো যুক্ত করা হয়নি</h2>
         <p className="mt-2 text-sm text-muted-foreground">

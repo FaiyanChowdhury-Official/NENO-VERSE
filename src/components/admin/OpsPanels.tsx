@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useSetting, defaultStorefront, defaultNagad, type GeneralSettings, type PaymentSettings, type StorefrontSettings } from "@/lib/settings";
-import { paymentMethods, paymentLabel } from "@/lib/payments";
+import { paymentMethods } from "@/lib/payments";
 import { TicketThread, ticketCategories, ticketStatusLabels } from "@/components/site/SupportTickets";
 
 function Field({ label, value, onChange, multiline }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean }) {

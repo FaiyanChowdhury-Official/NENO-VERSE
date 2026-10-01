@@ -16,3 +16,4 @@
 
 - [x] Apply Cove palette (#006BBB, #30A0E0, #FFC872, #FFE3B3) with mostly white backgrounds
 - [x] Staff roles + separate admin/dashboard page addresses
+- [ ] Replace logo with uploaded NENO-VERSE logo (site + favicon)

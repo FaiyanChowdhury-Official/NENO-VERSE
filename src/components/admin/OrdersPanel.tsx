@@ -1,7 +1,7 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
-import { adminDeleteOrder, adminGrantAccess, adminListItems, adminListOrders, adminUpdateOrder } from "@/lib/admin.functions";
+import { adminDeleteOrder, adminGrantAccess, adminListItems, adminListOrders, adminUpdateOrder, adminUpdateDelivery } from "@/lib/admin.functions";
 import { orderStatusLabels, paymentLabel } from "@/lib/payments";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";

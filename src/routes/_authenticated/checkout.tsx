@@ -35,6 +35,19 @@ function CheckoutPage() {
   const submit = useServerFn(createOrder);
   const [method, setMethod] = useState<PaymentMethod>("bkash");
   const settings = useSetting<PaymentSettings>("payment");
+  const [outletSlug, setOutletSlug] = useState("");
+  useEffect(() => { setOutletSlug(localStorage.getItem("octopus-outlet") ?? ""); }, []);
+  const outletPrice = useQuery({
+    queryKey: ["outlet-price", outletSlug, type, slug],
+    enabled: !!outletSlug,
+    queryFn: async () => {
+      const { data: it } = await supabase.from("items").select("id").eq("kind", type).eq("slug", slug).maybeSingle();
+      const { data: o } = await supabase.from("outlets").select("id").eq("slug", outletSlug).maybeSingle();
+      if (!it || !o) return null;
+      const { data: oi } = await supabase.from("outlet_items").select("price").eq("outlet_id", o.id).eq("item_id", it.id).eq("active", true).maybeSingle();
+      return oi?.price ?? null;
+    },
+  });
   const extra = useQuery({
     queryKey: ["item-extra", type, slug],
     queryFn: async () => (await supabase.from("items").select("requires_customer_info,customer_info_label").eq("kind", type).eq("slug", slug).maybeSingle()).data,
@@ -63,6 +76,7 @@ function CheckoutPage() {
           senderNumber: String(f.get("sender")),
           transactionId: String(f.get("trx")),
           customerNote: String(f.get("note") ?? ""),
+          outletSlug: outletSlug,
         },
       });
       if (!r.ok) { toast.error(r.error); return; }

@@ -128,6 +128,11 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    const o = new URLSearchParams(window.location.search).get("outlet");
+    if (o && /^[a-z0-9-]{2,40}$/.test(o)) localStorage.setItem("octopus-outlet", o);
+  }, []);
+
+  useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();

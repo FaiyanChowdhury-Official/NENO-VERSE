@@ -8,6 +8,7 @@ const orderInput = z.object({
   paymentMethod: z.enum(["bkash", "rocket", "bank"]),
   senderNumber: z.string().trim().min(5).max(60),
   transactionId: z.string().trim().min(4).max(60).regex(/^[A-Za-z0-9\-_/]+$/),
+  customerNote: z.string().trim().max(500).optional().default(""),
 });
 
 export const createOrder = createServerFn({ method: "POST" })
@@ -16,11 +17,14 @@ export const createOrder = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: item } = await context.supabase
       .from("items")
-      .select("name,price,published")
+      .select("name,price,published,requires_customer_info,customer_info_label")
       .eq("kind", data.itemType)
       .eq("slug", data.itemSlug)
       .maybeSingle();
     if (!item || !item.published) return { ok: false as const, error: "প্রোডাক্ট পাওয়া যায়নি" };
+    if (item.requires_customer_info && data.customerNote.length < 3) {
+      return { ok: false as const, error: `${item.customer_info_label || "প্রয়োজনীয় তথ্য"} লিখুন` };
+    }
 
     const { data: existing } = await context.supabase
       .from("orders")
@@ -45,6 +49,7 @@ export const createOrder = createServerFn({ method: "POST" })
       sender_number: data.senderNumber,
       transaction_id: data.transactionId.toUpperCase(),
       status: "pending",
+      customer_note: data.customerNote,
     });
     if (error) {
       console.error("createOrder", error);

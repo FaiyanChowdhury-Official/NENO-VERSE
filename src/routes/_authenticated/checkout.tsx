@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, type FormEvent } from "react";
@@ -33,6 +35,10 @@ function CheckoutPage() {
   const submit = useServerFn(createOrder);
   const [method, setMethod] = useState<PaymentMethod>("bkash");
   const settings = useSetting<PaymentSettings>("payment");
+  const extra = useQuery({
+    queryKey: ["item-extra", type, slug],
+    queryFn: async () => (await supabase.from("items").select("requires_customer_info,customer_info_label").eq("kind", type).eq("slug", slug).maybeSingle()).data,
+  });
   const [busy, setBusy] = useState(false);
 
   if (!item) {
@@ -56,6 +62,7 @@ function CheckoutPage() {
           paymentMethod: method,
           senderNumber: String(f.get("sender")),
           transactionId: String(f.get("trx")),
+          customerNote: String(f.get("note") ?? ""),
         },
       });
       if (!r.ok) { toast.error(r.error); return; }
@@ -113,6 +120,12 @@ function CheckoutPage() {
           <Label htmlFor="trx">ট্রানজেকশন আইডি</Label>
           <Input id="trx" name="trx" required minLength={4} maxLength={60} placeholder="যেমন: 9A7B3C2D1E" />
         </div>
+        {extra.data?.requires_customer_info && (
+          <div className="space-y-2">
+            <Label htmlFor="note">{extra.data.customer_info_label || "অ্যাক্টিভেশনের তথ্য"}</Label>
+            <Input id="note" name="note" required minLength={3} maxLength={500} />
+          </div>
+        )}
         <Button type="submit" size="lg" className="w-full font-semibold" disabled={busy}>
           {busy ? "জমা হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
         </Button>

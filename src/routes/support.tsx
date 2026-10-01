@@ -28,7 +28,7 @@ function SupportPage() {
         {[
           { icon: Phone, t: "ফোন", d: "সকাল ১০টা – রাত ৮টা" },
           { icon: Mail, t: "ইমেইল", d: "২৪ ঘণ্টার মধ্যে উত্তর" },
-          { icon: MessageCircle, t: "সাপোর্ট টিকিট", d: "ড্যাশবোর্ড থেকে" },
+          { icon: MessageCircle, t: "সাপোর্ট টিকিট", d: "ড্যাশবোর্ড → সাপোর্ট ট্যাব থেকে" },
         ].map((c) => (
           <div key={c.t} className="surface-card p-6">
             <c.icon className="size-6 text-primary" strokeWidth={1.6} />

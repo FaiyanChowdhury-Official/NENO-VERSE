@@ -39,6 +39,8 @@ function blank(kind: "product" | "course"): AdminItemInput {
     access_type: kind === "course" ? "lessons" : "link",
     access_note: "",
     access_days: null,
+    requires_customer_info: false,
+    customer_info_label: "",
     link_url: "",
     link_label: "",
     lessons: [],
@@ -189,6 +191,12 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
         </Field>
         <Field label="অ্যাক্সেসের মেয়াদ (দিন) — খালি রাখলে আজীবন">
           <Input type="number" min={1} value={v.access_days ?? ""} onChange={(e) => set("access_days", e.target.value ? Number(e.target.value) : null)} />
+        </Field>
+        <Field label="চেকআউটে গ্রাহকের তথ্য চাইবেন? (যেমন সাবস্ক্রিপশন চালুর ইমেইল)">
+          <div className="flex items-center gap-3">
+            <input type="checkbox" className="h-4 w-4" checked={v.requires_customer_info} onChange={(e) => set("requires_customer_info", e.target.checked)} />
+            <Input value={v.customer_info_label} disabled={!v.requires_customer_info} onChange={(e) => set("customer_info_label", e.target.value)} placeholder="যেমন: যে ইমেইলে Canva Pro চালু করতে চান" />
+          </div>
         </Field>
         <Field label="গ্রাহকের জন্য নির্দেশনা (ড্যাশবোর্ডে দেখাবে)" wide>
           <Textarea rows={2} value={v.access_note} onChange={(e) => set("access_note", e.target.value)} placeholder="যেমন: ফাইলটি ডাউনলোড করে আনজিপ করুন..." />

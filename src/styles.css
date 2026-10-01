@@ -59,6 +59,14 @@
   --color-teal: var(--teal);
   --color-teal-foreground: var(--teal-foreground);
   --color-teal-soft: var(--teal-soft);
+  --color-chip-violet: var(--chip-violet);
+  --color-chip-violet-soft: var(--chip-violet-soft);
+  --color-chip-rose: var(--chip-rose);
+  --color-chip-rose-soft: var(--chip-rose-soft);
+  --color-chip-amber: var(--chip-amber);
+  --color-chip-amber-soft: var(--chip-amber-soft);
+  --color-chip-sky: var(--chip-sky);
+  --color-chip-sky-soft: var(--chip-sky-soft);
 
   --shadow-card: 0 1px 2px oklch(0.25 0.09 265 / 0.06), 0 8px 24px oklch(0.25 0.09 265 / 0.08);
   --shadow-lift: 0 2px 6px oklch(0.25 0.09 265 / 0.08), 0 18px 40px oklch(0.62 0.19 48 / 0.16);
@@ -104,6 +112,14 @@
   --teal: oklch(0.7 0.13 185);
   --teal-foreground: oklch(1 0 0);
   --teal-soft: oklch(0.94 0.05 185);
+  --chip-violet: oklch(0.55 0.22 290);
+  --chip-violet-soft: oklch(0.94 0.04 290);
+  --chip-rose: oklch(0.62 0.2 350);
+  --chip-rose-soft: oklch(0.95 0.03 350);
+  --chip-amber: oklch(0.72 0.16 75);
+  --chip-amber-soft: oklch(0.96 0.05 85);
+  --chip-sky: oklch(0.62 0.14 230);
+  --chip-sky-soft: oklch(0.94 0.04 230);
   color-scheme: light;
 }
 

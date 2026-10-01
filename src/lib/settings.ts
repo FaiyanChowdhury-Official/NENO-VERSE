@@ -19,3 +19,18 @@ export async function fetchSetting<T>(key: string): Promise<T | null> {
 export function useSetting<T>(key: "payment" | "general") {
   return useQuery({ queryKey: ["setting", key], queryFn: () => fetchSetting<T>(key) });
 }
+
+export type StorefrontSettings = {
+  announcement: string; badge: string; title: string; highlight: string; subtitle: string;
+  stat1_label: string; stat1_value: string; stat2_label: string; stat2_value: string; stat3_label: string; stat3_value: string;
+  show_products: boolean; show_courses: boolean; show_stories: boolean;
+};
+export const defaultStorefront: StorefrontSettings = {
+  announcement: "",
+  badge: "বাংলাদেশের ডিজিটাল মার্কেটপ্লেস",
+  title: "আপনার {highlight} ও কোর্স এখন এক জায়গায়।",
+  highlight: "ডিজিটাল প্রোডাক্ট",
+  subtitle: "প্রয়োজনীয় ডিজিটাল প্রোডাক্ট ও অনলাইন কোর্স সহজে খুঁজুন, কিনুন এবং পেমেন্ট সম্পন্ন হওয়ার পর সরাসরি অ্যাক্সেস নিন।",
+  stat1_label: "প্রোডাক্ট", stat1_value: "১২০+", stat2_label: "কোর্স", stat2_value: "৪৫+", stat3_label: "শিক্ষার্থী", stat3_value: "৮,০০০+",
+  show_products: true, show_courses: true, show_stories: true,
+};

@@ -15,8 +15,11 @@ import {
   Settings,
   LifeBuoy,
   ScrollText,
+  BarChart3,
+  Store,
+  Share2,
 } from "lucide-react";
-import { SettingsPanel, SupportPanel, AuditPanel } from "@/components/admin/OpsPanels";
+import { SettingsPanel, SupportPanel, AuditPanel, AnalyticsPanel, OutletsPanel, StorefrontPanel } from "@/components/admin/OpsPanels";
 import { checkIsAdmin, adminListCustomers, adminStats } from "@/lib/admin.functions";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -42,6 +45,9 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const NAV = [
   { id: "overview", label: "ড্যাশবোর্ড", icon: LayoutDashboard },
   { id: "orders", label: "অর্ডার", icon: ShoppingCart },
+  { id: "analytics", label: "অ্যানালিটিক্স", icon: BarChart3 },
+  { id: "outlets", label: "বিক্রয় চ্যানেল", icon: Share2 },
+  { id: "storefront", label: "স্টোরফ্রন্ট সেটিংস", icon: Store },
   { id: "items", label: "প্রোডাক্ট ও কোর্স", icon: Package },
   { id: "categories", label: "ক্যাটাগরি", icon: FolderPlus },
   { id: "reviews", label: "রিভিউ", icon: Star },
@@ -115,6 +121,9 @@ function AdminPage() {
             {section === "support" && <SupportPanel />}
             {section === "audit" && <AuditPanel />}
             {section === "settings" && <SettingsPanel />}
+            {section === "analytics" && <AnalyticsPanel />}
+            {section === "outlets" && <OutletsPanel />}
+            {section === "storefront" && <StorefrontPanel />}
           </div>
         </main>
       </div>

@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Clock, Lock, PlayCircle, User } from "lucide-react";
 import { CourseCard } from "@/components/site/CourseCard";
 import { PriceTag } from "@/components/site/PriceTag";
 import { Button } from "@/components/ui/button";
+import { ItemReviews } from "@/components/site/Reviews";
 import {
   Accordion,
   AccordionContent,
@@ -167,6 +168,8 @@ function CourseDetail() {
           </div>
         </aside>
       </div>
+
+      <ItemReviews kind="course" slug={course.slug} />
 
       <section className="mt-20">
         <h2 className="text-2xl font-bold text-foreground">আরও কোর্স</h2>

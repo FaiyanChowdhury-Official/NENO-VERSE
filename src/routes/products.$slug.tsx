@@ -3,6 +3,7 @@ import { ArrowLeft, Check, FileDown, ShieldCheck } from "lucide-react";
 import { PriceTag } from "@/components/site/PriceTag";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Button } from "@/components/ui/button";
+import { ItemReviews } from "@/components/site/Reviews";
 import { categoryName, useCatalog } from "@/data/catalog";
 import { catalogQuery } from "@/lib/catalog.functions";
 
@@ -126,6 +127,8 @@ function ProductDetail() {
           </div>
         </aside>
       </div>
+
+      <ItemReviews kind="product" slug={product.slug} />
 
       <section className="mt-20">
         <h2 className="text-2xl font-bold text-foreground">আরও প্রোডাক্ট</h2>

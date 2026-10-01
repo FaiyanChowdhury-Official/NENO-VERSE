@@ -5,6 +5,7 @@ import { CourseCard } from "@/components/site/CourseCard";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useCatalog } from "@/data/catalog";
+import { SuccessStories } from "@/components/site/Reviews";
 import { toBengaliDigits } from "@/lib/format";
 
 export const Route = createFileRoute("/")({
@@ -173,6 +174,7 @@ function Index() {
           ))}
         </div>
       </section>
+      <SuccessStories />
     </div>
   );
 }

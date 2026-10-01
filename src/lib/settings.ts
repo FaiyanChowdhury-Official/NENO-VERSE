@@ -19,7 +19,7 @@ export async function fetchSetting<T>(key: string): Promise<T | null> {
   return (data?.value as T) ?? null;
 }
 
-export function useSetting<T>(key: "payment" | "general") {
+export function useSetting<T>(key: "payment" | "general" | "staff_access") {
   return useQuery({ queryKey: ["setting", key], queryFn: () => fetchSetting<T>(key) });
 }
 

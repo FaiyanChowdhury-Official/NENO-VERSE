@@ -107,6 +107,7 @@ export type Database = {
           access_type: string
           category_slug: string
           created_at: string
+          customer_info_label: string
           description: string[]
           duration: string
           file_info: string
@@ -123,6 +124,7 @@ export type Database = {
           popular: boolean
           price: number
           published: boolean
+          requires_customer_info: boolean
           short_description: string
           slug: string
           sort_order: number
@@ -134,6 +136,7 @@ export type Database = {
           access_type?: string
           category_slug?: string
           created_at?: string
+          customer_info_label?: string
           description?: string[]
           duration?: string
           file_info?: string
@@ -150,6 +153,7 @@ export type Database = {
           popular?: boolean
           price?: number
           published?: boolean
+          requires_customer_info?: boolean
           short_description?: string
           slug: string
           sort_order?: number
@@ -161,6 +165,7 @@ export type Database = {
           access_type?: string
           category_slug?: string
           created_at?: string
+          customer_info_label?: string
           description?: string[]
           duration?: string
           file_info?: string
@@ -177,6 +182,7 @@ export type Database = {
           popular?: boolean
           price?: number
           published?: boolean
+          requires_customer_info?: boolean
           short_description?: string
           slug?: string
           sort_order?: number
@@ -293,6 +299,7 @@ export type Database = {
           amount: number
           approved_at: string | null
           created_at: string
+          customer_note: string
           id: string
           item_name: string
           item_slug: string
@@ -309,6 +316,7 @@ export type Database = {
           amount: number
           approved_at?: string | null
           created_at?: string
+          customer_note?: string
           id?: string
           item_name: string
           item_slug: string
@@ -325,6 +333,7 @@ export type Database = {
           amount?: number
           approved_at?: string | null
           created_at?: string
+          customer_note?: string
           id?: string
           item_name?: string
           item_slug?: string

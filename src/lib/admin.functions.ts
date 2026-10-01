@@ -32,7 +32,7 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
 export const adminListOrders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    await assertArea(context, "finance");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: orders, error } = await supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false }).limit(500);
     if (error) throw new Error("লোড হয়নি");
@@ -47,7 +47,7 @@ export const adminListOrders = createServerFn({ method: "GET" })
 export const adminUpdateOrder = adminFn(
   z.object({ id: z.string().uuid(), status: z.enum(["approved", "rejected", "pending"]) }),
 ).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "finance");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin
     .from("orders")
@@ -60,7 +60,7 @@ export const adminUpdateOrder = adminFn(
 export const adminUpdateDelivery = adminFn(
   z.object({ id: z.string().uuid(), delivery_status: z.enum(["waiting", "processing", "delivered", "failed"]), delivery_note: z.string().max(1000) }),
 ).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "finance");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin
     .from("orders")
@@ -71,7 +71,7 @@ export const adminUpdateDelivery = adminFn(
 });
 
 export const adminDeleteOrder = adminFn(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "finance");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.from("orders").delete().eq("id", data.id);
   fail(error, "ডিলিট হয়নি");
@@ -81,7 +81,7 @@ export const adminDeleteOrder = adminFn(z.object({ id: z.string().uuid() })).han
 export const adminGrantAccess = adminFn(
   z.object({ email: z.string().trim().email(), kind: z.enum(["product", "course"]), slug: z.string().min(1) }),
 ).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "finance");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
   const user = users?.users.find((u) => u.email?.toLowerCase() === data.email.toLowerCase());
@@ -107,7 +107,7 @@ export const adminGrantAccess = adminFn(
 export const adminListCustomers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    await assertArea(context, "finance");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: profiles }, { data: orders }, users] = await Promise.all([
       supabaseAdmin.from("profiles").select("id,full_name,phone,created_at").order("created_at", { ascending: false }).limit(1000),
@@ -126,7 +126,7 @@ export const adminListCustomers = createServerFn({ method: "GET" })
 export const adminListCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    await assertArea(context, "content");
     const { data } = await context.supabase.from("categories").select("*").order("kind").order("sort_order");
     return (data ?? []) as { id: string; kind: "product" | "course"; slug: string; name: string; sort_order: number }[];
   });
@@ -136,7 +136,7 @@ const slugSchema = z.string().trim().min(1).max(80).regex(/^[a-z0-9-]+$/, "স�
 export const adminSaveCategory = adminFn(
   z.object({ id: z.string().uuid().optional(), kind: z.enum(["product", "course"]), slug: slugSchema, name: z.string().trim().min(1).max(80), sort_order: z.number().int().default(0) }),
 ).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "content");
   const { id, ...row } = data;
   const { error } = id
     ? await context.supabase.from("categories").update(row).eq("id", id)
@@ -146,7 +146,7 @@ export const adminSaveCategory = adminFn(
 });
 
 export const adminDeleteCategory = adminFn(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "content");
   const { error } = await context.supabase.from("categories").delete().eq("id", data.id);
   fail(error, "ডিলিট হয়নি");
   return { ok: true };
@@ -157,7 +157,7 @@ export const adminDeleteCategory = adminFn(z.object({ id: z.string().uuid() })).
 export const adminListItems = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    await assertArea(context, "content");
     const { data } = await context.supabase.from("items").select("id,kind,slug,name,price,original_price,published,access_type,category_slug,image_url").order("kind").order("sort_order");
     return (data ?? []) as { id: string; kind: "product" | "course"; slug: string; name: string; price: number; original_price: number | null; published: boolean; access_type: string; category_slug: string; image_url: string }[];
   });
@@ -203,7 +203,7 @@ const itemSchema = z.object({
 export type AdminItemInput = z.infer<typeof itemSchema>;
 
 export const adminGetItem = adminFn(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "content");
   const sb = context.supabase;
   const [{ data: item }, { data: link }, { data: lessons }] = await Promise.all([
     sb.from("items").select("*").eq("id", data.id).single(),
@@ -227,7 +227,7 @@ export const adminGetItem = adminFn(z.object({ id: z.string().uuid() })).handler
 });
 
 export const adminSaveItem = adminFn(itemSchema).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "content");
   const sb = context.supabase;
   const { id, link_url, link_label, lessons, ...row } = data;
   const lesson_count = lessons.length || undefined;
@@ -264,7 +264,7 @@ export const adminSaveItem = adminFn(itemSchema).handler(async ({ data, context 
 });
 
 export const adminDeleteItem = adminFn(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "content");
   const { error } = await context.supabase.from("items").delete().eq("id", data.id);
   fail(error, "ডিলিট হয়নি");
   return { ok: true };
@@ -275,21 +275,21 @@ export const adminDeleteItem = adminFn(z.object({ id: z.string().uuid() })).hand
 export const adminListReviews = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    await assertArea(context, "content");
     const { data } = await context.supabase.from("reviews").select("*").order("created_at", { ascending: false }).limit(500);
     return (data ?? []) as { id: string; item_type: string; item_slug: string; reviewer_name: string; rating: number; comment: string; status: "pending" | "approved" | "rejected"; created_at: string }[];
   });
 
 export const adminSetReviewStatus = adminFn(z.object({ id: z.string().uuid(), status: z.enum(["approved", "rejected", "pending"]) })).handler(
   async ({ data, context }) => {
-    await assertAdmin(context);
+    await assertArea(context, "content");
     fail((await context.supabase.from("reviews").update({ status: data.status }).eq("id", data.id)).error);
     return { ok: true };
   },
 );
 
 export const adminDeleteReview = adminFn(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "content");
   fail((await context.supabase.from("reviews").delete().eq("id", data.id)).error, "ডিলিট হয়নি");
   return { ok: true };
 });
@@ -297,7 +297,7 @@ export const adminDeleteReview = adminFn(z.object({ id: z.string().uuid() })).ha
 export const adminListStories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    await assertArea(context, "content");
     const { data } = await context.supabase.from("success_stories").select("*").order("sort_order");
     return (data ?? []) as { id: string; name: string; role: string; story: string; image_url: string; rating: number; published: boolean; sort_order: number }[];
   });
@@ -314,7 +314,7 @@ export const adminSaveStory = adminFn(
     sort_order: z.number().int(),
   }),
 ).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "content");
   const { id, ...row } = data;
   const { error } = id ? await context.supabase.from("success_stories").update(row).eq("id", id) : await context.supabase.from("success_stories").insert(row);
   fail(error);
@@ -322,7 +322,7 @@ export const adminSaveStory = adminFn(
 });
 
 export const adminDeleteStory = adminFn(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
-  await assertAdmin(context);
+  await assertArea(context, "content");
   fail((await context.supabase.from("success_stories").delete().eq("id", data.id)).error, "ডিলিট হয়নি");
   return { ok: true };
 });
@@ -330,7 +330,7 @@ export const adminDeleteStory = adminFn(z.object({ id: z.string().uuid() })).han
 export const adminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context);
+    await assertArea(context, "finance");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: orders } = await supabaseAdmin.from("orders").select("status,amount");
     const { count: customers } = await supabaseAdmin.from("profiles").select("id", { count: "exact", head: true });

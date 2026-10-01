@@ -222,7 +222,7 @@ const MAX_DEVICES = 2;
 async function deviceGuard(userId: string, deviceId: string, kind: string, slug: string, action: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { getRequestHeader } = await import("@tanstack/react-start/server");
-  const ip = (getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for") || "").split(",")[0].trim().slice(0, 64);
+  const ip = (getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for") || "").split(",")[0]?.trim().slice(0, 64) ?? "";
   const ua = (getRequestHeader("user-agent") || "").slice(0, 300);
   const { data: devices } = await supabaseAdmin.from("user_devices").select("device_id").eq("user_id", userId);
   const known = (devices ?? []).some((d) => d.device_id === deviceId);

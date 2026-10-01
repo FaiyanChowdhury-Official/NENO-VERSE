@@ -302,6 +302,84 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          item_slug: string
+          item_type: Database["public"]["Enums"]["item_type"]
+          rating: number
+          reviewer_name: string
+          status: Database["public"]["Enums"]["order_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string
+          created_at?: string
+          id?: string
+          item_slug: string
+          item_type: Database["public"]["Enums"]["item_type"]
+          rating: number
+          reviewer_name?: string
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          item_slug?: string
+          item_type?: Database["public"]["Enums"]["item_type"]
+          rating?: number
+          reviewer_name?: string
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      success_stories: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          name: string
+          published: boolean
+          rating: number
+          role: string
+          sort_order: number
+          story: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          name: string
+          published?: boolean
+          rating?: number
+          role?: string
+          sort_order?: number
+          story: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          name?: string
+          published?: boolean
+          rating?: number
+          role?: string
+          sort_order?: number
+          story?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

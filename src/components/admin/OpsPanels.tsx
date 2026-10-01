@@ -302,3 +302,84 @@ export function StorefrontPanel() {
     </div>
   );
 }
+
+/* ---------------- অ্যাক্সেস নিরাপত্তা ---------------- */
+export function SecurityPanel() {
+  const qc = useQueryClient();
+  const logs = useQuery({
+    queryKey: ["access-logs"],
+    queryFn: async () => (await supabase.from("access_logs").select("*").order("created_at", { ascending: false }).limit(300)).data ?? [],
+  });
+  const devices = useQuery({
+    queryKey: ["user-devices"],
+    queryFn: async () => (await supabase.from("user_devices").select("*").order("last_seen", { ascending: false }).limit(500)).data ?? [],
+  });
+  // Suspicious: users with many distinct IPs in last 7 days or blocked attempts
+  const week = Date.now() - 7 * 86400000;
+  const perUser = new Map<string, { ips: Set<string>; blocked: number }>();
+  (logs.data ?? []).filter((l) => new Date(l.created_at).getTime() > week).forEach((l) => {
+    const u = perUser.get(l.user_id) ?? { ips: new Set(), blocked: 0 };
+    if (l.ip) u.ips.add(l.ip);
+    if (l.blocked) u.blocked++;
+    perUser.set(l.user_id, u);
+  });
+  const suspicious = [...perUser.entries()].filter(([, u]) => u.ips.size >= 4 || u.blocked > 0);
+
+  async function removeDevice(id: string) {
+    const { error } = await supabase.from("user_devices").delete().eq("id", id);
+    if (error) toast.error("সরানো যায়নি"); else { toast.success("ডিভাইস সরানো হয়েছে"); qc.invalidateQueries({ queryKey: ["user-devices"] }); }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-bold text-foreground">অ্যাক্সেস নিরাপত্তা</h2>
+        <p className="text-sm text-muted-foreground">প্রতিটি অ্যাকাউন্ট সর্বোচ্চ ২টি ডিভাইসে ব্যবহার করা যায়। সন্দেহজনক অ্যাকাউন্টের অর্ডার বাতিল করলে অ্যাক্সেস সাথে সাথে বন্ধ হয়ে যাবে।</p>
+      </div>
+      <div className="rounded-xl border border-border p-4">
+        <p className="mb-2 text-sm font-bold text-foreground">সন্দেহজনক অ্যাকাউন্ট (গত ৭ দিন)</p>
+        {suspicious.length === 0 ? <p className="text-sm text-muted-foreground">কোনো সন্দেহজনক কার্যকলাপ নেই।</p> : (
+          <ul className="space-y-1 text-sm">{suspicious.map(([uid, u]) => <li key={uid} className="break-all"><b>{uid.slice(0, 8)}</b> — {u.ips.size.toLocaleString("bn-BD")}টি ভিন্ন IP, {u.blocked.toLocaleString("bn-BD")}টি ব্লক হওয়া চেষ্টা</li>)}</ul>
+        )}
+      </div>
+      <div>
+        <p className="mb-2 text-sm font-bold text-foreground">নিবন্ধিত ডিভাইস</p>
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[600px] text-sm">
+            <thead className="bg-muted/60 text-left text-subtle-foreground"><tr className="border-b border-border"><th className="p-3">গ্রাহক</th><th className="p-3">ডিভাইস</th><th className="p-3">IP</th><th className="p-3">শেষ ব্যবহার</th><th className="p-3"></th></tr></thead>
+            <tbody>
+              {(devices.data ?? []).map((d) => (
+                <tr key={d.id} className="border-b border-border last:border-0">
+                  <td className="p-3 font-mono text-xs">{d.user_id.slice(0, 8)}</td>
+                  <td className="max-w-[240px] truncate p-3 text-xs">{d.user_agent || "—"}</td>
+                  <td className="p-3 text-xs">{d.ip || "—"}</td>
+                  <td className="whitespace-nowrap p-3 text-xs">{new Date(d.last_seen).toLocaleString("bn-BD")}</td>
+                  <td className="p-3"><Button size="sm" variant="outline" onClick={() => removeDevice(d.id)}>সরান</Button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <p className="mb-2 text-sm font-bold text-foreground">সাম্প্রতিক অ্যাক্সেস</p>
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="w-full min-w-[600px] text-sm">
+            <thead className="bg-muted/60 text-left text-subtle-foreground"><tr className="border-b border-border"><th className="p-3">সময়</th><th className="p-3">গ্রাহক</th><th className="p-3">আইটেম</th><th className="p-3">IP</th><th className="p-3">অবস্থা</th></tr></thead>
+            <tbody>
+              {(logs.data ?? []).map((l) => (
+                <tr key={l.id} className="border-b border-border last:border-0">
+                  <td className="whitespace-nowrap p-3 text-xs">{new Date(l.created_at).toLocaleString("bn-BD")}</td>
+                  <td className="p-3 font-mono text-xs">{l.user_id.slice(0, 8)}</td>
+                  <td className="p-3 text-xs">{l.item_slug}</td>
+                  <td className="p-3 text-xs">{l.ip || "—"}</td>
+                  <td className="p-3 text-xs">{l.blocked ? <span className="font-semibold text-destructive">ব্লক</span> : "অনুমোদিত"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

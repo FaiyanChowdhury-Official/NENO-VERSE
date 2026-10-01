@@ -203,8 +203,12 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
         </Field>
         {showLink && (
           <>
-            <Field label="অ্যাক্সেস লিংক (শুধু ক্রেতারা দেখবে)">
-              <Input value={v.link_url} onChange={(e) => set("link_url", e.target.value)} placeholder="Google Drive / Dropbox / যেকোনো লিংক" />
+            <Field label="অ্যাক্সেস ফাইল বা লিংক (সবচেয়ে নিরাপদ: ফাইল আপলোড)">
+              <div className="flex gap-2">
+                <Input value={v.link_url} onChange={(e) => set("link_url", e.target.value)} placeholder="ফাইল আপলোড করুন বা লিংক দিন" />
+                <VideoUpload bucket="product-files" accept="*/*" onUploaded={(path) => set("link_url", `storage:${path}`)} />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">আপলোড করা ফাইল গোপন থাকে; ক্রেতা শুধু ওয়েবসাইটের ভেতরে ২ মিনিটের লিংকে দেখতে পায়। বাইরের লিংক শেয়ার হয়ে যেতে পারে।</p>
             </Field>
             <Field label="বোতামের লেখা"><Input value={v.link_label} onChange={(e) => set("link_label", e.target.value)} placeholder="ফাইল ডাউনলোড করুন" /></Field>
           </>
@@ -284,26 +288,26 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
-function VideoUpload({ onUploaded }: { onUploaded: (path: string) => void }) {
+function VideoUpload({ onUploaded, bucket = "course-videos", accept = "video/mp4,video/webm" }: { onUploaded: (path: string) => void; bucket?: string; accept?: string }) {
   const [busy, setBusy] = useState(false);
   return (
     <label className={`inline-flex h-10 shrink-0 cursor-pointer items-center rounded-md border border-input px-3 text-sm font-medium ${busy ? "opacity-50" : "hover:bg-muted"}`}>
       {busy ? "আপলোড হচ্ছে..." : "ফাইল আপলোড"}
       <input
         type="file"
-        accept="video/mp4,video/webm"
+        accept={accept}
         className="hidden"
         disabled={busy}
         onChange={async (e) => {
           const file = e.target.files?.[0];
           if (!file) return;
           setBusy(true);
-          const path = `${crypto.randomUUID()}.${file.name.split(".").pop() ?? "mp4"}`;
-          const { error } = await supabase.storage.from("course-videos").upload(path, file, { contentType: file.type });
+          const path = `${crypto.randomUUID()}.${(file.name.split(".").pop() ?? "bin").toLowerCase()}`;
+          const { error } = await supabase.storage.from(bucket).upload(path, file, { contentType: file.type });
           setBusy(false);
           e.target.value = "";
           if (error) return void toast.error("আপলোড হয়নি: ফাইল খুব বড় হতে পারে");
-          toast.success("ভিডিও আপলোড হয়েছে — সংরক্ষণ করতে ভুলবেন না");
+          toast.success("আপলোড হয়েছে — সংরক্ষণ করতে ভুলবেন না");
           onUploaded(path);
         }}
       />

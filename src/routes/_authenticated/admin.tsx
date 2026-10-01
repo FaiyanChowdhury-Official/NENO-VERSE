@@ -45,22 +45,31 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+const CHIPS = [
+  "bg-primary-soft text-primary-soft-foreground",
+  "bg-teal-soft text-teal",
+  "bg-chip-violet-soft text-chip-violet",
+  "bg-chip-rose-soft text-chip-rose",
+  "bg-chip-amber-soft text-chip-amber",
+  "bg-chip-sky-soft text-chip-sky",
+] as const;
+
 const NAV = [
-  { id: "overview", label: "ড্যাশবোর্ড", icon: LayoutDashboard },
-  { id: "orders", label: "অর্ডার", icon: ShoppingCart },
-  { id: "analytics", label: "অ্যানালিটিক্স", icon: BarChart3 },
-  { id: "outlets", label: "বিক্রয় চ্যানেল", icon: Share2 },
-  { id: "storefront", label: "স্টোরফ্রন্ট সেটিংস", icon: Store },
-  { id: "items", label: "প্রোডাক্ট ও কোর্স", icon: Package },
-  { id: "categories", label: "ক্যাটাগরি", icon: FolderPlus },
-  { id: "reviews", label: "রিভিউ", icon: Star },
-  { id: "stories", label: "সাফল্যের গল্প", icon: Sparkles },
-  { id: "customers", label: "গ্রাহক (CRM)", icon: Users },
-  { id: "contacts", label: "যোগাযোগ বার্তা", icon: Inbox },
-  { id: "support", label: "সাপোর্ট টিকিট", icon: LifeBuoy },
-  { id: "security", label: "অ্যাক্সেস নিরাপত্তা", icon: ShieldCheck },
-  { id: "audit", label: "অডিট লগ", icon: ScrollText },
-  { id: "settings", label: "সেটিংস", icon: Settings },
+  { id: "overview", label: "ড্যাশবোর্ড", icon: LayoutDashboard, chip: 0 },
+  { id: "orders", label: "অর্ডার", icon: ShoppingCart, chip: 3 },
+  { id: "analytics", label: "অ্যানালিটিক্স", icon: BarChart3, chip: 2 },
+  { id: "outlets", label: "বিক্রয় চ্যানেল", icon: Share2, chip: 1 },
+  { id: "storefront", label: "স্টোরফ্রন্ট সেটিংস", icon: Store, chip: 4 },
+  { id: "items", label: "প্রোডাক্ট ও কোর্স", icon: Package, chip: 5 },
+  { id: "categories", label: "ক্যাটাগরি", icon: FolderPlus, chip: 1 },
+  { id: "reviews", label: "রিভিউ", icon: Star, chip: 4 },
+  { id: "stories", label: "সাফল্যের গল্প", icon: Sparkles, chip: 3 },
+  { id: "customers", label: "গ্রাহক (CRM)", icon: Users, chip: 2 },
+  { id: "contacts", label: "যোগাযোগ বার্তা", icon: Inbox, chip: 5 },
+  { id: "support", label: "সাপোর্ট টিকিট", icon: LifeBuoy, chip: 1 },
+  { id: "security", label: "অ্যাক্সেস নিরাপত্তা", icon: ShieldCheck, chip: 0 },
+  { id: "audit", label: "অডিট লগ", icon: ScrollText, chip: 4 },
+  { id: "settings", label: "সেটিংস", icon: Settings, chip: 2 },
 ] as const;
 
 type Section = (typeof NAV)[number]["id"];

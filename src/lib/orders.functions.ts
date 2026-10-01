@@ -42,7 +42,7 @@ export const createOrder = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (["bkash", "rocket"].includes(data.paymentMethod) && !data.paymentProof.startsWith(`${context.userId}/`)) {
+    if (PROOF_METHODS.includes(data.paymentMethod) && !data.paymentProof.startsWith(`${context.userId}/`)) {
       return { ok: false as const, error: "পেমেন্টের স্ক্রিনশট দিন" };
     }
     if (data.paymentProof) {

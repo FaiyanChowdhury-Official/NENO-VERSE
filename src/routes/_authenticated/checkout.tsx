@@ -7,7 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { useCatalog } from "@/data/catalog";
 import { createOrder } from "@/lib/orders.functions";
-import { paymentMethods, type PaymentMethod } from "@/lib/payments";
+import { paymentMethods, PROOF_METHODS, type PaymentMethod } from "@/lib/payments";
 import { useSetting, type PaymentSettings } from "@/lib/settings";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -117,7 +117,7 @@ function CheckoutPage() {
       <form onSubmit={onSubmit} className="surface-card space-y-6 p-6 sm:p-8">
         <h1 className="text-2xl font-extrabold text-foreground">পেমেন্ট করুন</h1>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {enabled.map((m) => (
             <button
               key={m}
@@ -155,12 +155,12 @@ function CheckoutPage() {
           </div>
         )}
         <div className="space-y-2">
-          <Label htmlFor="proof">পেমেন্টের স্ক্রিনশট (বিকাশ/রকেটের জন্য আবশ্যক)</Label>
+          <Label htmlFor="proof">{PROOF_METHODS.includes(method) ? "পেমেন্টের স্ক্রিনশট (আবশ্যক)" : "পেমেন্টের স্ক্রিনশট (ঐচ্ছিক)"}</Label>
           <Input id="proof" type="file" accept="image/png,image/jpeg,image/webp" disabled={proofBusy} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadProof(f); }} />
           {proofBusy && <p className="text-xs text-muted-foreground">আপলোড হচ্ছে...</p>}
           {proof && !proofBusy && <p className="text-xs text-primary">স্ক্রিনশট যুক্ত হয়েছে</p>}
         </div>
-        <Button type="submit" size="lg" className="w-full font-semibold" disabled={busy || proofBusy || ((method === "bkash" || method === "rocket") && !proof)}>
+        <Button type="submit" size="lg" className="w-full font-semibold" disabled={busy || proofBusy || (PROOF_METHODS.includes(method) && !proof)}>
           {busy ? "জমা হচ্ছে..." : "অর্ডার নিশ্চিত করুন"}
         </Button>
         <p className="text-center text-xs text-subtle-foreground">

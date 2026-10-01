@@ -65,6 +65,7 @@ export const submitReview = createServerFn({ method: "POST" })
       .eq("item_type", data.kind)
       .eq("item_slug", data.slug)
       .eq("status", "approved")
+      .is("deleted_at", null)
       .limit(1);
     if (!bought?.length) return { ok: false as const, error: "শুধু ক্রেতারাই রিভিউ দিতে পারবেন" };
     const { data: profile } = await context.supabase.from("profiles").select("full_name").eq("id", context.userId).maybeSingle();

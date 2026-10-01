@@ -91,3 +91,18 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (error) throw new Error("প্রোফাইল সংরক্ষণ হয়নি");
     return { ok: true };
   });
+
+export const getCourseAccess = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ slug: z.string().min(1).max(120) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows } = await context.supabase
+      .from("orders")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("item_slug", data.slug)
+      .eq("item_type", "course")
+      .eq("status", "approved")
+      .limit(1);
+    return { hasAccess: !!rows && rows.length > 0 };
+  });

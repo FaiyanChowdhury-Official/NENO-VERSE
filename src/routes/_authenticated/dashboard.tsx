@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
+import { checkIsAdmin } from "@/lib/admin.functions";
 import { getMyProfile, listMyOrders, updateMyProfile } from "@/lib/orders.functions";
 import { orderStatusLabels, paymentMethods } from "@/lib/payments";
 import { formatBdt } from "@/lib/format";
@@ -34,6 +35,8 @@ function Dashboard() {
   const fetchProfile = useServerFn(getMyProfile);
   const orders = useQuery({ queryKey: ["my-orders"], queryFn: () => fetchOrders() });
   const profile = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
+  const isAdminFn = useServerFn(checkIsAdmin);
+  const role = useQuery({ queryKey: ["is-admin"], queryFn: () => isAdminFn() });
   const owned = (orders.data ?? []).filter((o) => o.status === "approved");
 
   return (
@@ -41,6 +44,9 @@ function Dashboard() {
       <h1 className="text-3xl font-extrabold text-foreground">
         স্বাগতম{profile.data?.fullName ? `, ${profile.data.fullName}` : ""}!
       </h1>
+      {role.data?.isAdmin && (
+        <Button asChild variant="outline" className="mt-4"><Link to="/admin">অ্যাডমিন প্যানেল</Link></Button>
+      )}
 
       <Tabs defaultValue="library" className="mt-8">
         <TabsList>
@@ -66,9 +72,13 @@ function Dashboard() {
                 <div key={o.id} className="surface-card p-5">
                   <p className="text-xs font-medium text-subtle-foreground">{o.item_type === "course" ? "কোর্স" : "ডিজিটাল প্রোডাক্ট"}</p>
                   <h3 className="mt-1 font-bold text-foreground">{o.item_name}</h3>
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    {o.item_type === "course" ? "ক্লাস শীঘ্রই এখানে দেখতে পাবেন।" : "ডাউনলোড শীঘ্রই এখানে চালু হবে।"}
-                  </p>
+                  {o.item_type === "course" ? (
+                    <Button asChild size="sm" className="mt-4">
+                      <Link to="/learn/$slug" params={{ slug: o.item_slug }}>ক্লাস শুরু করুন</Link>
+                    </Button>
+                  ) : (
+                    <p className="mt-3 text-sm text-muted-foreground">ডাউনলোড ফাইল শীঘ্রই এখানে চালু হবে।</p>
+                  )}
                 </div>
               ))}
             </div>

@@ -18,12 +18,14 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
+import { Route as AuthenticatedLearnSlugRouteImport } from './routes/_authenticated/learn.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -69,6 +71,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -99,6 +106,11 @@ const ProductsSlugRoute = ProductsSlugRouteImport.update({
   path: '/products/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedLearnSlugRoute = AuthenticatedLearnSlugRouteImport.update({
+  id: '/learn/$slug',
+  path: '/learn/$slug',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,12 +121,14 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/courses/': typeof CoursesIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/learn/$slug': typeof AuthenticatedLearnSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -125,12 +139,14 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/courses': typeof CoursesIndexRoute
   '/products': typeof ProductsIndexRoute
+  '/learn/$slug': typeof AuthenticatedLearnSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,12 +159,14 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/courses/': typeof CoursesIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/_authenticated/learn/$slug': typeof AuthenticatedLearnSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,12 +179,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/support'
     | '/terms'
+    | '/admin'
     | '/checkout'
     | '/dashboard'
     | '/courses/$slug'
     | '/products/$slug'
     | '/courses/'
     | '/products/'
+    | '/learn/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,12 +197,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/support'
     | '/terms'
+    | '/admin'
     | '/checkout'
     | '/dashboard'
     | '/courses/$slug'
     | '/products/$slug'
     | '/courses'
     | '/products'
+    | '/learn/$slug'
   id:
     | '__root__'
     | '/'
@@ -194,12 +216,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/support'
     | '/terms'
+    | '/_authenticated/admin'
     | '/_authenticated/checkout'
     | '/_authenticated/dashboard'
     | '/courses/$slug'
     | '/products/$slug'
     | '/courses/'
     | '/products/'
+    | '/_authenticated/learn/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -283,6 +307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/checkout': {
       id: '/_authenticated/checkout'
       path: '/checkout'
@@ -325,17 +356,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/learn/$slug': {
+      id: '/_authenticated/learn/$slug'
+      path: '/learn/$slug'
+      fullPath: '/learn/$slug'
+      preLoaderRoute: typeof AuthenticatedLearnSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedLearnSlugRoute: typeof AuthenticatedLearnSlugRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedLearnSlugRoute: AuthenticatedLearnSlugRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -9,7 +9,7 @@ export const analyzeReviews = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ ids: z.array(z.string().uuid()).min(1).max(50) }).parse(d))
   .handler(async ({ data, context }): Promise<{ ok: true; insights: ReviewInsights } | { ok: false; error: string }> => {
     const { supabase, userId } = context as { supabase: any; userId: string };
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    const { data: isAdmin } = await supabase.rpc("has_staff_area", { _user_id: userId, _area: "content" });
     if (!isAdmin) throw new Error("Forbidden");
 
     const { data: rows, error } = await supabase
@@ -111,7 +111,7 @@ export const draftReviewReply = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }): Promise<{ ok: true; reply: string } | { ok: false; error: string }> => {
     const { supabase, userId } = context as { supabase: any; userId: string };
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    const { data: isAdmin } = await supabase.rpc("has_staff_area", { _user_id: userId, _area: "content" });
     if (!isAdmin) throw new Error("Forbidden");
     const { data: r } = await supabase
       .from("reviews").select("rating, comment, item_type, item_slug, reviewer_name").eq("id", data.id).maybeSingle();
@@ -180,7 +180,7 @@ export const generateItemDescription = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ name: z.string().trim().min(2).max(150), benefits: z.string().trim().max(2000), duration: z.string().trim().max(100) }).parse(d))
   .handler(async ({ data, context }): Promise<{ ok: true; result: GeneratedDescription } | { ok: false; error: string }> => {
     const { supabase, userId } = context as { supabase: any; userId: string };
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    const { data: isAdmin } = await supabase.rpc("has_staff_area", { _user_id: userId, _area: "content" });
     if (!isAdmin) throw new Error("Forbidden");
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) return { ok: false, error: "AI কনফিগারেশন পাওয়া যায়নি।" };

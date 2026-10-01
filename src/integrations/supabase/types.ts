@@ -783,9 +783,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_staff_area: {
+        Args: { _area: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "content_manager"
+        | "finance_manager"
+        | "support_manager"
       item_type: "product" | "course"
       order_status: "pending" | "approved" | "rejected"
       payment_method: "bkash" | "rocket" | "bank" | "manual"
@@ -922,7 +932,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "content_manager",
+        "finance_manager",
+        "support_manager",
+      ],
       item_type: ["product", "course"],
       order_status: ["pending", "approved", "rejected"],
       payment_method: ["bkash", "rocket", "bank", "manual"],

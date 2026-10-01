@@ -317,12 +317,12 @@ export const adminStats = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: orders } = await supabaseAdmin.from("orders").select("status,total");
+    const { data: orders } = await supabaseAdmin.from("orders").select("status,amount");
     const { count: customers } = await supabaseAdmin.from("profiles").select("id", { count: "exact", head: true });
     const all = orders ?? [];
     const approved = all.filter((o) => o.status === "approved");
     return {
-      revenue: approved.reduce((s, o) => s + (o.total ?? 0), 0),
+      revenue: approved.reduce((s, o) => s + (o.amount ?? 0), 0),
       orders: all.length,
       pending: all.filter((o) => o.status === "pending").length,
       customers: customers ?? 0,

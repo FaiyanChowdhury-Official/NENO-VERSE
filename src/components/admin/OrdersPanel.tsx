@@ -139,7 +139,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-const deliveryLabels: Record<string, string> = { waiting: "অপেক্ষমাণ", processing: "অ্যাক্টিভেশন চলছে", delivered: "ডেলিভারি সম্পন্ন", failed: "সমস্যা হয়েছে" };
+const deliveryLabels: Record<string, string> = { waiting: "পেমেন্ট অপেক্ষা", processing: "প্রস্তুত হচ্ছে", delivered: "ডেলিভারি হয়েছে", failed: "সমস্যা হয়েছে" };
 
 function DeliveryEditor({ order }: { order: { id: string; delivery_status: string; delivery_note: string; outlet_slug?: string } }) {
   const save = useServerFn(adminUpdateDelivery);

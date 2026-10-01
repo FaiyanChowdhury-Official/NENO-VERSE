@@ -25,11 +25,11 @@ function ResetPage() {
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const password = String(new FormData(e.currentTarget).get("password"));
-    if (password.length < 8) return toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে");
+    if (password.length < 8) { toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে"); return; }
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
-    if (error) return toast.error("পাসওয়ার্ড পরিবর্তন হয়নি। লিংকটি আবার চেষ্টা করুন।");
+    if (error) { toast.error("পাসওয়ার্ড পরিবর্তন হয়নি। লিংকটি আবার চেষ্টা করুন।"); return; }
     toast.success("পাসওয়ার্ড পরিবর্তন হয়েছে");
     navigate({ to: "/dashboard" });
   }

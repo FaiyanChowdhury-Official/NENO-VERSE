@@ -71,7 +71,7 @@ function AuthPage() {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const password = String(f.get("password"));
-    if (password.length < 8) return toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে");
+    if (password.length < 8) { toast.error("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে"); return; }
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email: String(f.get("email")),
@@ -82,7 +82,7 @@ function AuthPage() {
       },
     });
     setBusy(false);
-    if (error) return toast.error(error.message.includes("registered") ? "এই ইমেইলে আগেই অ্যাকাউন্ট আছে" : "অ্যাকাউন্ট খোলা যায়নি");
+    if (error) { toast.error(error.message.includes("registered") ? "এই ইমেইলে আগেই অ্যাকাউন্ট আছে" : "অ্যাকাউন্ট খোলা যায়নি"); return; }
     if (!data.session) setView("check-email");
   }
 

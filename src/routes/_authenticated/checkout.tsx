@@ -55,7 +55,7 @@ function CheckoutPage() {
           transactionId: String(f.get("trx")),
         },
       });
-      if (!r.ok) return toast.error(r.error);
+      if (!r.ok) { toast.error(r.error); return; }
       toast.success("অর্ডার জমা হয়েছে! পেমেন্ট যাচাই হলে অ্যাক্সেস পাবেন।");
       navigate({ to: "/dashboard" });
     } catch {

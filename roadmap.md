@@ -16,3 +16,4 @@
 - [ ] Admin-managed contact links (WhatsApp, Telegram, Messenger) + floating buttons
 - [ ] AI help agent answering course/product questions (one conversation, not saved)
 - [ ] Thumbnail upload from admin for products/courses
+- [x] YouTube link / iframe embed for lessons (no storage used)

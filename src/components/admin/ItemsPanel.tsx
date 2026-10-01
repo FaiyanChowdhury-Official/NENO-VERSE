@@ -224,7 +224,7 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
       {showLessons && (
         <section className="space-y-3">
           <h3 className="font-bold text-foreground">কোর্স কারিকুলাম (মডিউল ও ক্লাস)</h3>
-          <p className="text-xs text-muted-foreground">সবচেয়ে নিরাপদ: ভিডিও ফাইল আপলোড করুন — এটি গোপন স্টোরেজে থাকে, শুধু ক্রেতারা ৫ মিনিট মেয়াদি লিংকে দেখতে পারে, ডাউনলোড বোতাম থাকে না। চাইলে YouTube (unlisted) বা Vimeo লিংকও দিতে পারেন।</p>
+          <p className="text-xs text-muted-foreground">সবচেয়ে নিরাপদ: ভিডিও ফাইল আপলোড করুন — এটি গোপন স্টোরেজে থাকে, শুধু ক্রেতারা ৫ মিনিট মেয়াদি লিংকে দেখতে পারে, ডাউনলোড বোতাম থাকে না। জায়গা বাঁচাতে YouTube-এ ভিডিওটি "Unlisted" করে আপলোড দিন, তারপর তার লিংক বা iframe (Embed) কোড এখানে বসান — ভিডিও কোর্সের ভেতরেই চলবে।</p>
           {moduleGroups(lessons).map((g, gi) => (
             <div key={gi} className="space-y-2 rounded-2xl border border-border bg-muted/30 p-3">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -248,7 +248,7 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
                       <Button type="button" size="icon" variant="ghost" onClick={() => set("lessons", lessons.filter((_, j) => j !== i))} aria-label="মুছুন"><Trash2 className="size-4 text-destructive" /></Button>
                     </div>
                     <div className="flex gap-2 sm:col-span-3">
-                      <Input value={l.video_url.startsWith("storage:") ? "আপলোড করা ভিডিও (সুরক্ষিত)" : l.video_url} readOnly={l.video_url.startsWith("storage:")} onChange={(e) => setLesson(i, { video_url: e.target.value })} placeholder="ভিডিও লিংক অথবা ফাইল আপলোড করুন" />
+                      <Input value={l.video_url.startsWith("storage:") ? "আপলোড করা ভিডিও (সুরক্ষিত)" : l.video_url} readOnly={l.video_url.startsWith("storage:")} onChange={(e) => setLesson(i, { video_url: e.target.value })} placeholder="YouTube/Vimeo লিংক বা iframe কোড দিন, অথবা ফাইল আপলোড করুন" />
                       <VideoUpload onUploaded={(path) => setLesson(i, { video_url: `storage:${path}` })} />
                       {l.video_url && <Button type="button" size="sm" variant="ghost" className="h-10" onClick={() => setLesson(i, { video_url: "" })}>সরান</Button>}
                     </div>

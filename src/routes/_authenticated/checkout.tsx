@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useCatalog } from "@/data/catalog";
 import { createOrder } from "@/lib/orders.functions";
 import { paymentMethods, type PaymentMethod } from "@/lib/payments";
+import { useSetting, type PaymentSettings } from "@/lib/settings";
 import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +67,14 @@ function CheckoutPage() {
     }
   }
 
-  const pm = paymentMethods[method];
+  const ps = settings.data;
+  const enabled = (Object.keys(paymentMethods) as PaymentMethod[]).filter((m) => !ps || ps[m]?.enabled !== false);
+  const account = !ps
+    ? "লোড হচ্ছে..."
+    : method === "bank"
+      ? [ps.bank.bank_name, ps.bank.account_name, ps.bank.account_number && `A/C: ${ps.bank.account_number}`, ps.bank.branch && `শাখা: ${ps.bank.branch}`].filter(Boolean).join(", ") || "তথ্য শীঘ্রই যোগ হবে"
+      : ps[method].number || "নম্বর শীঘ্রই যোগ হবে";
+  const steps = ps?.[method]?.instructions ? ps[method].instructions.split(/\n+/).filter(Boolean) : paymentMethods[method].instructions;
 
   return (
     <div className="mx-auto grid max-w-5xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_340px]">
@@ -74,7 +82,7 @@ function CheckoutPage() {
         <h1 className="text-2xl font-extrabold text-foreground">পেমেন্ট করুন</h1>
 
         <div className="grid grid-cols-3 gap-2">
-          {(Object.keys(paymentMethods) as PaymentMethod[]).map((m) => (
+          {enabled.map((m) => (
             <button
               key={m}
               type="button"
@@ -89,10 +97,10 @@ function CheckoutPage() {
         </div>
 
         <div className="rounded-xl bg-muted p-4 text-sm">
-          <p className="font-semibold text-foreground">টাকা পাঠান: {pm.account}</p>
+          <p className="font-semibold text-foreground">টাকা পাঠান: {account}</p>
           <p className="mt-1 font-semibold text-primary">পরিমাণ: {formatBdt(item.price)}</p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-muted-foreground">
-            {pm.instructions.map((s) => <li key={s}>{s}</li>)}
+            {steps.map((s) => <li key={s}>{s}</li>)}
           </ol>
         </div>
 

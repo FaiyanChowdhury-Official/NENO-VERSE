@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { NotificationBell } from "@/components/site/NotificationBell";
 import { Logo } from "./Logo";
 
 const navItems = [
@@ -48,9 +49,11 @@ export function Header() {
           ))}
         </nav>
 
+        {user && <div className="ml-auto md:hidden"><NotificationBell userId={user.id} /></div>}
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
             <>
+              <NotificationBell userId={user.id} />
               <Button asChild variant="ghost" size="sm">
                 <Link to="/dashboard">ড্যাশবোর্ড</Link>
               </Button>

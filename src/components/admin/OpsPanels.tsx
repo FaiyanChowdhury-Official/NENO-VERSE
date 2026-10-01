@@ -76,7 +76,25 @@ export function SettingsPanel() {
         </div>
         <Button onClick={async () => { await save("general", g); qc.invalidateQueries({ queryKey: ["setting", "general"] }); }}>সেভ করুন</Button>
       </section>
+      <StaffAccessToggle />
     </div>
+  );
+}
+
+function StaffAccessToggle() {
+  const qc = useQueryClient();
+  const s = useSetting<{ enabled: boolean }>("staff_access");
+  const enabled = s.data?.enabled !== false;
+  return (
+    <section className="space-y-3 rounded-xl border border-border p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold text-foreground">স্টাফ অ্যাক্সেস</h2>
+          <p className="text-sm text-muted-foreground">বন্ধ করলে কনটেন্ট, ফাইন্যান্স ও সাপোর্ট ম্যানেজাররা অ্যাডমিন প্যানেলে ঢুকতে পারবেন না। তারা সাধারণ গ্রাহকের মতো লগইন করতে পারবেন। আপনি (অ্যাডমিন) সবসময় পারবেন।</p>
+        </div>
+        <Switch checked={enabled} onCheckedChange={async (v) => { await save("staff_access", { enabled: v }); qc.invalidateQueries({ queryKey: ["setting", "staff_access"] }); }} />
+      </div>
+    </section>
   );
 }
 

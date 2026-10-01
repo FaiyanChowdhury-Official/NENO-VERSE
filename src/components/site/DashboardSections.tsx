@@ -153,9 +153,9 @@ function OrderSteps({ order }: { order: { status: string; created_at: string; ap
   const approved = order.status === "approved";
   const steps = [
     { t: "অর্ডার জমা হয়েছে", done: true, at: order.created_at },
-    { t: "পেমেন্ট যাচাই", done: approved, at: order.approved_at },
-    { t: "অ্যাক্টিভেশন চলছে", done: approved && ["processing", "delivered"].includes(order.delivery_status), at: null },
-    { t: "ডেলিভারি সম্পন্ন — ব্যবহার করুন", done: approved && order.delivery_status === "delivered", at: order.delivered_at },
+    { t: approved ? "পেমেন্ট নিশ্চিত" : "পেমেন্ট অপেক্ষা", done: approved, at: order.approved_at },
+    { t: "প্রস্তুত হচ্ছে", done: approved && ["processing", "delivered"].includes(order.delivery_status), at: null },
+    { t: "ডেলিভারি হয়েছে — ব্যবহার করুন", done: approved && order.delivery_status === "delivered", at: order.delivered_at },
   ];
   return (
     <div className="w-full basis-full border-t border-border pt-3">

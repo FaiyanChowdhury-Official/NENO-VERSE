@@ -13,3 +13,6 @@
 - [ ] Order delivery status + access steps for subscriptions (customer + admin)
 - [ ] Per-outlet products, prices and sales summary
 - [ ] LMS: module-wise course builder (admin), module-grouped classroom, lesson progress tracking
+- [ ] Admin-managed contact links (WhatsApp, Telegram, Messenger) + floating buttons
+- [ ] AI help agent answering course/product questions (one conversation, not saved)
+- [ ] Thumbnail upload from admin for products/courses

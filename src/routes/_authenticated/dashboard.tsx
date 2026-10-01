@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { getMyProfile, listMyOrders, updateMyProfile } from "@/lib/orders.functions";
 import { orderStatusLabels, paymentMethods } from "@/lib/payments";
-import { formatPrice } from "@/lib/format";
+import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,7 +90,7 @@ function Dashboard() {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-bold text-foreground">{formatPrice(o.amount)}</span>
+                    <span className="font-bold text-foreground">{formatBdt(o.amount)}</span>
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyle[o.status]}`}>
                       {orderStatusLabels[o.status]}
                     </span>

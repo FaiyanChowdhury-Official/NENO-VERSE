@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { getCourse, getProduct } from "@/data/catalog";
 import { createOrder } from "@/lib/orders.functions";
 import { paymentMethods, type PaymentMethod } from "@/lib/payments";
-import { formatPrice } from "@/lib/format";
+import { formatBdt } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,7 +89,7 @@ function CheckoutPage() {
 
         <div className="rounded-xl bg-muted p-4 text-sm">
           <p className="font-semibold text-foreground">টাকা পাঠান: {pm.account}</p>
-          <p className="mt-1 font-semibold text-primary">পরিমাণ: {formatPrice(item.price)}</p>
+          <p className="mt-1 font-semibold text-primary">পরিমাণ: {formatBdt(item.price)}</p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-muted-foreground">
             {pm.instructions.map((s) => <li key={s}>{s}</li>)}
           </ol>
@@ -117,7 +117,7 @@ function CheckoutPage() {
         <h2 className="mt-1 font-bold text-foreground">{item.name}</h2>
         <div className="mt-4 flex justify-between border-t border-border pt-4 font-bold">
           <span>মোট</span>
-          <span className="text-primary">{formatPrice(item.price)}</span>
+          <span className="text-primary">{formatBdt(item.price)}</span>
         </div>
       </aside>
     </div>

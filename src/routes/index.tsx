@@ -90,10 +90,10 @@ function Index() {
           <div className="relative">
             <img
               src={heroImage}
-              alt="ল্যাপটপ, ভিডিও, বই ও ডিজাইনের জিনিস হাতে অক্টোপাস মাসকট"
-              width={1200}
+              alt="ল্যাপটপে অনলাইন কোর্স, ই-বুক, হেডফোন ও ডিজিটাল প্রোডাক্ট"
+              width={1600}
               height={1008}
-              className="w-full rounded-3xl"
+              className="w-full mix-blend-multiply [mask-image:radial-gradient(ellipse_at_center,black_45%,transparent_75%)]"
             />
           </div>
         </div>

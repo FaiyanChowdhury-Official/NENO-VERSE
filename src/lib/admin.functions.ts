@@ -241,7 +241,7 @@ export const adminSaveItem = adminFn(itemSchema).handler(async ({ data, context 
     else {
       const { data: ins, error } = await sb.from("lessons").insert(payload).select("id").single();
       fail(error);
-      lessonId = ins.id;
+      lessonId = ins!.id;
     }
     fail((await sb.from("lesson_videos").upsert({ lesson_id: lessonId, video_url: l.video_url })).error);
   }

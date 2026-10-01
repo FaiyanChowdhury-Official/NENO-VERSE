@@ -103,11 +103,13 @@ function AdminPage() {
                   onClick={() => setSection(item.id)}
                   className={`flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium sm:px-3.5 sm:py-2.5 transition-colors ${
                     section === item.id
-                      ? "bg-primary-soft text-primary-soft-foreground"
+                      ? "bg-primary text-primary-foreground shadow-cta"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  <item.icon className="h-4 w-4" />
+                  <span className={`flex size-7 items-center justify-center rounded-lg ${section === item.id ? "bg-white/20 text-primary-foreground" : CHIPS[item.chip]}`}>
+                    <item.icon className="h-4 w-4" />
+                  </span>
                   {item.label}
                 </button>
               ))}
@@ -152,10 +154,10 @@ function StatsRow() {
   const stats = useQuery({ queryKey: ["admin-stats"], queryFn: () => statsFn() });
   const s = stats.data;
   const cards = [
-    { label: "মোট আয়", value: s ? formatBdt(s.revenue) : "—", icon: Wallet },
-    { label: "মোট অর্ডার", value: s ? String(s.orders) : "—", icon: ShoppingCart },
-    { label: "অপেক্ষমাণ অর্ডার", value: s ? String(s.pending) : "—", icon: Clock },
-    { label: "গ্রাহক", value: s ? String(s.customers) : "—", icon: Users },
+    { label: "মোট আয়", value: s ? formatBdt(s.revenue) : "—", icon: Wallet, chip: 0 },
+    { label: "মোট অর্ডার", value: s ? String(s.orders) : "—", icon: ShoppingCart, chip: 3 },
+    { label: "অপেক্ষমাণ অর্ডার", value: s ? String(s.pending) : "—", icon: Clock, chip: 4 },
+    { label: "গ্রাহক", value: s ? String(s.customers) : "—", icon: Users, chip: 2 },
   ];
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
@@ -163,7 +165,7 @@ function StatsRow() {
         <div key={c.label} className="rounded-2xl border border-border bg-card p-3.5 shadow-card sm:p-5">
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs text-muted-foreground sm:text-sm">{c.label}</p>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 bg-primary-soft text-primary-soft-foreground">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 ${CHIPS[c.chip]}`}>
               <c.icon className="h-4 w-4" />
             </span>
           </div>

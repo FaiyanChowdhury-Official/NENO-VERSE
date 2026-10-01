@@ -128,8 +128,9 @@ export const getMyLibrary = createServerFn({ method: "GET" })
         accessType: item.access_type,
         note: item.access_note,
         expiresAt,
-        linkUrl: hasLink ? link!.url : null,
-        linkLabel: hasLink ? link!.label || "অ্যাক্সেস লিংক খুলুন" : null,
+        // Raw link is never sent to the browser here; it is opened via openItemAccess after checks.
+        hasLink,
+        linkLabel: hasLink ? link!.label || "অ্যাক্সেস খুলুন" : null,
       };
     });
   });
@@ -167,7 +168,7 @@ export const getCourseContent = createServerFn({ method: "GET" })
  */
 export const getLessonStream = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ lessonId: z.string().uuid() }).parse(d))
+  .inputValidator((d) => z.object({ lessonId: z.string().uuid(), deviceId: z.string().min(8).max(64) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: lesson } = await supabaseAdmin
@@ -180,6 +181,8 @@ export const getLessonStream = createServerFn({ method: "POST" })
     const ents = await activeEntitlements(context.supabase, context.userId);
     const ent = ents.find((e) => e.item.kind === item.kind && e.item.slug === item.slug);
     if (!ent || ent.item.access_type === "link") throw new Error("Forbidden");
+    const guard = await deviceGuard(context.userId, data.deviceId, item.kind, item.slug, "lesson_play");
+    if (!guard.ok) return { kind: "blocked" as const, src: "", email: "", reason: guard.reason };
     const lv = (lesson as any).lesson_videos;
     const url: string = (Array.isArray(lv) ? lv[0] : lv)?.video_url ?? "";
     const email = (context.claims as { email?: string }).email ?? "";
@@ -187,7 +190,7 @@ export const getLessonStream = createServerFn({ method: "POST" })
     if (url.startsWith("storage:")) {
       const { data: signed, error } = await supabaseAdmin.storage
         .from("course-videos")
-        .createSignedUrl(url.slice("storage:".length), 60 * 10); // 10 minutes
+        .createSignedUrl(url.slice("storage:".length), 60 * 5); // 5 minutes
       if (error || !signed) throw new Error("ভিডিও লোড হয়নি");
       return { kind: "file" as const, src: signed.signedUrl, email };
     }
@@ -208,4 +211,53 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("profiles").update({ full_name: data.fullName, phone: data.phone }).eq("id", context.userId);
     if (error) throw new Error("প্রোফাইল সংরক্ষণ হয়নি");
     return { ok: true };
+  });
+
+const MAX_DEVICES = 2;
+
+/**
+ * Account-sharing guard: each account may use at most MAX_DEVICES devices.
+ * Every content access is logged (device, IP, user agent) for admin review.
+ */
+async function deviceGuard(userId: string, deviceId: string, kind: string, slug: string, action: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { getRequestHeader } = await import("@tanstack/react-start/server");
+  const ip = (getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for") || "").split(",")[0].trim().slice(0, 64);
+  const ua = (getRequestHeader("user-agent") || "").slice(0, 300);
+  const { data: devices } = await supabaseAdmin.from("user_devices").select("device_id").eq("user_id", userId);
+  const known = (devices ?? []).some((d) => d.device_id === deviceId);
+  let blocked = false;
+  if (!known && (devices ?? []).length >= MAX_DEVICES) blocked = true;
+  else if (!known) await supabaseAdmin.from("user_devices").insert({ user_id: userId, device_id: deviceId, user_agent: ua, ip });
+  else await supabaseAdmin.from("user_devices").update({ last_seen: new Date().toISOString(), ip, user_agent: ua }).eq("user_id", userId).eq("device_id", deviceId);
+  await supabaseAdmin.from("access_logs").insert({ user_id: userId, item_kind: kind, item_slug: slug, action, device_id: deviceId, ip, user_agent: ua, blocked });
+  return blocked
+    ? { ok: false as const, reason: `এই অ্যাকাউন্ট সর্বোচ্চ ${MAX_DEVICES}টি ডিভাইসে ব্যবহার করা যায়। নতুন ডিভাইস যোগ করতে সাপোর্টে যোগাযোগ করুন।` }
+    : { ok: true as const };
+}
+
+/** Opens a product's protected content inside the site, only for entitled users on an allowed device. */
+export const openItemAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ kind: z.enum(["product", "course"]), slug: z.string().min(1).max(120), deviceId: z.string().min(8).max(64) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const email = (context.claims as { email?: string }).email ?? "";
+    const ents = await activeEntitlements(context.supabase, context.userId);
+    const ent = ents.find((e) => e.item.kind === data.kind && e.item.slug === data.slug);
+    if (!ent || ent.item.access_type === "lessons") return { kind: "denied" as const, reason: "এই আইটেমে আপনার অ্যাক্সেস নেই বা মেয়াদ শেষ।", email };
+    const guard = await deviceGuard(context.userId, data.deviceId, data.kind, data.slug, "item_open");
+    if (!guard.ok) return { kind: "denied" as const, reason: guard.reason, email };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: link } = await supabaseAdmin.from("item_links").select("url,label").eq("item_id", ent.item.id).maybeSingle();
+    const url = link?.url ?? "";
+    const base = { name: ent.item.name, note: ent.item.access_note, expiresAt: ent.expiresAt, email, label: link?.label || "অ্যাক্সেস খুলুন" };
+    if (!url) return { kind: "pending" as const, ...base };
+    if (url.startsWith("storage:")) {
+      const path = url.slice("storage:".length);
+      const { data: signed, error } = await supabaseAdmin.storage.from("product-files").createSignedUrl(path, 60 * 2);
+      if (error || !signed) return { kind: "denied" as const, reason: "ফাইল লোড হয়নি, আবার চেষ্টা করুন।", email };
+      const ext = path.split(".").pop()?.toLowerCase() ?? "";
+      return { kind: "file" as const, src: signed.signedUrl, ext, ...base };
+    }
+    return { kind: "external" as const, src: url, ...base };
   });

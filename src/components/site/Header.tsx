@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -49,7 +49,10 @@ export function Header() {
           ))}
         </nav>
 
-        {user && <div className="ml-auto md:hidden"><NotificationBell userId={user.id} /></div>}
+        <Link to="/search" aria-label="খুঁজুন" className="ml-auto rounded-full p-2 text-muted-foreground hover:bg-primary-soft hover:text-foreground md:ml-0">
+          <Search className="size-5" />
+        </Link>
+        {user && <div className="md:hidden"><NotificationBell userId={user.id} /></div>}
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
             <>

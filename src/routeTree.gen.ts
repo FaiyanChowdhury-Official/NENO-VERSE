@@ -29,6 +29,8 @@ import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminSectionRouteImport } from './routes/_authenticated/admin.$section'
 import { Route as AuthenticatedLearnSlugRouteImport } from './routes/_authenticated/learn.$slug'
 import { Route as AuthenticatedAccessKindSlugRouteImport } from './routes/_authenticated/access.$kind.$slug'
 
@@ -131,6 +133,17 @@ const ProductsSlugRoute = ProductsSlugRouteImport.update({
   path: '/products/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminSectionRoute =
+  AuthenticatedAdminSectionRouteImport.update({
+    id: '/$section',
+    path: '/$section',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedLearnSlugRoute = AuthenticatedLearnSlugRouteImport.update({
   id: '/learn/$slug',
   path: '/learn/$slug',
@@ -156,14 +169,16 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/courses/': typeof CoursesIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/admin/$section': typeof AuthenticatedAdminSectionRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/access/$kind/$slug': typeof AuthenticatedAccessKindSlugRoute
 }
 export interface FileRoutesByTo {
@@ -179,14 +194,15 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
-  '/admin': typeof AuthenticatedAdminRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/courses': typeof CoursesIndexRoute
   '/products': typeof ProductsIndexRoute
+  '/admin/$section': typeof AuthenticatedAdminSectionRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/access/$kind/$slug': typeof AuthenticatedAccessKindSlugRoute
 }
 export interface FileRoutesById {
@@ -204,14 +220,16 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/courses/': typeof CoursesIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/_authenticated/admin/$section': typeof AuthenticatedAdminSectionRoute
   '/_authenticated/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/access/$kind/$slug': typeof AuthenticatedAccessKindSlugRoute
 }
 export interface FileRouteTypes {
@@ -236,7 +254,9 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/courses/'
     | '/products/'
+    | '/admin/$section'
     | '/learn/$slug'
+    | '/admin/'
     | '/access/$kind/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -252,14 +272,15 @@ export interface FileRouteTypes {
     | '/search'
     | '/support'
     | '/terms'
-    | '/admin'
     | '/checkout'
     | '/dashboard'
     | '/courses/$slug'
     | '/products/$slug'
     | '/courses'
     | '/products'
+    | '/admin/$section'
     | '/learn/$slug'
+    | '/admin'
     | '/access/$kind/$slug'
   id:
     | '__root__'
@@ -283,7 +304,9 @@ export interface FileRouteTypes {
     | '/products/$slug'
     | '/courses/'
     | '/products/'
+    | '/_authenticated/admin/$section'
     | '/_authenticated/learn/$slug'
+    | '/_authenticated/admin/'
     | '/_authenticated/access/$kind/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -449,6 +472,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/$section': {
+      id: '/_authenticated/admin/$section'
+      path: '/$section'
+      fullPath: '/admin/$section'
+      preLoaderRoute: typeof AuthenticatedAdminSectionRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/learn/$slug': {
       id: '/_authenticated/learn/$slug'
       path: '/learn/$slug'
@@ -466,8 +503,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminSectionRoute: typeof AuthenticatedAdminSectionRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminSectionRoute: AuthenticatedAdminSectionRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLearnSlugRoute: typeof AuthenticatedLearnSlugRoute
@@ -475,7 +525,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLearnSlugRoute: AuthenticatedLearnSlugRoute,

@@ -151,9 +151,42 @@ export const getCourseContent = createServerFn({ method: "GET" })
         module: l.module_title as string,
         title: l.title as string,
         duration: l.duration as string,
-        videoUrl: ((Array.isArray(l.lesson_videos) ? l.lesson_videos[0] : l.lesson_videos)?.video_url ?? "") as string,
+        hasVideo: !!(Array.isArray(l.lesson_videos) ? l.lesson_videos[0] : l.lesson_videos)?.video_url,
       })),
     };
+  });
+
+/**
+ * Returns a playable source for ONE lesson, only to entitled users.
+ * Uploaded files live in a private bucket and are served via a short-lived signed URL.
+ */
+export const getLessonStream = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ lessonId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: lesson } = await supabaseAdmin
+      .from("lessons")
+      .select("item_id,lesson_videos(video_url),items(kind,slug)")
+      .eq("id", data.lessonId)
+      .maybeSingle();
+    const item = (lesson as any)?.items;
+    if (!lesson || !item) throw new Error("Not found");
+    const ents = await activeEntitlements(context.supabase, context.userId);
+    const ent = ents.find((e) => e.item.kind === item.kind && e.item.slug === item.slug);
+    if (!ent || ent.item.access_type === "link") throw new Error("Forbidden");
+    const lv = (lesson as any).lesson_videos;
+    const url: string = (Array.isArray(lv) ? lv[0] : lv)?.video_url ?? "";
+    const email = (context.claims as { email?: string }).email ?? "";
+    if (!url) return { kind: "none" as const, src: "", email };
+    if (url.startsWith("storage:")) {
+      const { data: signed, error } = await supabaseAdmin.storage
+        .from("course-videos")
+        .createSignedUrl(url.slice("storage:".length), 60 * 10); // 10 minutes
+      if (error || !signed) throw new Error("ভিডিও লোড হয়নি");
+      return { kind: "file" as const, src: signed.signedUrl, email };
+    }
+    return { kind: "external" as const, src: url, email };
   });
 
 export const getMyProfile = createServerFn({ method: "GET" })

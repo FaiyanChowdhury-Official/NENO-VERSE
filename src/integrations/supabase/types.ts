@@ -801,7 +801,7 @@ export type Database = {
         | "support_manager"
       item_type: "product" | "course"
       order_status: "pending" | "approved" | "rejected"
-      payment_method: "bkash" | "rocket" | "bank" | "manual"
+      payment_method: "bkash" | "rocket" | "nagad" | "bank" | "manual"
       ticket_status:
         | "open"
         | "in_progress"
@@ -945,7 +945,7 @@ export const Constants = {
       ],
       item_type: ["product", "course"],
       order_status: ["pending", "approved", "rejected"],
-      payment_method: ["bkash", "rocket", "bank", "manual"],
+      payment_method: ["bkash", "rocket", "nagad", "bank", "manual"],
       ticket_status: [
         "open",
         "in_progress",

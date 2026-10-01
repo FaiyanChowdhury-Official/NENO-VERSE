@@ -113,7 +113,7 @@ function Index() {
       </section>
 
       {/* Featured products */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <section className={`mx-auto max-w-6xl px-4 py-20 sm:px-6 ${sf.show_products ? "" : "hidden"}`}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
@@ -135,7 +135,7 @@ function Index() {
       </section>
 
       {/* Featured courses */}
-      <section className="bg-card py-20">
+      <section className={`bg-card py-20 ${sf.show_courses ? "" : "hidden"}`}>
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -180,7 +180,7 @@ function Index() {
           ))}
         </div>
       </section>
-      <SuccessStories />
+      {sf.show_stories && <SuccessStories />}
     </div>
   );
 }

@@ -120,10 +120,11 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
   const showLessons = v.access_type !== "link";
   const showLink = v.access_type !== "lessons";
 
-  async function onSave() {
+  async function onSave(patch: Partial<AdminItemInput> = {}) {
     if (!v) return;
     setBusy(true);
-    const ok = await run(() => save({ data: v }), "সংরক্ষণ হয়েছে", [["admin-items"], ["admin-item", id ?? ""]]);
+    const data = { ...v, ...patch };
+    const ok = await run(() => save({ data }), data.published ? "প্রকাশিত হয়েছে" : "খসড়া সংরক্ষণ হয়েছে", [["admin-items"], ["admin-item", id ?? ""]]);
     setBusy(false);
     if (ok) onDone();
   }
@@ -138,8 +139,22 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
     set("lessons", next);
   };
 
+  const steps = [
+    { t: "মূল তথ্য", done: !!(v.name && v.slug && v.category_slug) },
+    { t: "দাম", done: v.price > 0 },
+    ...(showLessons ? [{ t: isCourse ? "মডিউল ও ভিডিও" : "কনটেন্ট", done: lessons.length > 0 && lessons.every((l) => l.title && l.video_url) }] : []),
+    ...(showLink ? [{ t: "অ্যাক্সেস লিংক", done: !!v.link_url }] : []),
+    { t: "প্রকাশ", done: v.published },
+  ];
   return (
     <div className="space-y-6">
+      <ol className="flex flex-wrap gap-2 rounded-xl bg-muted/60 p-3 text-xs">
+        {steps.map((s, i) => (
+          <li key={s.t} className={`flex items-center gap-1.5 rounded-full px-3 py-1 font-medium ${s.done ? "bg-primary text-primary-foreground" : "bg-background text-muted-foreground"}`}>
+            <span>{s.done ? "✓" : (i + 1).toLocaleString("bn-BD")}</span>{s.t}
+          </li>
+        ))}
+      </ol>
       <Section title="মূল তথ্য">
         <Field label="নাম"><Input value={v.name} onChange={(e) => set("name", e.target.value)} /></Field>
         <Field label="স্লাগ (লিংকে দেখাবে, ইংরেজি ছোট হাতের)">
@@ -277,9 +292,10 @@ function ItemEditor({ id, kind, onDone }: { id?: string | undefined; kind: "prod
         <Field label="ক্রম (ছোট সংখ্যা আগে দেখাবে)"><Input type="number" value={v.sort_order} onChange={(e) => set("sort_order", Number(e.target.value))} /></Field>
       </Section>
 
-      <div className="sticky bottom-0 flex justify-end gap-2 border-t border-border bg-background pt-4">
+      <div className="sticky bottom-0 flex flex-wrap justify-end gap-2 border-t border-border bg-background pt-4">
         <Button variant="ghost" onClick={onDone}>বাতিল</Button>
-        <Button onClick={onSave} disabled={busy || !v.name || !v.slug}>{busy ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ করুন"}</Button>
+        <Button variant="outline" onClick={() => onSave({ published: false })} disabled={busy || !v.name || !v.slug}>খসড়া হিসেবে রাখুন</Button>
+        <Button onClick={() => onSave({ published: true })} disabled={busy || !v.name || !v.slug}>{busy ? "সংরক্ষণ হচ্ছে..." : "প্রকাশ করুন"}</Button>
       </div>
     </div>
   );

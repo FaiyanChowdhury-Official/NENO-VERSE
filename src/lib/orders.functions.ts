@@ -41,6 +41,20 @@ export const createOrder = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (["bkash", "rocket"].includes(data.paymentMethod) && !data.paymentProof.startsWith(`${context.userId}/`)) {
+      return { ok: false as const, error: "পেমেন্টের স্ক্রিনশট দিন" };
+    }
+    if (data.paymentProof) {
+      if (!data.paymentProof.startsWith(`${context.userId}/`)) return { ok: false as const, error: "পেমেন্ট প্রমাণটি গ্রহণ করা যায়নি" };
+      const fileName = data.paymentProof.slice(context.userId.length + 1);
+      const { data: objects, error: proofError } = await supabaseAdmin.storage.from("payment-proofs").list(context.userId, { search: fileName, limit: 10 });
+      const proof = objects?.find((object) => object.name === fileName);
+      const mime = String(proof?.metadata?.mimetype ?? proof?.metadata?.contentType ?? "");
+      const size = Number(proof?.metadata?.size ?? 0);
+      if (proofError || !proof || !["image/png", "image/jpeg", "image/webp"].includes(mime) || size <= 0 || size > 5 * 1024 * 1024) {
+        return { ok: false as const, error: "পেমেন্টের স্ক্রিনশটটি সঠিক নয়" };
+      }
+    }
     // Outlet-specific price (server-side only)
     let amount = item.price;
     let outletSlug = "";
@@ -82,6 +96,7 @@ export const listMyOrders = createServerFn({ method: "GET" })
       .from("orders")
       .select("id,item_type,item_slug,item_name,amount,payment_method,transaction_id,status,created_at,approved_at,delivery_status,delivery_note,delivered_at")
       .eq("user_id", context.userId)
+      .is("deleted_at", null)
       .order("created_at", { ascending: false });
     if (error) throw new Error("অর্ডার লোড করা যায়নি");
     return data;
@@ -104,7 +119,8 @@ async function activeEntitlements(supabase: any, userId: string) {
     .from("orders")
     .select("item_type,item_slug,approved_at,created_at")
     .eq("user_id", userId)
-    .eq("status", "approved");
+    .eq("status", "approved")
+    .is("deleted_at", null);
   if (!orders?.length) return [] as { item: AccessItem; expiresAt: string | null }[];
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: items } = await supabaseAdmin

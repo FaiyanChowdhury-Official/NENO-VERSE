@@ -76,6 +76,7 @@ export const adminAddStaff = createServerFn({ method: "POST" })
   if (!prof) throw new Error("এই ইমেইলে কোনো অ্যাকাউন্ট নেই — আগে তাকে রেজিস্টার করতে বলুন।");
   const { error } = await supabaseAdmin.from("user_roles").upsert({ user_id: prof.id, role: data.role as never }, { onConflict: "user_id,role" });
   fail(error);
+  fail((await supabaseAdmin.from("audit_logs").insert({ actor_id: context.userId, action: "role_insert", target: prof.id, metadata: { role: data.role } })).error);
   return { ok: true };
 });
 
@@ -88,6 +89,7 @@ export const adminRemoveStaff = createServerFn({ method: "POST" })
   if (row?.user_id === context.userId && row.role === "admin") throw new Error("নিজের অ্যাডমিন রোল মুছতে পারবেন না।");
   const { error } = await supabaseAdmin.from("user_roles").delete().eq("id", data.id);
   fail(error);
+  if (row) fail((await supabaseAdmin.from("audit_logs").insert({ actor_id: context.userId, action: "role_delete", target: row.user_id, metadata: { role: row.role } })).error);
   return { ok: true };
 });
 
@@ -98,7 +100,7 @@ export const adminListOrders = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertArea(context, "finance");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: orders, error } = await supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false }).limit(500);
+    const { data: orders, error } = await supabaseAdmin.from("orders").select("*").is("deleted_at", null).order("created_at", { ascending: false }).limit(500);
     if (error) throw new Error("লোড হয়নি");
     const ids = [...new Set(orders.map((o) => o.user_id))];
     const { data: profiles } = ids.length
@@ -118,6 +120,7 @@ export const adminUpdateOrder = createServerFn({ method: "POST" })
     .update({ status: data.status, approved_at: data.status === "approved" ? new Date().toISOString() : null })
     .eq("id", data.id);
   fail(error, "আপডেট হয়নি");
+  fail((await supabaseAdmin.from("audit_logs").insert({ actor_id: context.userId, action: `order_${data.status}`, target: data.id, metadata: { source: "admin" } })).error);
   return { ok: true };
 });
 
@@ -131,6 +134,7 @@ export const adminUpdateDelivery = createServerFn({ method: "POST" })
     .update({ delivery_status: data.delivery_status, delivery_note: data.delivery_note, delivered_at: data.delivery_status === "delivered" ? new Date().toISOString() : null })
     .eq("id", data.id);
   fail(error, "আপডেট হয়নি");
+  fail((await supabaseAdmin.from("audit_logs").insert({ actor_id: context.userId, action: "order_delivery_updated", target: data.id, metadata: { delivery_status: data.delivery_status } })).error);
   return { ok: true };
 });
 
@@ -139,8 +143,9 @@ export const adminDeleteOrder = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => (z.object({ id: z.string().uuid() })).parse(d)).handler(async ({ data, context }) => {
   await assertArea(context, "finance");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { error } = await supabaseAdmin.from("orders").delete().eq("id", data.id);
-  fail(error, "ডিলিট হয়নি");
+  const { error } = await supabaseAdmin.from("orders").update({ deleted_at: new Date().toISOString() }).eq("id", data.id).is("deleted_at", null);
+  fail(error, "আর্কাইভ হয়নি");
+  fail((await supabaseAdmin.from("audit_logs").insert({ actor_id: context.userId, action: "order_archived", target: data.id, metadata: {} })).error);
   return { ok: true };
 });
 
@@ -167,6 +172,7 @@ export const adminGrantAccess = createServerFn({ method: "POST" })
     approved_at: new Date().toISOString(),
   });
   fail(error);
+  fail((await supabaseAdmin.from("audit_logs").insert({ actor_id: context.userId, action: "access_granted", target: user.id, metadata: { kind: data.kind, slug: data.slug } })).error);
   return { ok: true };
 });
 
@@ -412,7 +418,7 @@ export const adminStats = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertArea(context, "finance");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: orders } = await supabaseAdmin.from("orders").select("status,amount");
+    const { data: orders } = await supabaseAdmin.from("orders").select("status,amount").is("deleted_at", null);
     const { count: customers } = await supabaseAdmin.from("profiles").select("id", { count: "exact", head: true });
     const all = orders ?? [];
     const approved = all.filter((o) => o.status === "approved");

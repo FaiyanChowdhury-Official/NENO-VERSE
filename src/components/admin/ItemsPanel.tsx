@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ConfirmDelete, useAdminAction } from "./shared";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ImageIcon } from "lucide-react";
 
 const accessLabels = { lessons: "ড্যাশবোর্ডে ভিডিও", link: "লিংকের মাধ্যমে", both: "ভিডিও + লিংক" } as const;
 
@@ -74,7 +75,7 @@ export function ItemsPanel() {
         <div className="space-y-2">
           {rows.map((i) => (
             <div key={i.id} className="surface-card flex flex-wrap items-center gap-4 p-3">
-              {i.image_url ? <img src={i.image_url} alt="" className="h-14 w-24 rounded-lg object-cover" /> : <div className="h-14 w-24 rounded-lg bg-muted" />}
+              {i.image_url ? <img src={i.image_url} alt="" className="h-14 w-24 rounded-lg object-cover" /> : <div className="flex h-14 w-24 items-center justify-center rounded-lg bg-muted"><ImageIcon className="size-5 text-muted-foreground" /></div>}
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-foreground">{i.name}</p>
                 <p className="text-xs text-subtle-foreground">
@@ -405,6 +406,7 @@ function ThumbnailUpload({ value, onChange }: { value: string; onChange: (url: s
               e.target.value = "";
               if (!file) return;
               if (file.size > 5 * 1024 * 1024) { toast.error("ছবি ৫MB-এর কম হতে হবে"); return; }
+              if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { toast.error("শুধু PNG, JPG বা WebP ছবি দিন"); return; }
               setBusy(true);
               const path = `${crypto.randomUUID()}.${(file.name.split(".").pop() ?? "jpg").toLowerCase()}`;
               const up = await supabase.storage.from("thumbnails").upload(path, file, { contentType: file.type });

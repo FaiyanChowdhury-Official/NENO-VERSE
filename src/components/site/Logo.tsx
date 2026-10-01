@@ -1,0 +1,20 @@
+import { Link } from "@tanstack/react-router";
+import mark from "@/assets/octopus-mark.png";
+import { cn } from "@/lib/utils";
+
+export function Logo({ className }: { className?: string }) {
+  return (
+    <Link to="/" className={cn("flex items-center gap-2", className)} aria-label="অক্টোপাস — হোম">
+      <img
+        src={mark}
+        alt="অক্টোপাস লোগো"
+        width={40}
+        height={40}
+        className="h-9 w-9 object-contain"
+      />
+      <span className="text-xl font-extrabold tracking-tight text-foreground">
+        অক্টো<span className="text-primary">পাস</span>
+      </span>
+    </Link>
+  );
+}
